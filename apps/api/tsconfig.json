@@ -1,0 +1,10 @@
+{
+  "extends": "@katauser/tsconfig/base.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": "./dist"
+  },
+  "include": ["src/**/*", "tests/**/*"]
+}
+
