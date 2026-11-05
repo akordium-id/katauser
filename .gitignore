@@ -1,7 +1,9 @@
 .DS_Store
 node_modules
 /build
-/.svelte-kit
+**/.svelte-kit
+.svelte-kit
+.turbo
 /package
 .env
 .env.*
@@ -10,3 +12,4 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
 .serena/
+.superpowers/

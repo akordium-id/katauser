@@ -29,7 +29,7 @@
       const searchData = await response.json()
       if (searchData && searchData.index && searchData.indexData) {
         const index = Fuse.parseIndex(searchData.index)
-        fuse = new Fuse<Result>(searchData.indexData, fuseOptions, index)
+        fuse = new Fuse<any>(searchData.indexData, fuseOptions, index)
       }
     } catch (e) {
       console.error("Failed to load search data", e)
@@ -54,7 +54,7 @@
   let searchQuery = $state(decodeURIComponent($page.url.hash.slice(1) ?? ""))
   $effect(() => {
     if (fuse) {
-      results = fuse.search(searchQuery)
+      results = fuse.search(searchQuery) as any
     }
   })
   // Update the URL hash when searchQuery changes so the browser can bookmark/share the search results
