@@ -3,3 +3,4 @@ export * from './workspaces';
 export * from './feedback';
 export * from './ai';
 export * from './changelog';
+export * from './chat';
