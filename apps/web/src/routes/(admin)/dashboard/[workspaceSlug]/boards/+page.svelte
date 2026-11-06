@@ -72,6 +72,12 @@
 
       <div class="flex items-center gap-2">
         <a
+          href="/dashboard/{data.workspaceSlug}/settings/ai"
+          class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-xs"
+        >
+          <span>🤖 AI Juno Docs</span>
+        </a>
+        <a
           href="/dashboard/{data.workspaceSlug}/settings/integrations"
           class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-xs"
         >

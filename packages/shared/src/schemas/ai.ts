@@ -25,3 +25,4 @@ export const similarPostsQuerySchema = z.object({
 });
 
 export type SimilarPostsQueryInput = z.infer<typeof similarPostsQuerySchema>;
+
