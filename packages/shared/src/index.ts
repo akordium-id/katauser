@@ -6,3 +6,4 @@ export * from './schemas/widget';
 export * from './schemas/chat';
 export * from './schemas/domain';
 export * from './schemas/traits';
+export * from './schemas/integrations';
