@@ -66,3 +66,4 @@ Menggunakan **PostgreSQL 16** dengan schema modular Drizzle:
 - **Trusted Proxy Awareness**: Middleware membaca `cf-connecting-ip` (Cloudflare) dan `x-forwarded-for` (Traefik/Coolify).
 - **HMAC Identity Verification**: Validasi identitas user widget menggunakan workspace secret token (`crypto.createHmac('sha256')`).
 - **Sliding-window Rate Limiter**: Membatasi brute-force verifikasi DNS dan abuse API.
+

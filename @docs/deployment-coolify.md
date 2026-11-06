@@ -89,3 +89,4 @@ pnpm --filter @katauser/db migrate
 
 - **API Health**: `curl -f https://api.katauser.com/health` (harus mengembalikan `200 OK {"status":"ok"}`).
 - **Web App**: Akses `https://katauser.com` via browser untuk memastikan SSR bundle berjalan lancar.
+

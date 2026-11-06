@@ -93,3 +93,4 @@ Widget Katauser sepenuhnya dirender di dalam Shadow DOM:
 - CSS host tidak akan merusak layout widget.
 - Style widget tidak akan bocor ke aplikasi induk.
 - Ukuran bundle sangat ringan (~27 kB gzipped) tanpa runtime eksternal.
+
