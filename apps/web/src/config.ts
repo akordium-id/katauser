@@ -1,5 +1,5 @@
-export const WebsiteName: string = "SaaS Starter"
-export const WebsiteBaseUrl: string = "https://saasstarter.work"
+export const WebsiteName: string = "Katauser"
+export const WebsiteBaseUrl: string = "https://katauser.com"
 export const WebsiteDescription: string =
-  "Open source, fast, and free to host SaaS template. Built with SvelteKit, Supabase, Stripe, Tailwind, DaisyUI, and Postgres"
-export const CreateProfileStep: boolean = true
+  "Modern User Feedback, Product Roadmap, and Changelog Platform. Built with SvelteKit, Hono, Drizzle ORM, Tailwind, and PostgreSQL."
+export const CreateProfileStep: boolean = false

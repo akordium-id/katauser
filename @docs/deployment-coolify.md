@@ -35,7 +35,7 @@ graph TD
 - **Redis**: Add Managed Redis.
 
 > [!NOTE]
-> Seluruh layanan mensyaratkan **Node.js >= 22 (LTS)** karena dependensi `@supabase/supabase-js@2.119.0` memiliki engine constraint `node: >=22.0.0`. Dockerfile multi-stage di `docker/Dockerfile.api` dan `docker/Dockerfile.web` sudah menggunakan base image `node:22-alpine`. Jika menggunakan Nixpacks di Coolify, set environment variable `NIXPACKS_NODE_VERSION=22`.
+> Katauser sepenuhnya 100% self-hosted dan self-contained (PostgreSQL + Redis + Hono + SvelteKit) tanpa ketergantungan vendor eksternal (Supabase telah sepenuhnya dihapus). Dockerfile multi-stage di `docker/Dockerfile.api` dan `docker/Dockerfile.web` menggunakan base image `node:22-alpine`. Jika menggunakan Nixpacks di Coolify, set environment variable `NIXPACKS_NODE_VERSION=22`.
 
 ---
 

@@ -17,10 +17,10 @@
 
   const features = [
     {
-      name: "Free to host",
+      name: "Self-host Ready",
       description:
-        "Instructions included for Cloudflare+Supabase. Free to start, and cost effective to scale.",
-      link: "https://github.com/CriticalMoments/CMSaasStarter?tab=readme-ov-file#suggested-hosting-stack",
+        "Instructions included for Coolify & Docker self-hosting. Free to start, and cost effective to scale.",
+      link: "https://github.com/orin/katauser-app",
       linkText: "Docs",
       newPage: true,
       svgContent: `<path d="M4.01207 15.7618L5.70156 10.6933C6.46758 8.39525 6.85059 7.24623 7.75684 7.03229C8.6631 6.81835 9.51953 7.67478 11.2324 9.38764L14.6114 12.7666C16.3242 14.4795 17.1807 15.3359 16.9667 16.2422C16.7528 17.1484 15.6038 17.5314 13.3057 18.2975L8.23724 19.987C5.47183 20.9088 4.08912 21.3697 3.35924 20.6398C2.62936 19.9099 3.09026 18.5272 4.01207 15.7618Z" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/>
@@ -35,10 +35,10 @@
 <path d="M17.5 9.74145C17.7095 9.53198 18.0491 9.53198 18.2586 9.74145C18.468 9.95092 18.468 10.2905 18.2586 10.5C18.0491 10.7095 17.7095 10.7095 17.5 10.5C17.2905 10.2905 17.2905 9.95092 17.5 9.74145Z" fill="#1C274C"/>`,
     },
     {
-      name: "User Auth",
+      name: "Native Auth",
       link: "/login",
       description:
-        "Sign up, sign out, forgot password, email verification, and oAuth. Powered by Supabase Auth.",
+        "Sign up, sign out, session guard, and profile management. Powered by Native Auth & Drizzle ORM.",
       svgContent: `<path
                   d="M14.2084 13.5521C16.3025 13.5521 18 11.8615 18 9.77606C18 7.6906 16.3025 6 14.2084 6C12.1144 6 10.4169 7.6906 10.4169 9.77606C10.4169 10.742 10.8578 11.4446 10.8578 11.4446L6.27264 16.011C6.0669 16.2159 5.77886 16.7486 6.27264 17.2404L6.8017 17.7673C7.00743 17.9429 7.52471 18.1888 7.94796 17.7673L8.56519 17.1526C9.18242 17.7673 9.88782 17.416 10.1523 17.0647C10.5932 16.45 10.0642 15.8353 10.0642 15.8353L10.2405 15.6597C11.087 16.5027 11.8277 16.011 12.0922 15.6597C12.5331 15.045 12.0922 14.4303 12.0922 14.4303C11.9159 14.079 11.5632 14.079 12.004 13.64L12.5331 13.113C12.9564 13.4643 13.8264 13.5521 14.2084 13.5521Z"
                   stroke="#1C274C"
@@ -149,7 +149,7 @@
     {
       name: "Delightful Stack",
       description:
-        "Tools you'll love working with, including SvelteKit, Tailwind, DaisyUI, Postgres, and Supabase.",
+        "Tools you'll love working with, including SvelteKit, Hono, Tailwind, DaisyUI, Drizzle ORM, and Postgres.",
       linkText: "Docs",
       newPage: true,
       link: "https://github.com/CriticalMoments/CMSaasStarter?tab=readme-ov-file#tech-stack",
@@ -263,11 +263,11 @@
           class="link font-bold"
           target="_blank">SvelteKit</a
         >,
-        <a href="https://supabase.com" class="link font-bold" target="_blank"
-          >Supabase</a
+        <a href="https://hono.dev" class="link font-bold" target="_blank"
+          >Hono</a
         >,
-        <a href="https://stripe.com" class="link font-bold" target="_blank"
-          >Stripe</a
+        <a href="https://orm.drizzle.team" class="link font-bold" target="_blank"
+          >Drizzle</a
         >,
         <a href="https://tailwindcss.com" class="link font-bold" target="_blank"
           >Tailwind</a

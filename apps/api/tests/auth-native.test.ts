@@ -100,3 +100,4 @@ describe('Native Authentication API Routes', () => {
     expect(meJson.user.email).toBe(testUser.email);
   });
 });
+

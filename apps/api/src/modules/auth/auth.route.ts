@@ -180,3 +180,4 @@ export const authRoute = new Hono()
     deleteCookie(c, 'katauser_session', { path: '/' });
     return c.json({ success: true, message: 'Berhasil logout' });
   });
+

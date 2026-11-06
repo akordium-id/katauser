@@ -28,3 +28,4 @@ describe('Native Zero-Dependency Password Hasher', () => {
     expect(verifyPassword('test', 'invalid-format')).toBe(false);
   });
 });
+
