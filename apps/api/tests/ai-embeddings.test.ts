@@ -63,3 +63,4 @@ describe('AI Embeddings & Vector Similarity Engine', () => {
     expect(result).toEqual(mockVector);
   });
 });
+

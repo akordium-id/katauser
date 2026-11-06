@@ -65,26 +65,25 @@ export function cosineSimilarity(vecA: number[], vecB: number[]): number {
  */
 export function generateDeterministicVector(text: string, dimensions = 1536): number[] {
   const vec = new Array(dimensions).fill(0);
-  const normalizedText = text.toLowerCase().trim();
+  // Clean text and extract tokens
+  const clean = text.toLowerCase().replace(/[^a-z0-9\s]/g, ' ');
+  const words = clean.split(/\s+/).filter((w) => w.length > 1);
 
-  // Create hash seed
-  const hash = createHash('sha256').update(normalizedText).digest();
-
-  // Bag of words & n-gram projection into 1536 dimensions
-  const words = normalizedText.split(/\s+/);
-  for (let w = 0; w < words.length; w++) {
-    const word = words[w];
+  // Bag-of-words and trigrams
+  for (const word of words) {
     const wordHash = createHash('md5').update(word).digest();
-    for (let i = 0; i < 16; i++) {
-      const idx = (wordHash[i] * 97 + i * 31) % dimensions;
-      vec[idx] += 1.0 / (w + 1);
+    for (let i = 0; i < 8; i++) {
+      const idx = (wordHash[i] * 53 + i * 17) % dimensions;
+      vec[idx] += 2.0;
     }
-  }
 
-  // Base character hash projection
-  for (let i = 0; i < hash.length; i++) {
-    const idx = (i * 48) % dimensions;
-    vec[idx] += (hash[i] - 128) / 128;
+    // Trigrams for partial/stemming matches
+    for (let i = 0; i < word.length - 2; i++) {
+      const tri = word.substring(i, i + 3);
+      const triHash = createHash('md5').update(tri).digest();
+      const idx = (triHash[0] * 31 + triHash[1]) % dimensions;
+      vec[idx] += 1.0;
+    }
   }
 
   // Normalize to unit length (|v| = 1)
