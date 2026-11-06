@@ -49,3 +49,4 @@ describe('Widget Identify Schema & HMAC Verification', () => {
     expect(verifyUserHmac(secret, 'usr_impersonator', hmac)).toBe(false);
   });
 });
+

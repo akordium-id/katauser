@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createWidgetState } from '../src/sdk';
+import { Katauser } from '../src/index';
 
 describe('Katauser Widget State & SDK Core', () => {
   it('initializes with default closed state and feedback tab', () => {
@@ -33,19 +34,17 @@ describe('Katauser Widget State & SDK Core', () => {
     expect(state.activeTab).toBe('messages');
   });
 
-  it('stores workspace configuration and identified user', () => {
-    const state = createWidgetState();
-    state.init({ workspace: 'acme-corp', apiUrl: 'https://api.katauser.com' });
-    expect(state.workspaceId).toBe('acme-corp');
-    expect(state.apiUrl).toBe('https://api.katauser.com');
+  it('provides high-level Katauser SDK methods', () => {
+    Katauser.init({ workspace: 'kata-inc', apiUrl: 'http://localhost:3000' });
+    expect(Katauser.state.workspaceId).toBe('kata-inc');
 
-    state.setUser({
-      userId: 'usr_789',
-      email: 'member@acme.com',
-      name: 'Member Acme',
-      verified: true,
-    });
-    expect(state.user?.userId).toBe('usr_789');
-    expect(state.user?.verified).toBe(true);
+    Katauser.open();
+    expect(Katauser.state.isOpen).toBe(true);
+
+    Katauser.close();
+    expect(Katauser.state.isOpen).toBe(false);
+
+    Katauser.setTab('changelog');
+    expect(Katauser.state.activeTab).toBe('changelog');
   });
 });

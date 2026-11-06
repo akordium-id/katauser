@@ -66,3 +66,4 @@ describe('Widget Identify Hono API Route', () => {
     expect(typeof data.sessionToken).toBe('string');
   });
 });
+

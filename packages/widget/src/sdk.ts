@@ -88,3 +88,4 @@ export function createWidgetState() {
 
 export type WidgetState = ReturnType<typeof createWidgetState>;
 export const globalWidgetState = createWidgetState();
+
