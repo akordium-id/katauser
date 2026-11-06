@@ -15,16 +15,28 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
 
-      - name: NPM install
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
+
+      - name: Install dependencies
         run: pnpm install
 
       - name: Check Code Format
-        run: pnpm run format
+        run: pnpm exec prettier --check "**/*.{ts,js,json,svelte,md}"
 
       - name: Download go misspell utility
         run: go install github.com/client9/misspell/cmd/misspell@latest
 
-      - name: Run misspell to fine misspelled words
+      - name: Run misspell to find misspelled words
         run: misspell -error ./src README.md
