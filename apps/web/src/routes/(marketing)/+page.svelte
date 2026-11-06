@@ -4,6 +4,7 @@
   import SelfHostGrid from "./components/SelfHostGrid.svelte"
   import ComparisonSection from "./components/ComparisonSection.svelte"
   import FaqSection from "./components/FaqSection.svelte"
+  import { Check, ArrowDown } from "lucide-svelte"
 </script>
 
 <svelte:head>
@@ -70,9 +71,10 @@
         </a>
         <a
           href="#demo"
-          class="btn btn-outline btn-md sm:btn-lg font-semibold px-6 border-base-300 hover:border-primary w-full sm:w-auto"
+          class="btn btn-outline btn-md sm:btn-lg font-semibold px-6 border-base-300 hover:border-primary w-full sm:w-auto inline-flex items-center gap-2"
         >
-          Lihat Live Demo ↓
+          <span>Lihat Live Demo</span>
+          <ArrowDown class="w-4 h-4" />
         </a>
       </div>
 
@@ -81,17 +83,20 @@
         class="mt-10 flex flex-wrap items-center justify-center gap-6 text-xs text-base-content/60 font-medium"
       >
         <div class="flex items-center gap-1.5">
-          <span class="text-success font-bold">✓</span> Tanpa Vendor Lock-in
+          <Check class="w-4 h-4 text-success" />
+          <span>Tanpa Vendor Lock-in</span>
         </div>
         <div class="flex items-center gap-1.5">
-          <span class="text-success font-bold">✓</span> Unlimited Voters & Posts
+          <Check class="w-4 h-4 text-success" />
+          <span>Unlimited Voters & Posts</span>
         </div>
         <div class="flex items-center gap-1.5">
-          <span class="text-success font-bold">✓</span> Stack Ringan (Hono + Svelte
-          5)
+          <Check class="w-4 h-4 text-success" />
+          <span>Stack Ringan (Hono + Svelte 5)</span>
         </div>
         <div class="flex items-center gap-1.5">
-          <span class="text-success font-bold">✓</span> Deploy Coolify / Docker Ready
+          <Check class="w-4 h-4 text-success" />
+          <span>Deploy Coolify / Docker Ready</span>
         </div>
       </div>
     </div>

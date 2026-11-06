@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { Database, Cloud, ShieldCheck, Check, Copy } from "lucide-svelte"
+
   let copied = $state(false)
 
   const copyCommand = () => {
@@ -36,16 +38,22 @@
         class="mockup-code bg-slate-950 text-slate-200 text-xs sm:text-sm shadow-xl border border-slate-800"
       >
         <div
-          class="px-4 py-1 flex items-center justify-between border-b border-slate-800/80 mb-2"
+          class="px-4 py-1.5 flex items-center justify-between border-b border-slate-800/80 mb-2"
         >
           <span class="text-slate-400 font-mono text-xs"
             >Deploy dengan 1 Perintah Terminal</span
           >
           <button
             onclick={copyCommand}
-            class="btn btn-ghost btn-xs text-xs text-primary hover:bg-slate-800"
+            class="btn btn-ghost btn-xs text-xs text-primary hover:bg-slate-800 inline-flex items-center gap-1"
           >
-            {copied ? "✓ Tersalin!" : "Salin Perintah"}
+            {#if copied}
+              <Check class="w-3.5 h-3.5 text-success" />
+              <span class="text-success">Tersalin!</span>
+            {:else}
+              <Copy class="w-3.5 h-3.5" />
+              <span>Salin Perintah</span>
+            {/if}
           </button>
         </div>
         <pre data-prefix="$"><code
@@ -66,7 +74,7 @@
         <div
           class="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold text-xl mb-4"
         >
-          🐘
+          <Database class="w-6 h-6 text-primary" />
         </div>
         <h3 class="font-bold text-lg text-base-content mb-2">
           PostgreSQL & Drizzle ORM
@@ -84,7 +92,7 @@
         <div
           class="w-12 h-12 rounded-xl bg-warning/10 text-warning flex items-center justify-center font-bold text-xl mb-4"
         >
-          ☁️
+          <Cloud class="w-6 h-6 text-warning" />
         </div>
         <h3 class="font-bold text-lg text-base-content mb-2">
           Coolify & Nixpacks Ready
@@ -102,7 +110,7 @@
         <div
           class="w-12 h-12 rounded-xl bg-success/10 text-success flex items-center justify-center font-bold text-xl mb-4"
         >
-          🔒
+          <ShieldCheck class="w-6 h-6 text-success" />
         </div>
         <h3 class="font-bold text-lg text-base-content mb-2">
           Privasi & Kedaulatan Data

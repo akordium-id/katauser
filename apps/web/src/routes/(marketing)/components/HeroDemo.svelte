@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { Sparkles, ChevronUp } from "lucide-svelte"
+
   interface DemoPost {
     id: string
     title: string
@@ -128,14 +130,7 @@
               : 'bg-base-200/50 border-base-300 text-base-content/70 hover:bg-base-200'}"
             title={post.hasVoted ? 'Batal beri vote' : 'Beri vote'}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="w-4 h-4 transition-transform {post.hasVoted ? '-translate-y-0.5' : ''}"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd" />
-            </svg>
+            <ChevronUp class="w-4 h-4 transition-transform {post.hasVoted ? '-translate-y-0.5' : ''}" />
             <span class="text-xs sm:text-sm mt-0.5">{post.votes}</span>
           </button>
 
@@ -155,8 +150,9 @@
             <div class="flex items-center gap-2 text-xs flex-wrap">
               <span class="badge badge-ghost badge-sm text-xs font-normal">#{post.category}</span>
               {#if post.hasAiBadge}
-                <span class="inline-flex items-center gap-1 text-[11px] text-primary bg-primary/10 px-2 py-0.5 rounded-full font-medium">
-                  ✨ Juno AI: Similar suggestion detected
+                <span class="inline-flex items-center gap-1.5 text-[11px] text-primary bg-primary/10 px-2.5 py-0.5 rounded-full font-medium">
+                  <Sparkles class="w-3 h-3 text-primary shrink-0" />
+                  <span>Juno AI: Similar suggestion detected</span>
                 </span>
               {/if}
             </div>

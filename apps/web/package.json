@@ -48,8 +48,9 @@
   "dependencies": {
     "@katauser/api": "workspace:*",
     "@katauser/shared": "workspace:*",
-    "hono": "^4.7.2",
     "handlebars": "^4.7.8",
+    "hono": "^4.7.2",
+    "lucide-svelte": "^1.0.1",
     "resend": "^3.5.0",
     "stripe": "^13.3.0"
   },

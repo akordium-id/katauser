@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { Lightbulb, Map, Zap, Check, ChevronUp } from "lucide-svelte"
+
   let activeTab = $state<"boards" | "roadmap" | "widget">("boards")
 </script>
 
@@ -45,7 +47,7 @@
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <div class="space-y-6">
           <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold text-xl">
-            💡
+            <Lightbulb class="w-5 h-5 text-primary" />
           </div>
           <h3 class="text-2xl sm:text-3xl font-bold text-base-content">
             Ketahui Keinginan Pengguna Tanpa Tenggelam di Chat Support
@@ -55,21 +57,27 @@
           </p>
           <div class="space-y-3">
             <div class="flex items-start gap-3">
-              <span class="w-5 h-5 rounded-full bg-success/20 text-success flex items-center justify-center text-xs mt-0.5 font-bold">✓</span>
+              <span class="w-5 h-5 rounded-full bg-success/20 text-success flex items-center justify-center text-xs mt-0.5 font-bold">
+                <Check class="w-3.5 h-3.5 text-success" />
+              </span>
               <div>
                 <strong class="text-sm text-base-content font-semibold">Deteksi Duplikasi Otomatis (Juno AI):</strong>
                 <p class="text-xs text-base-content/70">Mencegah tiket ganda dengan mencocokkan kemiripan semantik saat pengguna mulai mengetik.</p>
               </div>
             </div>
             <div class="flex items-start gap-3">
-              <span class="w-5 h-5 rounded-full bg-success/20 text-success flex items-center justify-center text-xs mt-0.5 font-bold">✓</span>
+              <span class="w-5 h-5 rounded-full bg-success/20 text-success flex items-center justify-center text-xs mt-0.5 font-bold">
+                <Check class="w-3.5 h-3.5 text-success" />
+              </span>
               <div>
                 <strong class="text-sm text-base-content font-semibold">Voting Anonim atau Berotentikasi:</strong>
                 <p class="text-xs text-base-content/70">Fleksibilitas voting tanpa hambatan registrasi atau dengan verifikasi email terdaftar.</p>
               </div>
             </div>
             <div class="flex items-start gap-3">
-              <span class="w-5 h-5 rounded-full bg-success/20 text-success flex items-center justify-center text-xs mt-0.5 font-bold">✓</span>
+              <span class="w-5 h-5 rounded-full bg-success/20 text-success flex items-center justify-center text-xs mt-0.5 font-bold">
+                <Check class="w-3.5 h-3.5 text-success" />
+              </span>
               <div>
                 <strong class="text-sm text-base-content font-semibold">Kategori & Papan Fleksibel:</strong>
                 <p class="text-xs text-base-content/70">Pisahkan papan masukan untuk Web, Mobile App, Bug Report, atau Integrasi.</p>
@@ -90,14 +98,18 @@
                   <h4 class="font-semibold text-sm">Mode Gelap (Dark Mode) Otomatis</h4>
                   <p class="text-xs text-base-content/60">Ikuti preferensi tema sistem operasi perangkat.</p>
                 </div>
-                <div class="badge badge-primary font-bold">▲ 89</div>
+                <div class="badge badge-primary font-bold flex items-center gap-1">
+                  <ChevronUp class="w-3.5 h-3.5" /> 89
+                </div>
               </div>
               <div class="p-3 bg-base-200/50 rounded-lg flex items-center justify-between">
                 <div>
                   <h4 class="font-semibold text-sm">Notifikasi Push Pengingat Tugas</h4>
                   <p class="text-xs text-base-content/60">Notifikasi saat batas waktu deadline mendekati 24 jam.</p>
                 </div>
-                <div class="badge badge-ghost font-bold">▲ 63</div>
+                <div class="badge badge-ghost font-bold flex items-center gap-1">
+                  <ChevronUp class="w-3.5 h-3.5" /> 63
+                </div>
               </div>
             </div>
           </div>
@@ -110,7 +122,7 @@
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <div class="space-y-6">
           <div class="w-10 h-10 rounded-xl bg-warning/10 text-warning flex items-center justify-center font-bold text-xl">
-            🗺️
+            <Map class="w-5 h-5 text-warning" />
           </div>
           <h3 class="text-2xl sm:text-3xl font-bold text-base-content">
             Roadmap Transparan yang Membangun Kepercayaan Pengguna
@@ -120,14 +132,18 @@
           </p>
           <div class="space-y-3">
             <div class="flex items-start gap-3">
-              <span class="w-5 h-5 rounded-full bg-success/20 text-success flex items-center justify-center text-xs mt-0.5 font-bold">✓</span>
+              <span class="w-5 h-5 rounded-full bg-success/20 text-success flex items-center justify-center text-xs mt-0.5 font-bold">
+                <Check class="w-3.5 h-3.5 text-success" />
+              </span>
               <div>
                 <strong class="text-sm text-base-content font-semibold">Sinkronisasi Otomatis dengan Feedback:</strong>
                 <p class="text-xs text-base-content/70">Ubah status ide feedback, dan tiket langsung berpindah kolom di roadmap publik.</p>
               </div>
             </div>
             <div class="flex items-start gap-3">
-              <span class="w-5 h-5 rounded-full bg-success/20 text-success flex items-center justify-center text-xs mt-0.5 font-bold">✓</span>
+              <span class="w-5 h-5 rounded-full bg-success/20 text-success flex items-center justify-center text-xs mt-0.5 font-bold">
+                <Check class="w-3.5 h-3.5 text-success" />
+              </span>
               <div>
                 <strong class="text-sm text-base-content font-semibold">Notifikasi Otomatis ke Voter:</strong>
                 <p class="text-xs text-base-content/70">Saat fitur bergeser ke 'Completed', semua voter otomatis menerima email pemberitahuan.</p>
@@ -169,7 +185,7 @@
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <div class="space-y-6">
           <div class="w-10 h-10 rounded-xl bg-success/10 text-success flex items-center justify-center font-bold text-xl">
-            ⚡
+            <Zap class="w-5 h-5 text-success" />
           </div>
           <h3 class="text-2xl sm:text-3xl font-bold text-base-content">
             Pasang Widget Langsung di Dalam Aplikasi Anda
@@ -203,4 +219,3 @@
     {/if}
   </div>
 </section>
-

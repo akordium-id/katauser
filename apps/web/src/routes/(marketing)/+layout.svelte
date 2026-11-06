@@ -1,6 +1,7 @@
 <script lang="ts">
   import { WebsiteName } from "./../../config"
   import "../../app.css"
+  import { Rocket, ArrowRight } from "lucide-svelte"
 
   interface Props {
     children?: import("svelte").Snippet
@@ -12,18 +13,20 @@
 <!-- Top announcement badge -->
 <aside
   aria-label="Pengumuman"
-  class="bg-primary/10 border-b border-primary/20 py-2 text-center text-xs sm:text-sm font-medium text-primary"
+  class="bg-primary/10 border-b border-primary/20 py-2 text-center text-xs sm:text-sm font-medium text-primary flex items-center justify-center gap-1.5 flex-wrap px-4"
 >
+  <Rocket class="w-3.5 h-3.5 shrink-0 inline" />
   <span
-    >🚀 Katauser v1.0 kini 100% Open Source & Self-Hosted. Tanpa lock-in vendor!</span
+    >Katauser v1.0 kini 100% Open Source & Self-Hosted. Tanpa lock-in vendor!</span
   >
   <a
     href="https://github.com/akordium-id/katauser"
     target="_blank"
     rel="noreferrer"
-    class="underline ml-2 hover:opacity-80 font-bold"
+    class="underline ml-1 hover:opacity-80 font-bold inline-flex items-center gap-1"
   >
-    Beri Bintang di GitHub →
+    <span>Beri Bintang di GitHub</span>
+    <ArrowRight class="w-3 h-3" />
   </a>
 </aside>
 
