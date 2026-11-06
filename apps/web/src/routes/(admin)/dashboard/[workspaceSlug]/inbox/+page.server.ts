@@ -1,16 +1,25 @@
 import { createApiClient } from "$lib/api"
+import type { ConversationItem } from "$lib/inbox-helpers"
 import type { PageServerLoad } from "./$types"
 
 export const load: PageServerLoad = async ({ fetch, params }) => {
   const { workspaceSlug } = params
   const api = createApiClient(fetch)
 
-  let conversations: any[] = []
+  let conversations: ConversationItem[] = []
 
   try {
-    const res = await (api.api.v1 as any).workspaces[
-      ":slug"
-    ].conversations.$get({
+    const res = await (
+      api.api.v1 as unknown as {
+        workspaces: {
+          ":slug": {
+            conversations: {
+              $get: (args: { param: { slug: string } }) => Promise<Response>
+            }
+          }
+        }
+      }
+    ).workspaces[":slug"].conversations.$get({
       param: { slug: workspaceSlug },
     })
 

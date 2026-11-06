@@ -1,14 +1,15 @@
 import { createApiClient } from "$lib/api"
+import type { RoadmapData } from "$lib/roadmap-helpers"
 import type { PageServerLoad } from "./$types"
 
 export const load: PageServerLoad = async ({ fetch, params }) => {
   const { workspaceSlug } = params
   const api = createApiClient(fetch)
 
-  let roadmap = {
-    planned: [] as any[],
-    inProgress: [] as any[],
-    completed: [] as any[],
+  let roadmap: RoadmapData = {
+    planned: [],
+    inProgress: [],
+    completed: [],
   }
 
   try {

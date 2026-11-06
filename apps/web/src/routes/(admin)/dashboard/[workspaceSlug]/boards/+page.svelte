@@ -1,9 +1,10 @@
 <script lang="ts">
   import { createApiClient } from "$lib/api"
+  import type { BoardItem } from "./+page.server"
 
   let { data } = $props()
 
-  let boards = $state<any[]>([])
+  let boards = $state<BoardItem[]>([])
   let isCreateBoardOpen = $state(false)
   let newBoardName = $state("")
   let newBoardSlug = $state("")
@@ -44,11 +45,13 @@
         newBoardDesc = ""
         isCreateBoardOpen = false
       } else {
-        const errData = (await res.json()) as any
+        const errData = (await res.json()) as {
+          errors?: Array<{ message?: string }>
+        }
         error = errData.errors?.[0]?.message || "Gagal membuat board"
       }
-    } catch (err: any) {
-      error = err.message || "Gagal menghubungi server"
+    } catch (err: unknown) {
+      error = err instanceof Error ? err.message : "Gagal menghubungi server"
     } finally {
       loading = false
     }

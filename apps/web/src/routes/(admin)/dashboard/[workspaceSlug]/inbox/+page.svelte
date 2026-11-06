@@ -2,11 +2,19 @@
   import {
     getConversationStatusBadge,
     filterConversations,
+    type ConversationItem,
   } from "$lib/inbox-helpers"
+
+  interface MockChatMessage {
+    id: string
+    sender: string
+    text: string
+    time: string
+  }
 
   let { data } = $props()
 
-  let conversations = $state<any[]>([])
+  let conversations = $state<ConversationItem[]>([])
   let activeFilter = $state<"all" | "human" | "ai">("all")
   let selectedConvId = $state<string | null>(null)
   let replyText = $state("")
@@ -26,7 +34,7 @@
     conversations.find((c) => c.id === selectedConvId) || conversations[0],
   )
 
-  let mockMessages = $state<Record<string, any[]>>({
+  let mockMessages = $state<Record<string, MockChatMessage[]>>({
     conv_demo_1: [
       {
         id: "m1",

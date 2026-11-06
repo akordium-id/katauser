@@ -3,10 +3,11 @@
     formatChangelogDate,
     getChangelogTagMeta,
   } from "$lib/changelog-helpers"
+  import type { ChangelogItem } from "./+page.server"
 
   let { data } = $props()
 
-  let changelogs = $state<any[]>([])
+  let changelogs = $state<ChangelogItem[]>([])
 
   $effect(() => {
     changelogs = data.changelogs || []

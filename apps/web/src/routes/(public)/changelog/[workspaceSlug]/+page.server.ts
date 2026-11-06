@@ -1,11 +1,22 @@
 import { createApiClient } from "$lib/api"
 import type { PageServerLoad } from "./$types"
 
+export interface ChangelogItem {
+  id: string
+  title: string
+  slug: string
+  content: string
+  publishedAt: string
+  tag?: string
+  postIds?: string[]
+  [key: string]: unknown
+}
+
 export const load: PageServerLoad = async ({ fetch, params }) => {
   const { workspaceSlug } = params
   const api = createApiClient(fetch)
 
-  let changelogs: any[] = []
+  let changelogs: ChangelogItem[] = []
 
   try {
     const res = await api.api.v1.workspaces[":slug"].changelogs.$get({

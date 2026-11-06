@@ -6,10 +6,20 @@ export interface ColumnMeta {
   badgeClass: string
 }
 
-export interface RoadmapData {
-  planned: any[]
-  inProgress: any[]
-  completed: any[]
+export interface RoadmapPostItem {
+  id: string
+  title: string
+  content: string
+  status: string
+  votesCount: number
+  commentsCount: number
+  [key: string]: unknown
+}
+
+export interface RoadmapData<T = RoadmapPostItem> {
+  planned: T[]
+  inProgress: T[]
+  completed: T[]
 }
 
 export function getColumnMeta(column: RoadmapColumnKey): ColumnMeta {

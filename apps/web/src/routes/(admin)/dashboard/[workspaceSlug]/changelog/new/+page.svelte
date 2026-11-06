@@ -66,12 +66,14 @@
         selectedPostIds = []
         isSlugManual = false
       } else {
-        const errData = (await res.json()) as any
+        const errData = (await res.json()) as {
+          errors?: Array<{ message?: string }>
+        }
         error =
           errData.errors?.[0]?.message || "Gagal mempublikasikan changelog."
       }
-    } catch (err: any) {
-      error = err.message || "Gagal menghubungi server."
+    } catch (err: unknown) {
+      error = err instanceof Error ? err.message : "Gagal menghubungi server."
     } finally {
       loading = false
     }

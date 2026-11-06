@@ -9,16 +9,14 @@ describe("FeedbackRepository Unit Tests", () => {
   })
 
   it("calls db.insert when creating a board", async () => {
-    const mockReturning = vi
-      .fn()
-      .mockResolvedValue([
-        {
-          id: "b_123",
-          name: "Features",
-          slug: "features",
-          workspaceId: "ws_1",
-        },
-      ])
+    const mockReturning = vi.fn().mockResolvedValue([
+      {
+        id: "b_123",
+        name: "Features",
+        slug: "features",
+        workspaceId: "ws_1",
+      },
+    ])
     const mockValues = vi.fn().mockReturnValue({ returning: mockReturning })
     const mockDb: any = {
       insert: vi.fn().mockReturnValue({ values: mockValues }),
@@ -67,11 +65,9 @@ describe("FeedbackRepository Unit Tests", () => {
         },
       },
       insert: vi.fn().mockReturnValue({
-        values: vi
-          .fn()
-          .mockReturnValue({
-            returning: vi.fn().mockResolvedValue([{ id: "v_1" }]),
-          }),
+        values: vi.fn().mockReturnValue({
+          returning: vi.fn().mockResolvedValue([{ id: "v_1" }]),
+        }),
       }),
       update: vi.fn().mockReturnValue({
         set: vi.fn().mockReturnValue({

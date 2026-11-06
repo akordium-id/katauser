@@ -16,7 +16,18 @@
     threshold: 0.3,
   }
 
-  let fuse: Fuse<Result> | undefined = $state()
+  type SearchDoc = {
+    title: string
+    description: string
+    body: string
+    path: string
+  }
+
+  type Result = {
+    item: SearchDoc
+  }
+
+  let fuse: Fuse<SearchDoc> | undefined = $state()
 
   let loading = $state(true)
   let error = $state(false)
@@ -28,8 +39,8 @@
       }
       const searchData = await response.json()
       if (searchData && searchData.index && searchData.indexData) {
-        const index = Fuse.parseIndex(searchData.index)
-        fuse = new Fuse<any>(searchData.indexData, fuseOptions, index)
+        const index = Fuse.parseIndex<SearchDoc>(searchData.index)
+        fuse = new Fuse<SearchDoc>(searchData.indexData, fuseOptions, index)
       }
     } catch (e) {
       console.error("Failed to load search data", e)
@@ -40,21 +51,13 @@
     }
   })
 
-  type Result = {
-    item: {
-      title: string
-      description: string
-      body: string
-      path: string
-    }
-  }
   let results: Result[] = $state([])
 
   // searchQuery is $page.url.hash minus the "#" at the beginning if present
   let searchQuery = $state(decodeURIComponent($page.url.hash.slice(1) ?? ""))
   $effect(() => {
     if (fuse) {
-      results = fuse.search(searchQuery) as any
+      results = fuse.search(searchQuery)
     }
   })
   // Update the URL hash when searchQuery changes so the browser can bookmark/share the search results

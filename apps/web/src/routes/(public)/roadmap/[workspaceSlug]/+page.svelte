@@ -1,13 +1,16 @@
 <script lang="ts">
   import KanbanColumn from "$lib/components/roadmap/KanbanColumn.svelte"
-  import { countTotalRoadmapItems } from "$lib/roadmap-helpers"
+  import {
+    countTotalRoadmapItems,
+    type RoadmapData,
+  } from "$lib/roadmap-helpers"
 
   let { data } = $props()
 
-  let roadmap = $state({
-    planned: [] as any[],
-    inProgress: [] as any[],
-    completed: [] as any[],
+  let roadmap = $state<RoadmapData>({
+    planned: [],
+    inProgress: [],
+    completed: [],
   })
 
   $effect(() => {

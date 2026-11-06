@@ -1,6 +1,14 @@
 <script lang="ts">
   import type { PageData, ActionData } from "./$types"
-  import { truncateSnippet } from "$lib/ai-helpers"
+
+  interface KnowledgeDocument {
+    id: string
+    title: string
+    sourceType: string
+    sourceUrl?: string | null
+    chunksCount?: number
+    createdAt: string
+  }
 
   interface Props {
     data: PageData
@@ -9,7 +17,7 @@
 
   let { data, form }: Props = $props()
 
-  let documents = $state<any[]>([])
+  let documents = $state<KnowledgeDocument[]>([])
   let isAddDocOpen = $state(false)
   let newTitle = $state("")
   let newContent = $state("")

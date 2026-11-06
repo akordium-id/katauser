@@ -27,8 +27,8 @@
       title = ""
       content = ""
       onClose()
-    } catch (err: any) {
-      error = err.message || "Gagal mengirim ide feedback"
+    } catch (err: unknown) {
+      error = err instanceof Error ? err.message : "Gagal mengirim ide feedback"
     } finally {
       loading = false
     }

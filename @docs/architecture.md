@@ -44,14 +44,14 @@ katauser-app/
 
 Menggunakan **PostgreSQL 16** dengan extension `pgvector` dan schema modular Drizzle:
 
-| Domain | Tabel | Deskripsi |
-|---|---|---|
-| **Auth & Core** | `users`, `workspaces`, `workspace_members` | Multi-tenant tenant scoping & RBAC |
-| **Feedback** | `boards`, `posts`, `post_votes`, `post_comments` | Feedback collection, traits/MRR tracking, & upvoting engine |
-| **Roadmap & Changelog** | `changelog_entries`, `changelog_notifications` | Roadmap grouping (Planned/In Progress/Completed) & release logs |
-| **Chat & Juno AI** | `conversations`, `messages` | Real-time chat session, AI vs Human handoff status, SSE streaming history |
-| **AI & Knowledge** | `knowledge_embeddings` | Text chunks & 1536-dim vector embeddings (`pgvector`) untuk RAG docs |
-| **Domains** | `custom_domains` | Domain CNAME/Apex verification status (`unverified`, `pending`, `active`) |
+| Domain                  | Tabel                                            | Deskripsi                                                                 |
+| ----------------------- | ------------------------------------------------ | ------------------------------------------------------------------------- |
+| **Auth & Core**         | `users`, `workspaces`, `workspace_members`       | Multi-tenant tenant scoping & RBAC                                        |
+| **Feedback**            | `boards`, `posts`, `post_votes`, `post_comments` | Feedback collection, traits/MRR tracking, & upvoting engine               |
+| **Roadmap & Changelog** | `changelog_entries`, `changelog_notifications`   | Roadmap grouping (Planned/In Progress/Completed) & release logs           |
+| **Chat & Juno AI**      | `conversations`, `messages`                      | Real-time chat session, AI vs Human handoff status, SSE streaming history |
+| **AI & Knowledge**      | `knowledge_embeddings`                           | Text chunks & 1536-dim vector embeddings (`pgvector`) untuk RAG docs      |
+| **Domains**             | `custom_domains`                                 | Domain CNAME/Apex verification status (`unverified`, `pending`, `active`) |
 
 ---
 

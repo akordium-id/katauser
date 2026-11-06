@@ -1,6 +1,18 @@
 import { createApiClient } from "$lib/api"
 import type { PageServerLoad } from "./$types"
 
+export interface FeedbackPostItem {
+  id: string
+  title: string
+  content: string
+  status: string
+  votesCount: number
+  commentsCount: number
+  hasVoted?: boolean
+  createdAt: string
+  [key: string]: unknown
+}
+
 export const load: PageServerLoad = async ({ fetch, params, url }) => {
   const { workspaceSlug, boardSlug } = params
   const sort =
@@ -11,7 +23,7 @@ export const load: PageServerLoad = async ({ fetch, params, url }) => {
 
   // In production, boardId is resolved from boardSlug via API
   // For demo/dev bootstrap, fetch boards of workspace
-  let posts: any[] = []
+  let posts: FeedbackPostItem[] = []
   let boardName = "Feature Requests"
 
   try {
@@ -22,7 +34,7 @@ export const load: PageServerLoad = async ({ fetch, params, url }) => {
     if (boardsRes.ok) {
       const { boards } = await boardsRes.json()
       const currentBoard =
-        boards.find((b: any) => b.slug === boardSlug) || boards[0]
+        boards.find((b: { slug: string }) => b.slug === boardSlug) || boards[0]
       if (currentBoard) {
         boardName = currentBoard.name
         const postsRes = await api.api.v1.boards[":boardId"].posts.$get({

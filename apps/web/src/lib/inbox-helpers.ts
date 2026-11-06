@@ -3,6 +3,16 @@ export interface StatusBadge {
   color: string
 }
 
+export interface ConversationItem {
+  id: string
+  workspaceId: string
+  endUserId?: string
+  status: "open" | "pending" | "closed" | string
+  assignedTo: "ai_juno" | "human" | string
+  createdAt: string
+  lastMessage?: string
+}
+
 export function getConversationStatusBadge(
   status: string,
   assignedTo: string,
@@ -27,10 +37,10 @@ export function getConversationStatusBadge(
   }
 }
 
-export function filterConversations(
-  conversations: any[],
+export function filterConversations<T extends { assignedTo?: string }>(
+  conversations: T[],
   filter: "all" | "human" | "ai",
-): any[] {
+): T[] {
   if (!Array.isArray(conversations)) return []
   if (filter === "human") {
     return conversations.filter((c) => c.assignedTo === "human")

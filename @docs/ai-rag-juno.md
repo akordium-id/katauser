@@ -1,14 +1,15 @@
 # Basis Pengetahuan & AI Agent Juno (RAG)
 
-Dokumentasi arsitektur kecerdasan buatan, sistem RAG (*Retrieval-Augmented Generation*), dan deteksi duplikasi ide semantik pada Katauser.
+Dokumentasi arsitektur kecerdasan buatan, sistem RAG (_Retrieval-Augmented Generation_), dan deteksi duplikasi ide semantik pada Katauser.
 
 ---
 
 ## 1. Ikhtisar AI Juno
 
 Juno adalah agen dukungan pelanggan dan asisten produk bawaan di Katauser:
+
 - **Tersedia di In-App Widget**: Pengunjung atau pengguna terotentikasi dapat bertanya langsung mengenai cara penggunaan produk, kebijakan penagihan, atau status fitur.
-- **RAG-Augmented SSE Streaming**: Juno tidak hanya merespon dengan template statis, melainkan mencari informasi dari artikel dokumentasi yang telah diunggah ke *Knowledge Base*, lalu melakukan streaming jawaban via Server-Sent Events (`POST /api/v1/chat/conversations/:id/juno-stream`).
+- **RAG-Augmented SSE Streaming**: Juno tidak hanya merespon dengan template statis, melainkan mencari informasi dari artikel dokumentasi yang telah diunggah ke _Knowledge Base_, lalu melakukan streaming jawaban via Server-Sent Events (`POST /api/v1/chat/conversations/:id/juno-stream`).
 - **Human Escalation**: Jika pertanyaan pengguna membutuhkan bantuan manusia (misal komplain bug kritis atau billing rumit), Juno secara otomatis mengalihkan tiket percakapan ke staf support dan mengirimkan notifikasi instan ke Slack/Discord.
 
 ---
@@ -30,6 +31,7 @@ Content-Type: application/json
 ```
 
 ### Mekanisme Chunking
+
 - Dokumen panjang secara otomatis dipecah menjadi bagian-bagian berukuran ~400 karakter dengan overlap 40 karakter.
 - Pemecahan memprioritaskan batas paragraf (`\n`) dan kalimat (`. `) agar makna kontekstual tetap terjaga.
 
@@ -38,8 +40,9 @@ Content-Type: application/json
 ## 3. Vektorisasi & Cosine Similarity
 
 Katauser menggunakan representasi vektor 1536-dimensi:
+
 - **Produksi**: Jika `OPENAI_API_KEY` diatur di environment, sistem menggunakan model OpenAI `text-embedding-3-small`.
-- **Pengembangan / Pengujian Lokal**: Jika tidak ada API key, sistem menggunakan *deterministic normalized pseudo-vector generator* sehingga seluruh pengujian berjalan cepat, 100% offline, tanpa biaya token.
+- **Pengembangan / Pengujian Lokal**: Jika tidak ada API key, sistem menggunakan _deterministic normalized pseudo-vector generator_ sehingga seluruh pengujian berjalan cepat, 100% offline, tanpa biaya token.
 - **Kalkulasi Kemiripan**: Kemiripan semantik dihitung menggunakan Cosine Similarity:
   $$\text{Cosine Similarity}(\vec{A}, \vec{B}) = \frac{\vec{A} \cdot \vec{B}}{\|\vec{A}\| \|\vec{B}\|}$$
 
@@ -62,6 +65,7 @@ Content-Type: application/json
 ```
 
 ### Respon API:
+
 ```json
 {
   "success": true,
@@ -77,4 +81,5 @@ Content-Type: application/json
   ]
 }
 ```
+
 Jika ide serupa ditemukan dengan skor kemiripan tinggi, sistem dapat menyarankan pengguna untuk memberikan upvote pada ide yang sudah ada alih-alih membuat post duplikat di backlog.

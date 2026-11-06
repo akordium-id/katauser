@@ -2,10 +2,11 @@
   import PostCard from "$lib/components/feedback/PostCard.svelte"
   import CreatePostModal from "$lib/components/feedback/CreatePostModal.svelte"
   import { createApiClient } from "$lib/api"
+  import type { FeedbackPostItem } from "./+page.server"
 
   let { data } = $props()
 
-  let posts = $state<any[]>([])
+  let posts = $state<FeedbackPostItem[]>([])
   let isModalOpen = $state(false)
   let activeSort = $state("top_voted")
   let activeStatus = $state("all")
@@ -20,7 +21,7 @@
 
   async function handleVote(postId: string) {
     // Optimistic UI update
-    const postIndex = posts.findIndex((p: any) => p.id === postId)
+    const postIndex = posts.findIndex((p) => p.id === postId)
     if (postIndex === -1) return
 
     try {
