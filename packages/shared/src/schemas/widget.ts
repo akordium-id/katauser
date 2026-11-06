@@ -1,12 +1,18 @@
 import { z } from 'zod';
 import { createHmac, timingSafeEqual } from 'node:crypto';
+import { userTraitsSchema } from './traits';
 
 export const widgetIdentifySchema = z.object({
-  workspaceId: z.string().min(1, 'Workspace ID wajib diisi'),
+  workspaceId: z.string().optional(),
+  workspaceSlug: z.string().optional(),
   userId: z.string().min(1, 'User ID wajib diisi'),
   email: z.string().email('Format email tidak valid'),
   name: z.string().optional(),
   hash: z.string().optional(),
+  hmacSignature: z.string().optional(),
+  traits: userTraitsSchema.optional(),
+}).refine((data) => data.workspaceId || data.workspaceSlug, {
+  message: 'Workspace ID atau Slug wajib diisi',
 });
 
 export type WidgetIdentifyInput = z.infer<typeof widgetIdentifySchema>;
@@ -38,4 +44,3 @@ export function verifyUserHmac(secretKey: string, userId: string, hash: string):
     return false;
   }
 }
-
