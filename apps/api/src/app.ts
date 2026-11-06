@@ -6,6 +6,7 @@ import { boardsRoute } from './modules/feedback/boards.route';
 import { postsRoute } from './modules/feedback/posts.route';
 import { roadmapRoute } from './modules/roadmap/roadmap.route';
 import { changelogRoute } from './modules/changelog/changelog.route';
+import { widgetRoute } from './modules/widget/widget.route';
 
 export const app = new Hono()
   .use(
@@ -23,6 +24,7 @@ export const app = new Hono()
   .route('/', boardsRoute)
   .route('/', postsRoute)
   .route('/', roadmapRoute)
-  .route('/', changelogRoute);
+  .route('/', changelogRoute)
+  .route('/', widgetRoute);
 
 export type AppType = typeof app;
