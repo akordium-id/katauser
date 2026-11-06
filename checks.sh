@@ -16,16 +16,16 @@ else
 fi
 
 echo "=== Running Format Check With Prettier ==="
-npm run format_check
+pnpm run format
 
 echo "=== Running Linter ==="
-npm run lint
+pnpm run lint
 
 echo "=== Running Svelte Check ===" 
-npm run check
+pnpm run check
 
 echo "=== Running Tests ==="
-npm run test_run
+pnpm run test
 
 echo "\n=== All Checks Pass ===\n"
 
