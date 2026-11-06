@@ -70,16 +70,30 @@
         </p>
       </div>
 
-      <button
-        type="button"
-        onclick={() => (isCreateBoardOpen = true)}
-        class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-700 transition-colors"
-      >
-        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
-        </svg>
-        Tambah Board Baru
-      </button>
+      <div class="flex items-center gap-2">
+        <a
+          href="/dashboard/{data.workspaceSlug}/settings/integrations"
+          class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-xs"
+        >
+          <span>💬 Integrasi Webhook</span>
+        </a>
+        <a
+          href="/dashboard/{data.workspaceSlug}/settings/domain"
+          class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-xs"
+        >
+          <span>🌐 Custom Domain</span>
+        </a>
+        <button
+          type="button"
+          onclick={() => (isCreateBoardOpen = true)}
+          class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-700 transition-colors"
+        >
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+          </svg>
+          Tambah Board Baru
+        </button>
+      </div>
     </div>
 
     <!-- Boards List -->

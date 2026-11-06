@@ -16,15 +16,17 @@ export const widgetRoute = new Hono().post(
     }
   }),
   async (c) => {
-    const { workspaceId, userId, email, name, hash } = c.req.valid('json');
+    const { workspaceId, workspaceSlug, userId, email, name, hash, hmacSignature } = c.req.valid('json');
 
+    const wsIdentifier = workspaceId || workspaceSlug || 'default';
     const secretKey =
-      WORKSPACE_HMAC_SECRETS[workspaceId] || WORKSPACE_HMAC_SECRETS['default'];
+      WORKSPACE_HMAC_SECRETS[wsIdentifier] || WORKSPACE_HMAC_SECRETS['default'];
 
     let isVerified = false;
+    const effectiveHash = hash || hmacSignature;
 
-    if (hash) {
-      const isValid = verifyUserHmac(secretKey, userId, hash);
+    if (effectiveHash) {
+      const isValid = verifyUserHmac(secretKey, userId, effectiveHash);
       if (!isValid) {
         return c.json(
           {

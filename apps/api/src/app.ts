@@ -9,6 +9,7 @@ import { changelogRoute } from './modules/changelog/changelog.route';
 import { widgetRoute } from './modules/widget/widget.route';
 import { chatRoute } from './modules/chat/chat.route';
 import { domainsRoute } from './modules/domains/domains.route';
+import { integrationsRoute } from './modules/integrations/integrations.route';
 
 export const app = new Hono()
   .use(
@@ -29,6 +30,7 @@ export const app = new Hono()
   .route('/', changelogRoute)
   .route('/', widgetRoute)
   .route('/', chatRoute)
-  .route('/', domainsRoute);
+  .route('/', domainsRoute)
+  .route('/', integrationsRoute);
 
 export type AppType = typeof app;
