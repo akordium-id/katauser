@@ -9,7 +9,7 @@ export const load: PageServerLoad = async ({ fetch, params }) => {
   let verified = false
 
   try {
-    const res = await (api.api.v1 as any).domains.verify.$get({
+    const res = await api.api.v1.domains.verify.$get({
       query: { domain: `feedback.${workspaceSlug}.com`, workspaceSlug },
     })
 
