@@ -22,3 +22,4 @@ export const messages = pgTable('messages', {
   content: text('content').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
+

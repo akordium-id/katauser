@@ -30,3 +30,4 @@ export const escalateConversationSchema = z.object({
 export type CreateConversationInput = z.infer<typeof createConversationSchema>;
 export type SendMessageInput = z.infer<typeof sendMessageSchema>;
 export type EscalateConversationInput = z.infer<typeof escalateConversationSchema>;
+

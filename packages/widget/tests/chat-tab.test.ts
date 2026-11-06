@@ -26,3 +26,4 @@ describe('Chat Helpers in Widget', () => {
     expect(timeStr.length).toBeGreaterThan(0);
   });
 });
+

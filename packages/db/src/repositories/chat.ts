@@ -93,3 +93,4 @@ export class ChatRepository {
       .orderBy(desc(conversations.createdAt));
   }
 }
+
