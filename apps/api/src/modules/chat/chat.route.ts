@@ -9,6 +9,7 @@ import {
 
 import { getWorkspaceWebhookConfig } from '../integrations/integrations.route';
 import { dispatchWebhookEvent } from '../integrations/webhook-dispatcher';
+import { findRelevantKnowledgeContext } from '../ai/knowledge.route';
 
 interface ConversationItem {
   id: string;
@@ -185,19 +186,37 @@ export const chatRoute = new Hono()
       }
     }
 
-    const aiMessageChunks = isHumanHandoffRequested
-      ? [
-          'Saya memahami Anda ingin berbicara dengan staf kami. ',
-          'Saya telah mengalihkan percakapan ini ke tim support manusia kami. ',
-          'Mohon menunggu sebentar, tim kami akan segera membalas di sini.',
-        ]
-      : [
+    let aiMessageChunks: string[] = [];
+
+    if (isHumanHandoffRequested) {
+      aiMessageChunks = [
+        'Saya memahami Anda ingin berbicara dengan staf kami. ',
+        'Saya telah mengalihkan percakapan ini ke tim support manusia kami. ',
+        'Mohon menunggu sebentar, tim kami akan segera membalas di sini.',
+      ];
+    } else {
+      const workspaceId = conv?.workspaceId || 'acme';
+      const knowledgeContext = prompt
+        ? await findRelevantKnowledgeContext(workspaceId, prompt, 2)
+        : [];
+
+      if (knowledgeContext.length > 0) {
+        aiMessageChunks = [
+          'Halo! Saya Juno dari Katauser. ',
+          'Berdasarkan basis pengetahuan kami: ',
+          `"${knowledgeContext[0]}" `,
+          'Semoga informasi ini membantu! Ada yang bisa saya bantu lagi?',
+        ];
+      } else {
+        aiMessageChunks = [
           'Halo! Saya Juno dari Katauser. ',
           'Terkait pertanyaan Anda mengenai ',
           prompt ? `"${prompt}": ` : 'fitur ini: ',
           'Anda dapat mengonfigurasi dan mencobanya langsung melalui tab Roadmap atau portal saran. ',
           'Apakah ada hal lain yang bisa saya bantu?',
         ];
+      }
+    }
 
     const fullResponse = aiMessageChunks.join('');
 
