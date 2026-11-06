@@ -11,6 +11,7 @@ import { chatRoute } from "./modules/chat/chat.route"
 import { domainsRoute } from "./modules/domains/domains.route"
 import { integrationsRoute } from "./modules/integrations/integrations.route"
 import { knowledgeRoute } from "./modules/ai/knowledge.route"
+import { authRoute } from "./modules/auth/auth.route"
 
 export const app = new Hono()
   .use(
@@ -39,5 +40,6 @@ export const app = new Hono()
   .route("/", domainsRoute)
   .route("/", integrationsRoute)
   .route("/", knowledgeRoute)
+  .route("/", authRoute)
 
 export type AppType = typeof app
