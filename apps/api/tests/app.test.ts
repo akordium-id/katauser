@@ -33,3 +33,4 @@ describe('Hono API Routes', () => {
     expect(data.workspace.slug).toBe('katauser-demo');
   });
 });
+

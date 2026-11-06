@@ -49,3 +49,4 @@ describe('Database Schema Definitions', () => {
     expect(columns.embedding).toBeDefined();
   });
 });
+

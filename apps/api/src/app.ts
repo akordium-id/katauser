@@ -18,3 +18,4 @@ export const app = new Hono()
   .route('/workspaces', workspacesRoute);
 
 export type AppType = typeof app;
+

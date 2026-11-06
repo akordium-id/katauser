@@ -25,3 +25,4 @@ export const knowledgeEmbeddings = pgTable('knowledge_embeddings', {
   embedding: vector('embedding', { dimensions: 1536 }).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
+

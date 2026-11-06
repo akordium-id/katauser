@@ -49,3 +49,4 @@ export const endUsers = pgTable(
     uniqueIndex('workspace_external_id_unique').on(table.workspaceId, table.externalId),
   ]
 );
+

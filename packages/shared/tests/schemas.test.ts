@@ -39,3 +39,4 @@ describe('Workspace Roles', () => {
     expect(WorkspaceRole.MEMBER).toBe('member');
   });
 });
+

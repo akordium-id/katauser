@@ -7,3 +7,4 @@ export const healthRoute = new Hono().get('/', (c) => {
     service: 'katauser-api',
   });
 });
+

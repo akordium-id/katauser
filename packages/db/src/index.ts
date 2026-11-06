@@ -15,3 +15,4 @@ export function createDbClient(connectionString: string) {
 }
 
 export type DbClient = ReturnType<typeof createDbClient>;
+

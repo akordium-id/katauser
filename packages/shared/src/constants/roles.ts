@@ -5,3 +5,4 @@ export const WorkspaceRole = {
 } as const;
 
 export type WorkspaceRole = (typeof WorkspaceRole)[keyof typeof WorkspaceRole];
+
