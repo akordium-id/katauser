@@ -8,6 +8,7 @@ import { roadmapRoute } from './modules/roadmap/roadmap.route';
 import { changelogRoute } from './modules/changelog/changelog.route';
 import { widgetRoute } from './modules/widget/widget.route';
 import { chatRoute } from './modules/chat/chat.route';
+import { domainsRoute } from './modules/domains/domains.route';
 
 export const app = new Hono()
   .use(
@@ -27,6 +28,7 @@ export const app = new Hono()
   .route('/', roadmapRoute)
   .route('/', changelogRoute)
   .route('/', widgetRoute)
-  .route('/', chatRoute);
+  .route('/', chatRoute)
+  .route('/', domainsRoute);
 
 export type AppType = typeof app;
