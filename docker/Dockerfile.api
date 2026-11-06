@@ -1,0 +1,41 @@
+# ==========================================
+# Dockerfile for Katauser API (Hono v4)
+# Multi-stage build for Coolify / VPS Docker
+# ==========================================
+
+FROM node:20-alpine AS base
+RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
+WORKDIR /app
+
+# ---- Dependencies Stage ----
+FROM base AS dependencies
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json turbo.json ./
+COPY packages/ ./packages/
+COPY apps/api/package.json ./apps/api/
+RUN pnpm install --frozen-lockfile
+
+# ---- Builder Stage ----
+FROM dependencies AS builder
+COPY apps/api/ ./apps/api/
+RUN pnpm --filter @katauser/api build
+
+# ---- Production Runner Stage ----
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ENV PORT=3000
+
+# Security: Run as non-root user
+USER node
+
+COPY --from=dependencies --chown=node:node /app/node_modules ./node_modules
+COPY --from=dependencies --chown=node:node /app/packages ./packages
+COPY --from=builder --chown=node:node /app/apps/api ./apps/api
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget -qO- http://localhost:3000/api/v1/health || exit 1
+
+CMD ["node", "apps/api/dist/server.js"]
+

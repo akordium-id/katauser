@@ -36,3 +36,4 @@ describe('Domain Schemas & Validation Helpers', () => {
     expect(isApexOrSubdomain('acme.com')).toBe('apex');
   });
 });
+

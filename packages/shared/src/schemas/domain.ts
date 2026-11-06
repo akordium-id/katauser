@@ -31,3 +31,4 @@ export function isApexOrSubdomain(domain: string): 'apex' | 'subdomain' {
   const parts = sanitizeDomain(domain).split('.');
   return parts.length <= 2 ? 'apex' : 'subdomain';
 }
+

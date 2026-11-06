@@ -39,3 +39,4 @@ describe('Domain Verification & Rate Limiting API Routes', () => {
     expect(responses).toContain(429);
   });
 });
+
