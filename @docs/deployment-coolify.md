@@ -46,7 +46,8 @@ PORT=3000
 DATABASE_URL=postgresql://katauser:supersecret@katauser-db:5432/katauser_prod
 REDIS_URL=redis://katauser-redis:6379
 JWT_SECRET=your_super_strong_jwt_secret_min_32_chars
-OPENAI_API_KEY=sk-proj-... # Untuk AI Agent Juno SSE Stream
+OPENAI_API_KEY=sk-proj-... # Untuk AI Agent Juno SSE Stream & pgvector embeddings
+RESEND_API_KEY=re_... # Untuk notifikasi email otomatis ke voters
 CORS_ORIGINS=https://katauser.com,https://app.katauser.com
 CNAME_TARGET=cname.katauser.com
 ```
