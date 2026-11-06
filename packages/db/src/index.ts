@@ -9,6 +9,7 @@ const { Pool } = pg;
 export * from './schema';
 export * from './repositories/feedback';
 export * from './repositories/changelog';
+export * from './repositories/chat';
 
 export function createDbClient(connectionString: string) {
   const pool = new Pool({
