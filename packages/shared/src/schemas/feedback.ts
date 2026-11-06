@@ -50,3 +50,4 @@ export type CreatePostInput = z.infer<typeof createPostSchema>;
 export type UpdatePostStatusInput = z.infer<typeof updatePostStatusSchema>;
 export type VotePostInput = z.infer<typeof votePostSchema>;
 export type CreateCommentInput = z.infer<typeof createCommentSchema>;
+
