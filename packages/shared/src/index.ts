@@ -8,3 +8,4 @@ export * from './schemas/domain';
 export * from './schemas/traits';
 export * from './schemas/integrations';
 export * from './schemas/notifications';
+export * from './schemas/ai';
