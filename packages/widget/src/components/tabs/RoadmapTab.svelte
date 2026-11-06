@@ -1,36 +1,36 @@
 <script lang="ts">
   let {
-    workspaceId = 'default',
+    workspaceId = "default",
   }: {
-    workspaceId?: string;
-  } = $props();
+    workspaceId?: string
+  } = $props()
 
   let columns = $state([
     {
-      key: 'planned',
-      title: 'Planned',
-      badgeClass: 'badge-blue',
+      key: "planned",
+      title: "Planned",
+      badgeClass: "badge-blue",
       items: [
-        { id: 'r1', title: 'Slack Notifications Integration', votes: 42 },
+        { id: "r1", title: "Slack Notifications Integration", votes: 42 },
       ],
     },
     {
-      key: 'inProgress',
-      title: 'In Progress',
-      badgeClass: 'badge-amber',
+      key: "inProgress",
+      title: "In Progress",
+      badgeClass: "badge-amber",
       items: [
-        { id: 'r2', title: 'Custom Domain SSL Auto-provisioning', votes: 88 },
+        { id: "r2", title: "Custom Domain SSL Auto-provisioning", votes: 88 },
       ],
     },
     {
-      key: 'completed',
-      title: 'Completed',
-      badgeClass: 'badge-emerald',
+      key: "completed",
+      title: "Completed",
+      badgeClass: "badge-emerald",
       items: [
-        { id: 'r3', title: 'SvelteKit 2 + Svelte 5 Modernization', votes: 154 },
+        { id: "r3", title: "SvelteKit 2 + Svelte 5 Modernization", votes: 154 },
       ],
     },
-  ]);
+  ])
 </script>
 
 <div class="roadmap-container">
@@ -152,4 +152,3 @@
     white-space: nowrap;
   }
 </style>
-

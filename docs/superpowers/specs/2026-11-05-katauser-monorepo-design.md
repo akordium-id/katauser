@@ -11,6 +11,7 @@
 ## 1. Executive Summary & Goals
 
 **Katauser** adalah platform customer feedback loop dan support all-in-one untuk produk SaaS (terinspirasi dari UserJot):
+
 1. **Feedback Board**: Ide, voting, diskusi, tagging, moderasi (publik & privat).
 2. **Roadmap**: Kanban publik sinkron otomatis dengan status post feedback.
 3. **Changelog**: Publikasi update rilis tertaut ke post feedback + auto-notifikasi email ke pemilih fitur (voters).
@@ -24,20 +25,20 @@ Katauser didesain sebagai **multi-tenant SaaS** dengan arsitektur **Strict Decou
 
 ## 2. Tech Stack Matrix
 
-| Layer | Pilihan Teknologi | Alasan Pemilihan |
-|---|---|---|
-| **Monorepo Manager** | pnpm Workspaces + Turborepo | Isolasi dependensi ketat, fast build caching, integrasi Docker multi-stage |
-| **Frontend Web** | SvelteKit 2 + Svelte 5 (Runes) | SSR cepat untuk SEO public roadmap/board, performa runtime reaktif ultra-ringan |
-| **Styling & UI** | Tailwind CSS v4 + Bits UI (shadcn-svelte) | UI modern, aksesibel, mudah di-customize |
-| **Backend API** | Hono v4 (`@hono/node-server`) | Standar Web Fetch API, blazing fast, native RPC type safety, WebSocket support |
-| **Database & ORM** | PostgreSQL 16 + Drizzle ORM | Type-safety SQL, performa query native tinggi, migrasi terkontrol |
-| **Vector Engine** | PostgreSQL `pgvector` (`vector(1536)`) | Menggabungkan data relasional dan vektor dalam satu DB tanpa biaya vector DB terpisah |
-| **Authentication** | Better Auth + JWT SSO | First-class Drizzle adapter, 2FA, OAuth, dan JWT signing untuk widget identify |
-| **Realtime Engine** | `@hono/node-ws` + Redis Pub/Sub | WebSockets untuk live chat, scaling horizontal multi-container |
-| **Background Jobs** | BullMQ + Redis | Antrean email batch, chunking docs, dan embedding background worker |
-| **AI Orchestration**| Vercel AI SDK (`ai`) | Provider-agnostic (Claude 3.5, GPT-4o, Groq, Ollama), streaming, tool calling |
-| **Storage** | S3-Compatible (Cloudflare R2 / MinIO) | Penyimpanan tangkapan layar, lampiran chat, dan avatar |
-| **Deployment** | Coolify (Docker) di VPS | Kendali penuh, zero-vendor-lockin, trusted proxy via Traefik |
+| Layer                | Pilihan Teknologi                         | Alasan Pemilihan                                                                      |
+| -------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------- |
+| **Monorepo Manager** | pnpm Workspaces + Turborepo               | Isolasi dependensi ketat, fast build caching, integrasi Docker multi-stage            |
+| **Frontend Web**     | SvelteKit 2 + Svelte 5 (Runes)            | SSR cepat untuk SEO public roadmap/board, performa runtime reaktif ultra-ringan       |
+| **Styling & UI**     | Tailwind CSS v4 + Bits UI (shadcn-svelte) | UI modern, aksesibel, mudah di-customize                                              |
+| **Backend API**      | Hono v4 (`@hono/node-server`)             | Standar Web Fetch API, blazing fast, native RPC type safety, WebSocket support        |
+| **Database & ORM**   | PostgreSQL 16 + Drizzle ORM               | Type-safety SQL, performa query native tinggi, migrasi terkontrol                     |
+| **Vector Engine**    | PostgreSQL `pgvector` (`vector(1536)`)    | Menggabungkan data relasional dan vektor dalam satu DB tanpa biaya vector DB terpisah |
+| **Authentication**   | Better Auth + JWT SSO                     | First-class Drizzle adapter, 2FA, OAuth, dan JWT signing untuk widget identify        |
+| **Realtime Engine**  | `@hono/node-ws` + Redis Pub/Sub           | WebSockets untuk live chat, scaling horizontal multi-container                        |
+| **Background Jobs**  | BullMQ + Redis                            | Antrean email batch, chunking docs, dan embedding background worker                   |
+| **AI Orchestration** | Vercel AI SDK (`ai`)                      | Provider-agnostic (Claude 3.5, GPT-4o, Groq, Ollama), streaming, tool calling         |
+| **Storage**          | S3-Compatible (Cloudflare R2 / MinIO)     | Penyimpanan tangkapan layar, lampiran chat, dan avatar                                |
+| **Deployment**       | Coolify (Docker) di VPS                   | Kendali penuh, zero-vendor-lockin, trusted proxy via Traefik                          |
 
 ---
 
@@ -119,37 +120,40 @@ katauser/
 SvelteKit mengonsumsi Hono API menggunakan `hono/client` tanpa perantara codegen GraphQL atau OpenAPI generator.
 
 ### 4.1 Definisi Route di Hono (`apps/api`)
+
 ```typescript
 // apps/api/src/app.ts
-import { Hono } from 'hono';
-import { postsRoute } from './modules/boards/posts.route';
-import { changelogRoute } from './modules/changelog/changelog.route';
+import { Hono } from "hono"
+import { postsRoute } from "./modules/boards/posts.route"
+import { changelogRoute } from "./modules/changelog/changelog.route"
 
 export const app = new Hono()
-  .basePath('/api/v1')
-  .route('/posts', postsRoute)
-  .route('/changelog', changelogRoute);
+  .basePath("/api/v1")
+  .route("/posts", postsRoute)
+  .route("/changelog", changelogRoute)
 
-export type AppType = typeof app;
+export type AppType = typeof app
 ```
 
 ### 4.2 Inisialisasi RPC Client di SvelteKit (`apps/web`)
+
 ```typescript
 // apps/web/src/lib/api.ts
-import { hc } from 'hono/client';
-import type { AppType } from '@katauser/api';
-import { env } from '$env/dynamic/public';
+import { hc } from "hono/client"
+import type { AppType } from "@katauser/api"
+import { env } from "$env/dynamic/public"
 
 export function createApiClient(fetchFn: typeof fetch, authToken?: string) {
   // SSR menggunakan internal URL (mis. http://katauser-api:4000), Browser memanggil public domain
-  const baseUrl = typeof window === 'undefined' 
-    ? (process.env.INTERNAL_API_URL || 'http://localhost:4000') 
-    : (env.PUBLIC_API_URL || 'https://api.katauser.com');
+  const baseUrl =
+    typeof window === "undefined"
+      ? process.env.INTERNAL_API_URL || "http://localhost:4000"
+      : env.PUBLIC_API_URL || "https://api.katauser.com"
 
   return hc<AppType>(baseUrl, {
     fetch: fetchFn,
-    headers: authToken ? { Authorization: `Bearer ${authToken}` } : {}
-  });
+    headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
+  })
 }
 ```
 
@@ -158,6 +162,7 @@ export function createApiClient(fetchFn: typeof fetch, authToken?: string) {
 ## 5. Multi-tenancy & Data Model Specification
 
 ### 5.1 Dual-Identity System
+
 1. **Team Members (`users`)**:
    - Dikelola oleh **Better Auth**.
    - Terikat ke satu atau banyak workspace melalui relasi di `workspace_members`.
@@ -272,22 +277,30 @@ CREATE INDEX idx_embeddings_workspace_vector ON knowledge_embeddings USING ivffl
 ## 6. Embed Widget Architecture (`packages/widget`)
 
 ### 6.1 Shadow DOM Encapsulation
+
 Widget di-compile menggunakan Svelte 5 Custom Element:
+
 - Tag HTML: `<katauser-widget>`
 - Semua style CSS di-inject ke dalam `shadowRoot`, menjamin 0% risiko tabrakan CSS dengan style website host pelanggan.
 - Bundle output: Single JS file berukuran `< 35KB` (gzipped).
 
 ### 6.2 Host Integration Snippet
+
 ```html
-<script src="https://app.katauser.com/widget.js" data-workspace="my-saas" defer></script>
+<script
+  src="https://app.katauser.com/widget.js"
+  data-workspace="my-saas"
+  defer
+></script>
 <script>
-  window.Katauser?.('identify', {
-    token: 'SIGNED_JWT_FROM_BACKEND'
-  });
+  window.Katauser?.("identify", {
+    token: "SIGNED_JWT_FROM_BACKEND",
+  })
 </script>
 ```
 
 ### 6.3 Komponen Internal Widget
+
 - **Launcher Bubble**: Ikon mengambang di pojok layar dengan indikator unread message.
 - **Tab Navigation**:
   - `Chat`: Percakapan real-time dengan Juno AI atau customer agent.
@@ -300,6 +313,7 @@ Widget di-compile menggunakan Svelte 5 Custom Element:
 ## 7. Realtime Engine & AI Agent "Juno"
 
 ### 7.1 Realtime Communication
+
 - Menggunakan `@hono/node-ws` di Node.js server.
 - **Redis Pub/Sub**: Menjembatani pesan antar-worker sehingga klien yang tersambung ke container A dapat menerima broadcast dari agent di container B.
 - **Event Flow**:
@@ -308,6 +322,7 @@ Widget di-compile menggunakan Svelte 5 Custom Element:
   - `post:voted`: Pembaruan counter vote realtime di public board.
 
 ### 7.2 Juno Agent Workflow
+
 - Didukung oleh **Vercel AI SDK (`ai`)**.
 - **Context Injection (RAG)**:
   1. Pertanyaan visitor diubah menjadi embedding via `text-embedding-3-small` (atau local Ollama).
@@ -341,6 +356,7 @@ Widget di-compile menggunakan Svelte 5 Custom Element:
 ```
 
 ### 8.2 Environment & Proxy Handling
+
 - SvelteKit di-deploy dengan `@sveltejs/adapter-node` dan konfigurasi `trustProxy: true` agar membaca header `x-forwarded-for` dan `x-forwarded-proto` secara tepat di belakang Traefik.
 - Dynamic CORS di Hono: Meninjau domain pemanggil widget terhadap whitelist custom domain workspace yang tersimpan di cache Redis.
 
@@ -372,4 +388,3 @@ Widget di-compile menggunakan Svelte 5 Custom Element:
 6. **Fase 6: Custom Domain & Production Hardening**
    - Reverse proxy routing & wildcard SSL handling di Coolify.
    - Docker multi-stage build optimization.
-

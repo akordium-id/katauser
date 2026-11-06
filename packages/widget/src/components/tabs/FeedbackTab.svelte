@@ -1,53 +1,58 @@
 <script lang="ts">
   let {
-    workspaceId = 'default',
-    apiUrl = 'http://localhost:3000',
+    workspaceId = "default",
+    apiUrl = "http://localhost:3000",
   }: {
-    workspaceId?: string;
-    apiUrl?: string;
-  } = $props();
+    workspaceId?: string
+    apiUrl?: string
+  } = $props()
 
-  let title = $state('');
-  let content = $state('');
-  let isSubmitting = $state(false);
-  let isSuccess = $state(false);
+  let title = $state("")
+  let content = $state("")
+  let isSubmitting = $state(false)
+  let isSuccess = $state(false)
 
   let items = $state([
-    { id: 'f1', title: 'Integrasi Slack Notifications', votes: 42, voted: false },
-    { id: 'f2', title: 'Dukungan Custom Domain SSL', votes: 88, voted: false },
-    { id: 'f3', title: 'Export Data CSV & JSON', votes: 19, voted: false },
-  ]);
+    {
+      id: "f1",
+      title: "Integrasi Slack Notifications",
+      votes: 42,
+      voted: false,
+    },
+    { id: "f2", title: "Dukungan Custom Domain SSL", votes: 88, voted: false },
+    { id: "f3", title: "Export Data CSV & JSON", votes: 19, voted: false },
+  ])
 
-  function handleVote(item: typeof items[0]) {
+  function handleVote(item: (typeof items)[0]) {
     if (item.voted) {
-      item.votes -= 1;
-      item.voted = false;
+      item.votes -= 1
+      item.voted = false
     } else {
-      item.votes += 1;
-      item.voted = true;
+      item.votes += 1
+      item.voted = true
     }
   }
 
   function handleSubmit(e: Event) {
-    e.preventDefault();
-    if (!title.trim()) return;
+    e.preventDefault()
+    if (!title.trim()) return
 
-    isSubmitting = true;
+    isSubmitting = true
     setTimeout(() => {
       items.unshift({
-        id: 'f_' + Date.now(),
+        id: "f_" + Date.now(),
         title,
         votes: 1,
         voted: true,
-      });
-      title = '';
-      content = '';
-      isSubmitting = false;
-      isSuccess = true;
+      })
+      title = ""
+      content = ""
+      isSubmitting = false
+      isSuccess = true
       setTimeout(() => {
-        isSuccess = false;
-      }, 3000);
-    }, 400);
+        isSuccess = false
+      }, 3000)
+    }, 400)
   }
 </script>
 
@@ -74,8 +79,12 @@
         ></textarea>
       {/if}
       <div class="form-actions">
-        <button type="submit" disabled={isSubmitting || !title.trim()} class="btn-primary">
-          {isSubmitting ? 'Mengirim...' : 'Kirim Ide'}
+        <button
+          type="submit"
+          disabled={isSubmitting || !title.trim()}
+          class="btn-primary"
+        >
+          {isSubmitting ? "Mengirim..." : "Kirim Ide"}
         </button>
       </div>
     </form>
@@ -231,4 +240,3 @@
     color: #6d28d9;
   }
 </style>
-

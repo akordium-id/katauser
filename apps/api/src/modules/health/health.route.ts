@@ -1,10 +1,9 @@
-import { Hono } from 'hono';
+import { Hono } from "hono"
 
-export const healthRoute = new Hono().get('/', (c) => {
+export const healthRoute = new Hono().get("/", (c) => {
   return c.json({
-    status: 'ok',
+    status: "ok",
     timestamp: new Date().toISOString(),
-    service: 'katauser-api',
-  });
-});
-
+    service: "katauser-api",
+  })
+})

@@ -1,32 +1,31 @@
-import { createApiClient } from '$lib/api';
-import type { PageServerLoad } from './$types';
+import { createApiClient } from "$lib/api"
+import type { PageServerLoad } from "./$types"
 
 export const load: PageServerLoad = async ({ fetch, params }) => {
-  const { workspaceSlug } = params;
-  const api = createApiClient(fetch);
+  const { workspaceSlug } = params
+  const api = createApiClient(fetch)
 
   let roadmap = {
     planned: [] as any[],
     inProgress: [] as any[],
     completed: [] as any[],
-  };
+  }
 
   try {
-    const res = await api.api.v1.workspaces[':slug'].roadmap.$get({
+    const res = await api.api.v1.workspaces[":slug"].roadmap.$get({
       param: { slug: workspaceSlug },
-    });
+    })
 
     if (res.ok) {
-      const data = await res.json();
-      roadmap = data.roadmap;
+      const data = await res.json()
+      roadmap = data.roadmap
     }
   } catch (err) {
-    console.error('Failed to load roadmap:', err);
+    console.error("Failed to load roadmap:", err)
   }
 
   return {
     workspaceSlug,
     roadmap,
-  };
-};
-
+  }
+}

@@ -1,28 +1,30 @@
 <script lang="ts">
   let {
-    workspaceId = 'default',
+    workspaceId = "default",
   }: {
-    workspaceId?: string;
-  } = $props();
+    workspaceId?: string
+  } = $props()
 
   let releases = $state([
     {
-      id: 'c1',
-      version: 'v1.2.0',
-      title: 'Public Roadmap & Svelte 5 Optimization',
-      date: 'Hari ini',
-      content: 'Peluncuran Public Roadmap Kanban dan upgrade performa UI ke Svelte 5 Runes.',
-      tag: 'New Feature',
+      id: "c1",
+      version: "v1.2.0",
+      title: "Public Roadmap & Svelte 5 Optimization",
+      date: "Hari ini",
+      content:
+        "Peluncuran Public Roadmap Kanban dan upgrade performa UI ke Svelte 5 Runes.",
+      tag: "New Feature",
     },
     {
-      id: 'c2',
-      version: 'v1.1.0',
-      title: 'Real-time Feedback Board & Voting',
-      date: 'Minggu lalu',
-      content: 'Sistem voting atomik dan feedback portal untuk menampung seluruh ide user.',
-      tag: 'Improvement',
+      id: "c2",
+      version: "v1.1.0",
+      title: "Real-time Feedback Board & Voting",
+      date: "Minggu lalu",
+      content:
+        "Sistem voting atomik dan feedback portal untuk menampung seluruh ide user.",
+      tag: "Improvement",
     },
-  ]);
+  ])
 </script>
 
 <div class="changelog-container">
@@ -118,4 +120,3 @@
     line-height: 1.4;
   }
 </style>
-

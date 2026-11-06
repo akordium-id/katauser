@@ -1,168 +1,180 @@
 <script lang="ts">
-  import { parseSSEChunk, isEscalationRequested, formatMessageTime } from '../../chat-helpers';
+  import {
+    parseSSEChunk,
+    isEscalationRequested,
+    formatMessageTime,
+  } from "../../chat-helpers"
 
   interface ChatMessage {
-    id: string;
-    sender: 'user' | 'juno' | 'human';
-    text: string;
-    time: string;
+    id: string
+    sender: "user" | "juno" | "human"
+    text: string
+    time: string
   }
 
   let {
-    workspaceId = 'default',
-    apiUrl = 'http://localhost:3000',
+    workspaceId = "default",
+    apiUrl = "http://localhost:3000",
     user = null,
   }: {
-    workspaceId?: string;
-    apiUrl?: string;
-    user?: { userId?: string; name?: string; email?: string } | null;
-  } = $props();
+    workspaceId?: string
+    apiUrl?: string
+    user?: { userId?: string; name?: string; email?: string } | null
+  } = $props()
 
-  let conversationId = $state<string | null>(null);
-  let inputMessage = $state('');
-  let isSending = $state(false);
-  let isEscalated = $state(false);
-  let chatContainer = $state<HTMLDivElement | null>(null);
+  let conversationId = $state<string | null>(null)
+  let inputMessage = $state("")
+  let isSending = $state(false)
+  let isEscalated = $state(false)
+  let chatContainer = $state<HTMLDivElement | null>(null)
 
   let messages = $state<ChatMessage[]>([
     {
-      id: 'init_1',
-      sender: 'juno',
-      text: 'Halo! Saya Juno, asisten AI Katauser. Ada yang bisa saya bantu seputar produk atau feedback Anda hari ini?',
+      id: "init_1",
+      sender: "juno",
+      text: "Halo! Saya Juno, asisten AI Katauser. Ada yang bisa saya bantu seputar produk atau feedback Anda hari ini?",
       time: formatMessageTime(new Date().toISOString()),
     },
-  ]);
+  ])
 
   function scrollToBottom() {
     if (chatContainer) {
       setTimeout(() => {
-        chatContainer?.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
-      }, 50);
+        chatContainer?.scrollTo({
+          top: chatContainer.scrollHeight,
+          behavior: "smooth",
+        })
+      }, 50)
     }
   }
 
   async function ensureConversation(): Promise<string> {
-    if (conversationId) return conversationId;
+    if (conversationId) return conversationId
 
     try {
       const res = await fetch(`${apiUrl}/api/v1/chat/conversations`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           workspaceId,
-          endUserId: user?.userId || 'guest_' + Math.random().toString(36).substring(2, 8),
+          endUserId:
+            user?.userId ||
+            "guest_" + Math.random().toString(36).substring(2, 8),
         }),
-      });
+      })
       if (res.ok) {
-        const data = await res.json();
-        conversationId = data.conversation.id;
-        return data.conversation.id;
+        const data = await res.json()
+        conversationId = data.conversation.id
+        return data.conversation.id
       }
     } catch (err) {
-      console.warn('[Katauser Widget] Failed to create conversation:', err);
+      console.warn("[Katauser Widget] Failed to create conversation:", err)
     }
-    const fallbackId = 'conv_local_' + Date.now();
-    conversationId = fallbackId;
-    return fallbackId;
+    const fallbackId = "conv_local_" + Date.now()
+    conversationId = fallbackId
+    return fallbackId
   }
 
   async function handleSendMessage(e?: Event) {
-    e?.preventDefault();
-    const text = inputMessage.trim();
-    if (!text || isSending) return;
+    e?.preventDefault()
+    const text = inputMessage.trim()
+    if (!text || isSending) return
 
-    inputMessage = '';
-    isSending = true;
+    inputMessage = ""
+    isSending = true
 
     const userMsg: ChatMessage = {
-      id: 'msg_' + Date.now(),
-      sender: 'user',
+      id: "msg_" + Date.now(),
+      sender: "user",
       text,
       time: formatMessageTime(new Date().toISOString()),
-    };
-    messages.push(userMsg);
-    scrollToBottom();
+    }
+    messages.push(userMsg)
+    scrollToBottom()
 
     // Check escalation intent
     if (isEscalationRequested(text)) {
-      isEscalated = true;
+      isEscalated = true
     }
 
-    const convId = await ensureConversation();
+    const convId = await ensureConversation()
 
     // Post message to API in background
     fetch(`${apiUrl}/api/v1/chat/conversations/${convId}/messages`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         conversationId: convId,
-        senderType: 'end_user',
-        senderId: user?.userId || 'guest',
+        senderType: "end_user",
+        senderId: user?.userId || "guest",
         content: text,
       }),
-    }).catch(() => {});
+    }).catch(() => {})
 
     // Stream Juno AI response
     try {
-      const streamRes = await fetch(`${apiUrl}/api/v1/chat/conversations/${convId}/juno-stream`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: text }),
-      });
+      const streamRes = await fetch(
+        `${apiUrl}/api/v1/chat/conversations/${convId}/juno-stream`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: text }),
+        },
+      )
 
       if (streamRes.ok && streamRes.body) {
-        const reader = streamRes.body.getReader();
-        const decoder = new TextDecoder('utf-8');
+        const reader = streamRes.body.getReader()
+        const decoder = new TextDecoder("utf-8")
         let aiMsg: ChatMessage = {
-          id: 'juno_' + Date.now(),
-          sender: 'juno',
-          text: '',
+          id: "juno_" + Date.now(),
+          sender: "juno",
+          text: "",
           time: formatMessageTime(new Date().toISOString()),
-        };
-        messages.push(aiMsg);
-        const aiMsgIndex = messages.length - 1;
+        }
+        messages.push(aiMsg)
+        const aiMsgIndex = messages.length - 1
 
         while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
+          const { done, value } = await reader.read()
+          if (done) break
 
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split('\n');
+          const chunk = decoder.decode(value, { stream: true })
+          const lines = chunk.split("\n")
 
           for (const line of lines) {
-            const token = parseSSEChunk(line);
+            const token = parseSSEChunk(line)
             if (token) {
-              messages[aiMsgIndex].text += token;
-              scrollToBottom();
+              messages[aiMsgIndex].text += token
+              scrollToBottom()
             }
           }
         }
       } else {
         // Fallback response if offline / local mock
         messages.push({
-          id: 'juno_fb_' + Date.now(),
-          sender: 'juno',
-          text: 'Terima kasih atas pesan Anda! Tim kami telah menerima pesan ini dan akan segera merespons.',
+          id: "juno_fb_" + Date.now(),
+          sender: "juno",
+          text: "Terima kasih atas pesan Anda! Tim kami telah menerima pesan ini dan akan segera merespons.",
           time: formatMessageTime(new Date().toISOString()),
-        });
+        })
       }
     } catch (err) {
       messages.push({
-        id: 'juno_err_' + Date.now(),
-        sender: 'juno',
-        text: 'Pesan berhasil dicatat. Tim kami akan segera menindaklanjuti.',
+        id: "juno_err_" + Date.now(),
+        sender: "juno",
+        text: "Pesan berhasil dicatat. Tim kami akan segera menindaklanjuti.",
         time: formatMessageTime(new Date().toISOString()),
-      });
+      })
     } finally {
-      isSending = false;
-      scrollToBottom();
+      isSending = false
+      scrollToBottom()
     }
   }
 
   function handleKeydown(e: KeyboardEvent) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault()
+      handleSendMessage()
     }
   }
 </script>
@@ -173,7 +185,7 @@
     <div class="avatar-ring">
       <div class="avatar-circle">J</div>
     </div>
-    <div class="hero-title">Hai{user?.name ? `, ${user.name}` : ''}!</div>
+    <div class="hero-title">Hai{user?.name ? `, ${user.name}` : ""}!</div>
     <div class="hero-desc">
       Saya Juno, asisten cerdas Katauser. Tanyakan fitur atau kendala apa pun.
     </div>
@@ -182,7 +194,9 @@
   {#if isEscalated}
     <div class="escalation-banner">
       <span class="escalation-icon">👥</span>
-      <span class="escalation-text">Percakapan telah dialihkan ke tim support manusia kami.</span>
+      <span class="escalation-text"
+        >Percakapan telah dialihkan ke tim support manusia kami.</span
+      >
     </div>
   {/if}
 
@@ -190,11 +204,15 @@
   <div class="chat-scroll" bind:this={chatContainer}>
     {#each messages as msg (msg.id)}
       <div class="message-row {msg.sender === 'user' ? 'user-row' : 'bot-row'}">
-        {#if msg.sender !== 'user'}
+        {#if msg.sender !== "user"}
           <div class="bot-badge">J</div>
         {/if}
         <div class="message-content">
-          <div class="bubble {msg.sender === 'user' ? 'user-bubble' : 'bot-bubble'}">
+          <div
+            class="bubble {msg.sender === 'user'
+              ? 'user-bubble'
+              : 'bot-bubble'}"
+          >
             {msg.text}
           </div>
           <span class="message-time">{msg.time}</span>
@@ -219,7 +237,14 @@
       class="btn-send"
       aria-label="Kirim pesan"
     >
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
         <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
       </svg>
     </button>

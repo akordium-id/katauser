@@ -4,33 +4,33 @@
     onClose,
     onSubmit,
   }: {
-    isOpen: boolean;
-    onClose: () => void;
-    onSubmit: (data: { title: string; content: string }) => Promise<void> | void;
-  } = $props();
+    isOpen: boolean
+    onClose: () => void
+    onSubmit: (data: { title: string; content: string }) => Promise<void> | void
+  } = $props()
 
-  let title = $state('');
-  let content = $state('');
-  let loading = $state(false);
-  let error = $state<string | null>(null);
+  let title = $state("")
+  let content = $state("")
+  let loading = $state(false)
+  let error = $state<string | null>(null)
 
   async function handleSubmit(e: SubmitEvent) {
-    e.preventDefault();
+    e.preventDefault()
     if (!title.trim() || !content.trim()) {
-      error = 'Judul dan penjelasan ide wajib diisi';
-      return;
+      error = "Judul dan penjelasan ide wajib diisi"
+      return
     }
-    loading = true;
-    error = null;
+    loading = true
+    error = null
     try {
-      await onSubmit({ title, content });
-      title = '';
-      content = '';
-      onClose();
+      await onSubmit({ title, content })
+      title = ""
+      content = ""
+      onClose()
     } catch (err: any) {
-      error = err.message || 'Gagal mengirim ide feedback';
+      error = err.message || "Gagal mengirim ide feedback"
     } finally {
-      loading = false;
+      loading = false
     }
   }
 </script>
@@ -44,7 +44,9 @@
     <div
       class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl border border-slate-100"
     >
-      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+      <div
+        class="flex items-center justify-between pb-4 border-b border-slate-100"
+      >
         <h2 class="text-lg font-bold text-slate-900">Kirim Ide Baru</h2>
         <button
           type="button"
@@ -52,21 +54,36 @@
           aria-label="Tutup modal"
           class="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
         >
-          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          <svg
+            class="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
       </div>
 
       <form onsubmit={handleSubmit} class="mt-4 space-y-4">
         {#if error}
-          <div class="rounded-lg bg-red-50 p-3 text-sm text-red-700 border border-red-200">
+          <div
+            class="rounded-lg bg-red-50 p-3 text-sm text-red-700 border border-red-200"
+          >
             {error}
           </div>
         {/if}
 
         <div>
-          <label for="post-title" class="block text-xs font-semibold text-slate-700 mb-1">
+          <label
+            for="post-title"
+            class="block text-xs font-semibold text-slate-700 mb-1"
+          >
             Judul Singkat
           </label>
           <input
@@ -80,7 +97,10 @@
         </div>
 
         <div>
-          <label for="post-content" class="block text-xs font-semibold text-slate-700 mb-1">
+          <label
+            for="post-content"
+            class="block text-xs font-semibold text-slate-700 mb-1"
+          >
             Penjelasan & Kebutuhan
           </label>
           <textarea
@@ -106,11 +126,10 @@
             disabled={loading}
             class="inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-700 disabled:opacity-50"
           >
-            {loading ? 'Mengirim...' : 'Kirim Ide'}
+            {loading ? "Mengirim..." : "Kirim Ide"}
           </button>
         </div>
       </form>
     </div>
   </div>
 {/if}
-

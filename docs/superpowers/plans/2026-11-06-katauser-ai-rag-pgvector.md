@@ -5,6 +5,7 @@
 **Goal:** Membangun AI & RAG Engine untuk Katauser: Website docs ingestion, pgvector cosine similarity search, real-time semantic duplicate post detection, dan RAG-augmented SSE streaming response untuk AI Agent Juno ala UserJot.
 
 **Architecture:**
+
 - Multi-provider 1536-dim vector embedding generator (OpenAI text-embedding-3-small dengan deterministic normalized mock fallback untuk test offline).
 - Cosine similarity matching engine untuk mendeteksi ide masukan serupa (`POST /boards/:boardId/posts/similar`).
 - Workspace knowledge base repository untuk chunking dan embedding artikel/FAQ.
@@ -16,7 +17,9 @@
 ---
 
 ### Task 1: Embedding & Cosine Similarity Engine
+
 **Files:**
+
 - Create: `packages/shared/src/schemas/ai.ts`
 - Modify: `packages/shared/src/index.ts`
 - Create: `apps/api/src/services/ai-embeddings.ts`
@@ -28,7 +31,9 @@
 - [ ] Jalankan vitest hingga passing 100%.
 
 ### Task 2: Knowledge Ingestion API (Website Docs & FAQ Ingestion)
+
 **Files:**
+
 - Create: `apps/api/src/modules/ai/knowledge.route.ts`
 - Modify: `apps/api/src/app.ts`
 - Create: `apps/api/tests/knowledge-ingest.test.ts`
@@ -39,7 +44,9 @@
 - [ ] Jalankan vitest hingga passing 100%.
 
 ### Task 3: Semantic Duplicate Detection di Feedback Posts
+
 **Files:**
+
 - Modify: `apps/api/src/modules/feedback/posts.route.ts`
 - Create: `apps/api/tests/posts-similarity.test.ts`
 
@@ -48,7 +55,9 @@
 - [ ] Jalankan vitest hingga passing 100%.
 
 ### Task 4: RAG Augmented Context pada SSE Live Chat Juno
+
 **Files:**
+
 - Modify: `apps/api/src/modules/chat/chat.route.ts`
 - Create: `apps/api/tests/chat-rag-juno.test.ts`
 
@@ -57,7 +66,9 @@
 - [ ] Jalankan vitest hingga passing 100%.
 
 ### Task 5: Admin UI Knowledge Base & Duplicate Suggestion Helpers
+
 **Files:**
+
 - Create: `apps/web/src/lib/ai-helpers.ts`
 - Create: `apps/web/src/routes/(admin)/dashboard/[workspaceSlug]/settings/ai/+page.svelte`
 - Create: `apps/web/src/routes/(admin)/dashboard/[workspaceSlug]/settings/ai/+page.server.ts`
@@ -66,4 +77,3 @@
 - [ ] Tulis test untuk helper AI (persentase kecocokan, preview snippet).
 - [ ] Buat Admin UI Knowledge Base untuk input URL / teks FAQ panduan produk Juno.
 - [ ] Jalankan vitest dan `svelte-check` di `apps/web` hingga passing 100%.
-

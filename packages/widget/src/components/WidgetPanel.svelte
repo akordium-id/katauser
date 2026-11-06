@@ -1,27 +1,27 @@
 <script lang="ts">
-  import type { WidgetTab, WidgetUser } from '../sdk';
-  import FeedbackTab from './tabs/FeedbackTab.svelte';
-  import RoadmapTab from './tabs/RoadmapTab.svelte';
-  import ChangelogTab from './tabs/ChangelogTab.svelte';
-  import MessagesTab from './tabs/MessagesTab.svelte';
+  import type { WidgetTab, WidgetUser } from "../sdk"
+  import FeedbackTab from "./tabs/FeedbackTab.svelte"
+  import RoadmapTab from "./tabs/RoadmapTab.svelte"
+  import ChangelogTab from "./tabs/ChangelogTab.svelte"
+  import MessagesTab from "./tabs/MessagesTab.svelte"
 
   let {
     isOpen = false,
-    activeTab = 'feedback',
-    workspaceId = 'default',
-    apiUrl = 'http://localhost:3000',
+    activeTab = "feedback",
+    workspaceId = "default",
+    apiUrl = "http://localhost:3000",
     user = null,
     onTabChange,
     onClose,
   }: {
-    isOpen?: boolean;
-    activeTab?: WidgetTab;
-    workspaceId?: string;
-    apiUrl?: string;
-    user?: WidgetUser | null;
-    onTabChange?: (tab: WidgetTab) => void;
-    onClose?: () => void;
-  } = $props();
+    isOpen?: boolean
+    activeTab?: WidgetTab
+    workspaceId?: string
+    apiUrl?: string
+    user?: WidgetUser | null
+    onTabChange?: (tab: WidgetTab) => void
+    onClose?: () => void
+  } = $props()
 </script>
 
 {#if isOpen}
@@ -35,7 +35,12 @@
           <span class="brand-subtitle">{workspaceId}</span>
         </div>
       </div>
-      <button type="button" class="btn-close" onclick={onClose} aria-label="Tutup">
+      <button
+        type="button"
+        class="btn-close"
+        onclick={onClose}
+        aria-label="Tutup"
+      >
         ✕
       </button>
     </div>
@@ -45,28 +50,28 @@
       <button
         type="button"
         class="tab-btn {activeTab === 'feedback' ? 'active' : ''}"
-        onclick={() => onTabChange?.('feedback')}
+        onclick={() => onTabChange?.("feedback")}
       >
         Saran
       </button>
       <button
         type="button"
         class="tab-btn {activeTab === 'roadmap' ? 'active' : ''}"
-        onclick={() => onTabChange?.('roadmap')}
+        onclick={() => onTabChange?.("roadmap")}
       >
         Roadmap
       </button>
       <button
         type="button"
         class="tab-btn {activeTab === 'changelog' ? 'active' : ''}"
-        onclick={() => onTabChange?.('changelog')}
+        onclick={() => onTabChange?.("changelog")}
       >
         Rilis
       </button>
       <button
         type="button"
         class="tab-btn {activeTab === 'messages' ? 'active' : ''}"
-        onclick={() => onTabChange?.('messages')}
+        onclick={() => onTabChange?.("messages")}
       >
         Chat
       </button>
@@ -74,13 +79,13 @@
 
     <!-- Tab Content -->
     <div class="tab-body">
-      {#if activeTab === 'feedback'}
+      {#if activeTab === "feedback"}
         <FeedbackTab {workspaceId} {apiUrl} />
-      {:else if activeTab === 'roadmap'}
+      {:else if activeTab === "roadmap"}
         <RoadmapTab {workspaceId} />
-      {:else if activeTab === 'changelog'}
+      {:else if activeTab === "changelog"}
         <ChangelogTab {workspaceId} />
-      {:else if activeTab === 'messages'}
+      {:else if activeTab === "messages"}
         <MessagesTab {workspaceId} {user} />
       {/if}
     </div>
@@ -104,14 +109,18 @@
     background: #ffffff;
     border: 1px solid #e2e8f0;
     border-radius: 16px;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    box-shadow:
+      0 20px 25px -5px rgba(0, 0, 0, 0.1),
+      0 8px 10px -6px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     overflow: hidden;
     z-index: 2147483646;
     animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     box-sizing: border-box;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-family:
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+      sans-serif;
   }
   @keyframes slideUp {
     from {
@@ -216,4 +225,3 @@
     color: #94a3b8;
   }
 </style>
-

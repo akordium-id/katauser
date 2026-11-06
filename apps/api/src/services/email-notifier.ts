@@ -1,19 +1,35 @@
-import type { VoterNotificationPayload } from '@katauser/shared';
+import type { VoterNotificationPayload } from "@katauser/shared"
 
 /**
  * Render responsive transactional HTML email for voter status updates
  */
-export function renderVoterStatusUpdateHtml(payload: VoterNotificationPayload): string {
-  const { recipientName, workspaceName, postTitle, newStatus, postUrl, changelogUrl } = payload;
+export function renderVoterStatusUpdateHtml(
+  payload: VoterNotificationPayload,
+): string {
+  const {
+    recipientName,
+    workspaceName,
+    postTitle,
+    newStatus,
+    postUrl,
+    changelogUrl,
+  } = payload
 
-  const statusMap: Record<string, { label: string; color: string; bg: string }> = {
-    planned: { label: 'Planned', color: '#6366f1', bg: '#e0e7ff' },
-    in_progress: { label: 'In Progress', color: '#f59e0b', bg: '#fef3c7' },
-    shipped: { label: 'Shipped', color: '#10b981', bg: '#d1fae5' },
-  };
+  const statusMap: Record<
+    string,
+    { label: string; color: string; bg: string }
+  > = {
+    planned: { label: "Planned", color: "#6366f1", bg: "#e0e7ff" },
+    in_progress: { label: "In Progress", color: "#f59e0b", bg: "#fef3c7" },
+    shipped: { label: "Shipped", color: "#10b981", bg: "#d1fae5" },
+  }
 
-  const statusInfo = statusMap[newStatus] || { label: newStatus, color: '#3b82f6', bg: '#dbeafe' };
-  const targetUrl = changelogUrl || postUrl;
+  const statusInfo = statusMap[newStatus] || {
+    label: newStatus,
+    color: "#3b82f6",
+    bg: "#dbeafe",
+  }
+  const targetUrl = changelogUrl || postUrl
 
   return `<!DOCTYPE html>
 <html>
@@ -27,7 +43,7 @@ export function renderVoterStatusUpdateHtml(payload: VoterNotificationPayload): 
       <h2 style="margin: 0; font-size: 18px; color: #0f172a;">${workspaceName}</h2>
     </div>
     <div style="padding: 32px 24px;">
-      <p style="margin: 0 0 16px; font-size: 15px;">Halo ${recipientName || 'Kawan'},</p>
+      <p style="margin: 0 0 16px; font-size: 15px;">Halo ${recipientName || "Kawan"},</p>
       <p style="margin: 0 0 24px; font-size: 15px; line-height: 1.6;">
         Kabar baik! Fitur yang pernah Anda dukung atau berikan upvote di <strong>${workspaceName}</strong> telah diperbarui statusnya:
       </p>
@@ -41,7 +57,7 @@ export function renderVoterStatusUpdateHtml(payload: VoterNotificationPayload): 
 
       <div style="margin-bottom: 24px;">
         <a href="${targetUrl}" style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-size: 14px; font-weight: 500;">
-          ${changelogUrl ? 'Lihat Detail Rilis di Changelog' : 'Lihat Post di Board'}
+          ${changelogUrl ? "Lihat Detail Rilis di Changelog" : "Lihat Post di Board"}
         </a>
       </div>
 
@@ -54,7 +70,7 @@ export function renderVoterStatusUpdateHtml(payload: VoterNotificationPayload): 
     </div>
   </div>
 </body>
-</html>`;
+</html>`
 }
 
 /**
@@ -62,29 +78,35 @@ export function renderVoterStatusUpdateHtml(payload: VoterNotificationPayload): 
  */
 export async function sendVoterNotificationEmail(
   payload: VoterNotificationPayload,
-  apiKey?: string
-): Promise<{ success: boolean; id?: string; mode: 'resend' | 'mock'; error?: string }> {
-  const effectiveApiKey = apiKey || process.env.RESEND_API_KEY;
+  apiKey?: string,
+): Promise<{
+  success: boolean
+  id?: string
+  mode: "resend" | "mock"
+  error?: string
+}> {
+  const effectiveApiKey = apiKey || process.env.RESEND_API_KEY
 
   if (!effectiveApiKey) {
     // Development / Test mock fallback
-    const mockId = `mock_email_${Math.random().toString(36).substring(2, 10)}`;
+    const mockId = `mock_email_${Math.random().toString(36).substring(2, 10)}`
     return {
       success: true,
       id: mockId,
-      mode: 'mock',
-    };
+      mode: "mock",
+    }
   }
 
-  const html = renderVoterStatusUpdateHtml(payload);
-  const statusLabel = payload.newStatus === 'shipped' ? 'Telah Dirilis!' : 'Diperbarui';
+  const html = renderVoterStatusUpdateHtml(payload)
+  const statusLabel =
+    payload.newStatus === "shipped" ? "Telah Dirilis!" : "Diperbarui"
 
   try {
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
       headers: {
         Authorization: `Bearer ${effectiveApiKey}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         from: `${payload.workspaceName} <updates@katauser.com>`,
@@ -93,16 +115,16 @@ export async function sendVoterNotificationEmail(
         html,
       }),
       signal: AbortSignal.timeout(5000),
-    });
+    })
 
     if (!res.ok) {
-      const errText = await res.text().catch(() => 'Unknown error');
-      return { success: false, mode: 'resend', error: errText };
+      const errText = await res.text().catch(() => "Unknown error")
+      return { success: false, mode: "resend", error: errText }
     }
 
-    const data = (await res.json()) as { id: string };
-    return { success: true, id: data.id, mode: 'resend' };
+    const data = (await res.json()) as { id: string }
+    return { success: true, id: data.id, mode: "resend" }
   } catch (err: any) {
-    return { success: false, mode: 'resend', error: err.message };
+    return { success: false, mode: "resend", error: err.message }
   }
 }

@@ -1,35 +1,35 @@
-import { eq, desc, asc, and } from 'drizzle-orm';
-import { conversations, messages } from '../schema/chat';
+import { eq, desc, asc, and } from "drizzle-orm"
+import { conversations, messages } from "../schema/chat"
 
 export class ChatRepository {
   constructor(private db: any) {}
 
   async createConversation(params: {
-    workspaceId: string;
-    endUserId?: string;
+    workspaceId: string
+    endUserId?: string
   }) {
-    const id = 'conv_' + Math.random().toString(36).substring(2, 10);
+    const id = "conv_" + Math.random().toString(36).substring(2, 10)
     const [conv] = await this.db
       .insert(conversations)
       .values({
         id,
         workspaceId: params.workspaceId,
         endUserId: params.endUserId || null,
-        status: 'open',
-        assignedTo: 'ai_juno',
+        status: "open",
+        assignedTo: "ai_juno",
       })
-      .returning();
+      .returning()
 
-    return conv;
+    return conv
   }
 
   async sendMessage(params: {
-    conversationId: string;
-    senderType: 'end_user' | 'agent' | 'ai';
-    senderId: string;
-    content: string;
+    conversationId: string
+    senderType: "end_user" | "agent" | "ai"
+    senderId: string
+    content: string
   }) {
-    const id = 'msg_' + Math.random().toString(36).substring(2, 10);
+    const id = "msg_" + Math.random().toString(36).substring(2, 10)
     const [msg] = await this.db
       .insert(messages)
       .values({
@@ -39,18 +39,18 @@ export class ChatRepository {
         senderId: params.senderId,
         content: params.content,
       })
-      .returning();
+      .returning()
 
-    return msg;
+    return msg
   }
 
   async getConversation(conversationId: string) {
     const [conv] = await this.db
       .select()
       .from(conversations)
-      .where(eq(conversations.id, conversationId));
+      .where(eq(conversations.id, conversationId))
 
-    return conv || null;
+    return conv || null
   }
 
   async getMessages(conversationId: string) {
@@ -58,39 +58,38 @@ export class ChatRepository {
       .select()
       .from(messages)
       .where(eq(messages.conversationId, conversationId))
-      .orderBy(asc(messages.createdAt));
+      .orderBy(asc(messages.createdAt))
   }
 
   async escalateToHuman(conversationId: string, _reason?: string) {
     const [updated] = await this.db
       .update(conversations)
       .set({
-        assignedTo: 'human',
+        assignedTo: "human",
       })
       .where(eq(conversations.id, conversationId))
-      .returning();
+      .returning()
 
-    return updated;
+    return updated
   }
 
   async listWorkspaceConversations(
     workspaceId: string,
-    filter?: { status?: string; assignedTo?: string }
+    filter?: { status?: string; assignedTo?: string },
   ) {
-    const conditions = [eq(conversations.workspaceId, workspaceId)];
+    const conditions = [eq(conversations.workspaceId, workspaceId)]
 
     if (filter?.status) {
-      conditions.push(eq(conversations.status, filter.status));
+      conditions.push(eq(conversations.status, filter.status))
     }
     if (filter?.assignedTo) {
-      conditions.push(eq(conversations.assignedTo, filter.assignedTo));
+      conditions.push(eq(conversations.assignedTo, filter.assignedTo))
     }
 
     return this.db
       .select()
       .from(conversations)
       .where(and(...conditions))
-      .orderBy(desc(conversations.createdAt));
+      .orderBy(desc(conversations.createdAt))
   }
 }
-

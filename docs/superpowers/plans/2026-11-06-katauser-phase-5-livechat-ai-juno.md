@@ -5,6 +5,7 @@
 **Goal:** Membangun sistem Live Chat interaktif dengan AI Agent Juno berbasis Server-Sent Events (SSE) streaming, pencarian RAG context di pgvector (`knowledge_embeddings`), deteksi eskalasi otomatis ke tim support (Human Handoff), dan dashboard Admin Inbox di `apps/web`.
 
 **Architecture:**
+
 - `@katauser/shared`: Zod schemas untuk conversation, message, dan escalation.
 - `packages/db`: Tabel `conversations` & `messages`, `ChatRepository`, dan pgvector knowledge similarity matching.
 - `apps/api`: Hono SSE streaming route (`/api/v1/chat/conversations/:id/juno-stream`), message posting, dan escalation endpoint.
@@ -27,12 +28,15 @@
 ## Implementation Tasks
 
 ### Task 1: Chat & Conversation Zod Schemas di `@katauser/shared`
+
 **Files:**
+
 - Create: `packages/shared/src/schemas/chat.ts`
 - Modify: `packages/shared/src/index.ts`
 - Test: `packages/shared/tests/chat-schemas.test.ts`
 
 **Steps:**
+
 - [ ] 1. Tulis failing test di `packages/shared/tests/chat-schemas.test.ts` untuk `createConversationSchema`, `sendMessageSchema`, dan `escalateConversationSchema`.
 - [ ] 2. Implementasikan schema Zod dan types di `packages/shared/src/schemas/chat.ts`.
 - [ ] 3. Ekspor dari `packages/shared/src/index.ts`.
@@ -42,7 +46,9 @@
 ---
 
 ### Task 2: Database Schema & Chat / Juno Repository Layer di `packages/db`
+
 **Files:**
+
 - Create: `packages/db/src/schema/chat.ts`
 - Create: `packages/db/src/repositories/chat.ts`
 - Modify: `packages/db/src/schema/index.ts`
@@ -50,6 +56,7 @@
 - Test: `packages/db/tests/chat-repo.test.ts`
 
 **Steps:**
+
 - [ ] 1. Tulis failing test di `packages/db/tests/chat-repo.test.ts` untuk pembuatan percakapan, penyimpanan pesan, retrieval thread, dan eskalasi ke human.
 - [ ] 2. Definisikan tabel Drizzle `conversations` dan `messages` di `packages/db/src/schema/chat.ts`.
 - [ ] 3. Implementasikan `ChatRepository` di `packages/db/src/repositories/chat.ts`.
@@ -59,12 +66,15 @@
 ---
 
 ### Task 3: Hono Live Chat & Juno AI Agent SSE Route di `apps/api`
+
 **Files:**
+
 - Create: `apps/api/src/modules/chat/chat.route.ts`
 - Modify: `apps/api/src/app.ts`
 - Test: `apps/api/tests/chat-juno.test.ts`
 
 **Steps:**
+
 - [ ] 1. Tulis failing test di `apps/api/tests/chat-juno.test.ts` untuk endpoint percakapan, pengiriman pesan, dan escalation.
 - [ ] 2. Implementasikan route modular `chatRoute` dengan dukungan SSE streaming response AI Juno (`c.streamText`).
 - [ ] 3. Rangkai route ke `apps/api/src/app.ts` dengan update otomatis `AppType`.
@@ -74,11 +84,14 @@
 ---
 
 ### Task 4: Interactive Live Chat & Juno Streaming di `@katauser/widget`
+
 **Files:**
+
 - Modify: `packages/widget/src/components/tabs/MessagesTab.svelte`
 - Test: `packages/widget/tests/chat-tab.test.ts`
 
 **Steps:**
+
 - [ ] 1. Tulis failing test di `packages/widget/tests/chat-tab.test.ts` untuk state chat dan message formatting.
 - [ ] 2. Implementasikan SSE reader & live message composer di `MessagesTab.svelte`.
 - [ ] 3. Tambahkan indikator status eskalasi (human handoff banner).
@@ -88,15 +101,17 @@
 ---
 
 ### Task 5: Admin Live Chat & Inbox di `apps/web`
+
 **Files:**
+
 - Create: `apps/web/src/routes/(admin)/dashboard/[workspaceSlug]/inbox/+page.server.ts`
 - Create: `apps/web/src/routes/(admin)/dashboard/[workspaceSlug]/inbox/+page.svelte`
 - Test: `apps/web/tests/inbox-ui.test.ts`
 
 **Steps:**
+
 - [ ] 1. Tulis failing test di `apps/web/tests/inbox-ui.test.ts` untuk helper inbox (status badge, sender format).
 - [ ] 2. Buat SSR loader di `+page.server.ts` dan antarmuka split view 2 kolom (thread list & message view/reply) di `+page.svelte`.
 - [ ] 3. Jalankan full type check dan test suite di seluruh monorepo (`turbo run check test`).
 - [ ] 4. Jalankan full production build (`turbo run build`).
 - [ ] 5. Commit: `feat(web): add admin live chat inbox portal`.
-

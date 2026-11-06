@@ -37,6 +37,7 @@
 ### Task 1: Restrukturisasi Workspace & Setup Monorepo Tooling
 
 **Files:**
+
 - Create: `pnpm-workspace.yaml`
 - Create: `turbo.json`
 - Modify: `package.json` (root monorepo scripts & dependencies)
@@ -44,6 +45,7 @@
 - Create: `packages/tsconfig/package.json`
 
 **Steps:**
+
 - [ ] 1. Siapkan file konfigurasi root `pnpm-workspace.yaml` yang mendefinisikan `apps/*` dan `packages/*`.
 - [ ] 2. Konfigurasi `turbo.json` dengan pipeline: `build`, `dev`, `lint`, `check`, `test`.
 - [ ] 3. Buat shared package `packages/tsconfig` dengan konfigurasi TypeScript `base.json` dan `package.json`.
@@ -56,6 +58,7 @@
 ### Task 2: Setup `@katauser/shared` (Schemas, Types, & Constants)
 
 **Files:**
+
 - Create: `packages/shared/package.json`
 - Create: `packages/shared/tsconfig.json`
 - Create: `packages/shared/src/index.ts`
@@ -64,6 +67,7 @@
 - Test: `packages/shared/tests/schemas.test.ts`
 
 **Steps:**
+
 - [ ] 1. Buat test failing di `packages/shared/tests/schemas.test.ts` untuk validasi Zod schema workspace (slug regex, name validation).
 - [ ] 2. Setup `packages/shared` dengan TypeScript build / exports.
 - [ ] 3. Implementasikan schema Zod `createWorkspaceSchema`, `updateWorkspaceSchema`, dan tipe-tipe role (`WorkspaceRole`).
@@ -75,6 +79,7 @@
 ### Task 3: Setup `@katauser/db` (PostgreSQL + Drizzle Schema + pgvector)
 
 **Files:**
+
 - Create: `packages/db/package.json`
 - Create: `packages/db/tsconfig.json`
 - Create: `packages/db/drizzle.config.ts`
@@ -86,6 +91,7 @@
 - Test: `packages/db/tests/schema.test.ts`
 
 **Steps:**
+
 - [ ] 1. Tulis test unit untuk memeriksa definisi relasi dan skema Drizzle di `packages/db/tests/schema.test.ts`.
 - [ ] 2. Pasang dependensi `drizzle-orm`, `drizzle-kit`, `pg`, `@types/pg`.
 - [ ] 3. Implementasikan skema `workspaces`, `workspace_members`, `users`, `boards`, `posts`, dan `knowledge_embeddings` (vector).
@@ -98,6 +104,7 @@
 ### Task 4: Setup `apps/api` (Hono Server & Typed RPC Router)
 
 **Files:**
+
 - Create: `apps/api/package.json`
 - Create: `apps/api/tsconfig.json`
 - Create: `apps/api/src/index.ts`
@@ -107,6 +114,7 @@
 - Test: `apps/api/tests/app.test.ts`
 
 **Steps:**
+
 - [ ] 1. Buat test failing di `apps/api/tests/app.test.ts` yang menguji endpoint `GET /api/v1/health` dan `GET /api/v1/workspaces`.
 - [ ] 2. Setup `apps/api` dengan dependensi `hono`, `@hono/node-server`, `@hono/zod-validator`, `@katauser/db`, `@katauser/shared`.
 - [ ] 3. Implementasikan route modular di `src/modules/health/` dan `src/modules/workspaces/`.
@@ -119,6 +127,7 @@
 ### Task 5: Setup `apps/web` (SvelteKit 2 + Svelte 5 + Hono RPC Client)
 
 **Files:**
+
 - Create/Modify: `apps/web/package.json`
 - Create: `apps/web/src/lib/api.ts` (hc<AppType> factory)
 - Modify: `apps/web/src/routes/+page.server.ts`
@@ -126,6 +135,7 @@
 - Test: `apps/web/tests/api-client.test.ts`
 
 **Steps:**
+
 - [ ] 1. Tulis test unit di `apps/web/tests/api-client.test.ts` untuk memverifikasi instansiasi `createApiClient` dan penanganan header token.
 - [ ] 2. Hubungkan dependency `@katauser/api` dan `@katauser/shared` ke `apps/web/package.json`.
 - [ ] 3. Buat helper `createApiClient` di `apps/web/src/lib/api.ts` yang menggunakan `hc<AppType>`.
@@ -138,13 +148,14 @@
 ### Task 6: Verifikasi End-to-End Build & Dev Pipeline
 
 **Files:**
+
 - Create: `docker/docker-compose.dev.yml` (PostgreSQL + pgvector & Redis untuk local dev)
 - Create: `README.md` (Dokumentasi monorepo & cara menjalankan dev server)
 
 **Steps:**
+
 - [ ] 1. Buat `docker-compose.dev.yml` untuk menjalankan PostgreSQL dengan `pgvector` dan Redis di port lokal.
 - [ ] 2. Jalankan `pnpm check` dan `pnpm test` di seluruh workspace via Turbo (`turbo run check test`).
 - [ ] 3. Uji jalannya perintah `pnpm dev` secara paralel untuk `api` dan `web`.
 - [ ] 4. Tulis instruksi setup developer di `README.md`.
 - [ ] 5. Commit: `chore: add local dev docker-compose and verify monorepo pipeline`.
-

@@ -1,42 +1,50 @@
-import { Hono } from 'hono';
-import { zValidator } from '@hono/zod-validator';
-import { widgetIdentifySchema, verifyUserHmac } from '@katauser/shared';
+import { Hono } from "hono"
+import { zValidator } from "@hono/zod-validator"
+import { widgetIdentifySchema, verifyUserHmac } from "@katauser/shared"
 
 // For workspace HMAC secret lookup (in production, retrieved from workspaces table)
 const WORKSPACE_HMAC_SECRETS: Record<string, string> = {
-  'acme-corp': 'test-workspace-secret-key',
-  default: 'default-widget-secret',
-};
+  "acme-corp": "test-workspace-secret-key",
+  default: "default-widget-secret",
+}
 
 export const widgetRoute = new Hono().post(
-  '/widget/identify',
-  zValidator('json', widgetIdentifySchema, (result, c) => {
+  "/widget/identify",
+  zValidator("json", widgetIdentifySchema, (result, c) => {
     if (!result.success) {
-      return c.json({ success: false, errors: result.error.errors }, 400);
+      return c.json({ success: false, errors: result.error.errors }, 400)
     }
   }),
   async (c) => {
-    const { workspaceId, workspaceSlug, userId, email, name, hash, hmacSignature } = c.req.valid('json');
+    const {
+      workspaceId,
+      workspaceSlug,
+      userId,
+      email,
+      name,
+      hash,
+      hmacSignature,
+    } = c.req.valid("json")
 
-    const wsIdentifier = workspaceId || workspaceSlug || 'default';
+    const wsIdentifier = workspaceId || workspaceSlug || "default"
     const secretKey =
-      WORKSPACE_HMAC_SECRETS[wsIdentifier] || WORKSPACE_HMAC_SECRETS['default'];
+      WORKSPACE_HMAC_SECRETS[wsIdentifier] || WORKSPACE_HMAC_SECRETS["default"]
 
-    let isVerified = false;
-    const effectiveHash = hash || hmacSignature;
+    let isVerified = false
+    const effectiveHash = hash || hmacSignature
 
     if (effectiveHash) {
-      const isValid = verifyUserHmac(secretKey, userId, effectiveHash);
+      const isValid = verifyUserHmac(secretKey, userId, effectiveHash)
       if (!isValid) {
         return c.json(
           {
             success: false,
-            message: 'Invalid HMAC signature for user identification',
+            message: "Invalid HMAC signature for user identification",
           },
-          401
-        );
+          401,
+        )
       }
-      isVerified = true;
+      isVerified = true
     }
 
     // Generate a secure widget session token
@@ -47,8 +55,8 @@ export const widgetRoute = new Hono().post(
         email,
         verified: isVerified,
         exp: Date.now() + 24 * 60 * 60 * 1000,
-      })
-    ).toString('base64url')}`;
+      }),
+    ).toString("base64url")}`
 
     return c.json({
       success: true,
@@ -56,10 +64,9 @@ export const widgetRoute = new Hono().post(
       user: {
         userId,
         email,
-        name: name || email.split('@')[0],
+        name: name || email.split("@")[0],
         verified: isVerified,
       },
-    });
-  }
-);
-
+    })
+  },
+)

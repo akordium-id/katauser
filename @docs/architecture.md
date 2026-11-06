@@ -43,13 +43,13 @@ katauser-app/
 
 Menggunakan **PostgreSQL 16** dengan schema modular Drizzle:
 
-| Domain | Tabel | Deskripsi |
-|---|---|---|
-| **Auth & Core** | `users`, `workspaces`, `workspace_members` | Multi-tenant tenant scoping & RBAC |
-| **Feedback** | `boards`, `posts`, `post_votes`, `post_comments` | Feedback collection & upvoting engine |
-| **Roadmap & Changelog** | `changelog_entries`, `changelog_notifications` | Roadmap grouping (Planned/In Progress/Completed) & release logs |
-| **Chat & Juno AI** | `conversations`, `messages` | Real-time chat session, AI vs Human handoff status, SSE streaming history |
-| **Domains** | `custom_domains` | Domain CNAME/Apex verification status (`unverified`, `pending`, `active`) |
+| Domain                  | Tabel                                            | Deskripsi                                                                 |
+| ----------------------- | ------------------------------------------------ | ------------------------------------------------------------------------- |
+| **Auth & Core**         | `users`, `workspaces`, `workspace_members`       | Multi-tenant tenant scoping & RBAC                                        |
+| **Feedback**            | `boards`, `posts`, `post_votes`, `post_comments` | Feedback collection & upvoting engine                                     |
+| **Roadmap & Changelog** | `changelog_entries`, `changelog_notifications`   | Roadmap grouping (Planned/In Progress/Completed) & release logs           |
+| **Chat & Juno AI**      | `conversations`, `messages`                      | Real-time chat session, AI vs Human handoff status, SSE streaming history |
+| **Domains**             | `custom_domains`                                 | Domain CNAME/Apex verification status (`unverified`, `pending`, `active`) |
 
 ---
 
@@ -66,4 +66,3 @@ Menggunakan **PostgreSQL 16** dengan schema modular Drizzle:
 - **Trusted Proxy Awareness**: Middleware membaca `cf-connecting-ip` (Cloudflare) dan `x-forwarded-for` (Traefik/Coolify).
 - **HMAC Identity Verification**: Validasi identitas user widget menggunakan workspace secret token (`crypto.createHmac('sha256')`).
 - **Sliding-window Rate Limiter**: Membatasi brute-force verifikasi DNS dan abuse API.
-

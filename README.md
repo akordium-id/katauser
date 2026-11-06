@@ -35,6 +35,7 @@ docker compose -f docker/docker-compose.dev.yml up -d
 ```
 
 Service lokal yang aktif:
+
 - PostgreSQL 16 (pgvector): `localhost:5432` (`postgres:postgres@localhost:5432/katauser`)
 - Redis: `localhost:6379`
 
@@ -53,6 +54,7 @@ pnpm dev
 ```
 
 Atau jalankan spesifik per workspace:
+
 ```bash
 pnpm --filter @katauser/api dev
 pnpm --filter @katauser/web dev

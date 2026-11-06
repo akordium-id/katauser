@@ -4,7 +4,8 @@
 
 **Goal:** Menambahkan fitur User Traits (MRR/Plan), Outbound Webhooks (Slack/Discord), dan Automated Email Notification Loop (Resend) agar produk Katauser memiliki kapabilitas setara UserJot.
 
-**Architecture:** 
+**Architecture:**
+
 - Semi-structured `traits` pada Widget Identify & Voter store dengan agregator total revenue MRR.
 - Outbound Webhooks Dispatcher di Hono dengan adapter format native Slack Blocks dan Discord Embeds.
 - Transactional email notifier dengan HTML template responsive dan fallback gracefully saat `RESEND_API_KEY` tidak terpasang.
@@ -15,6 +16,7 @@
 **Spec:** ATM UserJot Gap Analysis (User Traits, Slack/Discord Webhooks, Resend Email Loop).
 
 ## Global Constraints
+
 - Strict Decoupled API (Hono API single source of truth, SvelteKit pure UI/SSR consumer).
 - Svelte 5 Runes (`$state`, `$props`, `$derived`, `$effect`) untuk semua komponen UI baru.
 - Strict TDD (Tulis failing test dulu, implementasikan kode, sampai passing 100%).
@@ -23,7 +25,9 @@
 ---
 
 ### Task 1: User Traits Schema & Revenue-Weighted Calculation
+
 **Files:**
+
 - Create/Modify: `packages/shared/src/schemas/widget.ts`
 - Create/Modify: `packages/shared/src/schemas/traits.ts`
 - Create: `packages/shared/tests/traits-schemas.test.ts`
@@ -35,7 +39,9 @@
 - [ ] Jalankan vitest di `packages/shared` hingga passing 100%.
 
 ### Task 2: Outbound Webhook Formatter & Dispatcher (Slack & Discord)
+
 **Files:**
+
 - Create: `packages/shared/src/schemas/integrations.ts`
 - Create: `apps/api/src/modules/integrations/webhook-dispatcher.ts`
 - Create: `apps/api/tests/webhook-dispatcher.test.ts`
@@ -46,7 +52,9 @@
 - [ ] Jalankan vitest di `apps/api` hingga passing 100%.
 
 ### Task 3: Automated Voter Email Notification Service
+
 **Files:**
+
 - Create: `packages/shared/src/schemas/notifications.ts`
 - Create: `apps/api/src/services/email-notifier.ts`
 - Create: `apps/api/tests/email-notifier.test.ts`
@@ -56,7 +64,9 @@
 - [ ] Jalankan vitest di `apps/api` hingga passing 100%.
 
 ### Task 4: Wire-up Events di Hono API Routes (Posts & Chat)
+
 **Files:**
+
 - Modify: `apps/api/src/modules/feedback/posts.route.ts`
 - Modify: `apps/api/src/modules/chat/chat.route.ts`
 - Create: `apps/api/tests/integrations-events.test.ts`
@@ -67,7 +77,9 @@
 - [ ] Jalankan vitest di `apps/api` hingga passing 100%.
 
 ### Task 5: Admin UI Enhancements di SvelteKit Web
+
 **Files:**
+
 - Create: `apps/web/src/routes/(admin)/dashboard/[workspaceSlug]/settings/integrations/+page.svelte`
 - Create: `apps/web/src/routes/(admin)/dashboard/[workspaceSlug]/settings/integrations/+page.server.ts`
 - Modify: `apps/web/src/routes/(admin)/dashboard/[workspaceSlug]/boards/+page.svelte`
@@ -77,4 +89,3 @@
 - [ ] Buat UI Settings Integrations (konfigurasi Slack Webhook & Discord Webhook) di SvelteKit.
 - [ ] Perbarui tampilan list feedback posts di Admin Board untuk menampilkan badge Total MRR Impact.
 - [ ] Jalankan vitest dan `svelte-check` di `apps/web` hingga passing 100%.
-

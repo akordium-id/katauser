@@ -1,35 +1,39 @@
 <script lang="ts">
-  import type { PageData, ActionData } from './$types';
+  import type { PageData, ActionData } from "./$types"
 
   interface Props {
-    data: PageData;
-    form: ActionData;
+    data: PageData
+    form: ActionData
   }
 
-  let { data, form }: Props = $props();
+  let { data, form }: Props = $props()
 
-  let slackUrl = $state('');
-  let discordUrl = $state('');
-  let testingStatus = $state<string | null>(null);
+  let slackUrl = $state("")
+  let discordUrl = $state("")
+  let testingStatus = $state<string | null>(null)
 
   $effect(() => {
-    slackUrl = data.webhook?.slackWebhookUrl || '';
-    discordUrl = data.webhook?.discordWebhookUrl || '';
-  });
+    slackUrl = data.webhook?.slackWebhookUrl || ""
+    discordUrl = data.webhook?.discordWebhookUrl || ""
+  })
 
   async function handleTestWebhook() {
-    testingStatus = 'Mengirim notifikasi pengujian...';
+    testingStatus = "Mengirim notifikasi pengujian..."
     try {
-      const res = await fetch(`/api/v1/workspaces/${data.workspaceSlug}/integrations/webhook/test`, {
-        method: 'POST',
-      });
+      const res = await fetch(
+        `/api/v1/workspaces/${data.workspaceSlug}/integrations/webhook/test`,
+        {
+          method: "POST",
+        },
+      )
       if (res.ok) {
-        testingStatus = '✅ Berhasil! Notifikasi terkirim ke webhook Anda.';
+        testingStatus = "✅ Berhasil! Notifikasi terkirim ke webhook Anda."
       } else {
-        testingStatus = '⚠️ Webhook belum tersimpan atau URL tidak dapat dijangkau.';
+        testingStatus =
+          "⚠️ Webhook belum tersimpan atau URL tidak dapat dijangkau."
       }
     } catch {
-      testingStatus = '❌ Terjadi kesalahan jaringan saat mengirim tes.';
+      testingStatus = "❌ Terjadi kesalahan jaringan saat mengirim tes."
     }
   }
 </script>
@@ -40,9 +44,13 @@
 
 <div class="max-w-4xl mx-auto py-8 px-4">
   <div class="mb-8">
-    <h1 class="text-2xl font-bold text-gray-900">Integrasi Eksternal (Slack & Discord)</h1>
+    <h1 class="text-2xl font-bold text-gray-900">
+      Integrasi Eksternal (Slack & Discord)
+    </h1>
     <p class="text-sm text-gray-500 mt-1">
-      Hubungkan workspace Katauser Anda dengan channel tim untuk menerima notifikasi real-time saat ada feedback baru, vote, atau percakapan eskalasi.
+      Hubungkan workspace Katauser Anda dengan channel tim untuk menerima
+      notifikasi real-time saat ada feedback baru, vote, atau percakapan
+      eskalasi.
     </p>
   </div>
 
@@ -62,12 +70,18 @@
     <!-- Slack Section -->
     <div class="card bg-base-100 border border-gray-200 shadow-sm p-6">
       <div class="flex items-center gap-3 mb-4">
-        <div class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-lg">
+        <div
+          class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-lg"
+        >
           #
         </div>
         <div>
-          <h2 class="text-base font-semibold text-gray-900">Slack Incoming Webhook</h2>
-          <p class="text-xs text-gray-500">Kirim kartu Block Kit interaktif ke channel Slack tim Anda.</p>
+          <h2 class="text-base font-semibold text-gray-900">
+            Slack Incoming Webhook
+          </h2>
+          <p class="text-xs text-gray-500">
+            Kirim kartu Block Kit interaktif ke channel Slack tim Anda.
+          </p>
         </div>
       </div>
 
@@ -84,7 +98,9 @@
           class="input input-bordered w-full text-sm font-mono"
         />
         <div class="label">
-          <span class="label-text-alt text-gray-400">Buat webhook di menu Slack App Directory › Incoming WebHooks.</span>
+          <span class="label-text-alt text-gray-400"
+            >Buat webhook di menu Slack App Directory › Incoming WebHooks.</span
+          >
         </div>
       </div>
     </div>
@@ -92,12 +108,16 @@
     <!-- Discord Section -->
     <div class="card bg-base-100 border border-gray-200 shadow-sm p-6">
       <div class="flex items-center gap-3 mb-4">
-        <div class="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-lg">
+        <div
+          class="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-lg"
+        >
           🎮
         </div>
         <div>
           <h2 class="text-base font-semibold text-gray-900">Discord Webhook</h2>
-          <p class="text-xs text-gray-500">Kirim rich embeds ke text channel Discord komunitas atau internal.</p>
+          <p class="text-xs text-gray-500">
+            Kirim rich embeds ke text channel Discord komunitas atau internal.
+          </p>
         </div>
       </div>
 
@@ -114,26 +134,39 @@
           class="input input-bordered w-full text-sm font-mono"
         />
         <div class="label">
-          <span class="label-text-alt text-gray-400">Salin URL dari Channel Settings › Integrations › Webhooks.</span>
+          <span class="label-text-alt text-gray-400"
+            >Salin URL dari Channel Settings › Integrations › Webhooks.</span
+          >
         </div>
       </div>
     </div>
 
     <!-- Event Triggers Info -->
     <div class="bg-gray-50 rounded-lg p-5 border border-gray-200">
-      <h3 class="text-sm font-semibold text-gray-800 mb-3">Event yang otomatis dikirim:</h3>
+      <h3 class="text-sm font-semibold text-gray-800 mb-3">
+        Event yang otomatis dikirim:
+      </h3>
       <ul class="space-y-2 text-xs text-gray-600">
         <li class="flex items-center gap-2">
           <span class="badge badge-xs badge-info"></span>
-          <span><strong>post.created</strong> — Ide saran atau bug baru dikirim oleh customer.</span>
+          <span
+            ><strong>post.created</strong> — Ide saran atau bug baru dikirim oleh
+            customer.</span
+          >
         </li>
         <li class="flex items-center gap-2">
           <span class="badge badge-xs badge-success"></span>
-          <span><strong>post.voted</strong> — Upvote baru masuk dengan informasi nilai MRR pemilih.</span>
+          <span
+            ><strong>post.voted</strong> — Upvote baru masuk dengan informasi nilai
+            MRR pemilih.</span
+          >
         </li>
         <li class="flex items-center gap-2">
           <span class="badge badge-xs badge-error"></span>
-          <span><strong>chat.escalated</strong> — Customer meminta bantuan langsung manusia dari widget live chat.</span>
+          <span
+            ><strong>chat.escalated</strong> — Customer meminta bantuan langsung manusia
+            dari widget live chat.</span
+          >
         </li>
       </ul>
     </div>
@@ -160,4 +193,3 @@
     {/if}
   </form>
 </div>
-

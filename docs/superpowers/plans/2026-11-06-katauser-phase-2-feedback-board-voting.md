@@ -4,7 +4,8 @@
 
 **Goal:** Membangun modul Feedback Board dan Voting Loop: CRUD board, submit feedback post, voting (upvote toggle) dengan counter atomic, comment thread, perubahan status post, serta tampilan UI Public Portal dan Admin Dashboard di SvelteKit terhubung via Hono RPC.
 
-**Architecture:** 
+**Architecture:**
+
 - `@katauser/shared`: Zod schemas & type definitions untuk Board, Post, Vote, dan Comment.
 - `packages/db`: Drizzle queries untuk Board, Post, Vote, dan Comment dengan atomic vote transaction.
 - `apps/api`: Modular Hono routes (`/api/v1/boards`, `/api/v1/posts`) di-chaining ke `AppType`.
@@ -40,11 +41,13 @@
 ### Task 1: Setup Zod Schemas & Types untuk Feedback di `@katauser/shared`
 
 **Files:**
+
 - Create: `packages/shared/src/schemas/feedback.ts`
 - Modify: `packages/shared/src/index.ts`
 - Test: `packages/shared/tests/feedback-schemas.test.ts`
 
 **Steps:**
+
 - [ ] 1. Tulis test failing di `packages/shared/tests/feedback-schemas.test.ts` untuk validasi `createBoardSchema`, `createPostSchema`, `votePostSchema`, `createCommentSchema`, dan `updatePostStatusSchema`.
 - [ ] 2. Implementasikan Zod schema di `packages/shared/src/schemas/feedback.ts` dengan status post valid: `pending`, `under_review`, `planned`, `in_progress`, `completed`, `closed`.
 - [ ] 3. Ekspor schema dari `packages/shared/src/index.ts`.
@@ -56,11 +59,13 @@
 ### Task 2: Service/Repository Layer untuk Feedback di `packages/db`
 
 **Files:**
+
 - Create: `packages/db/src/repositories/feedback.ts`
 - Modify: `packages/db/src/index.ts`
 - Test: `packages/db/tests/feedback-repo.test.ts`
 
 **Steps:**
+
 - [ ] 1. Tulis test failing di `packages/db/tests/feedback-repo.test.ts` yang menguji operasi create board, create post, toggle vote (atomic count), dan create comment.
 - [ ] 2. Implementasikan fungsi query di `packages/db/src/repositories/feedback.ts` menggunakan Drizzle ORM:
   - `createBoard`, `getBoardsByWorkspace`
@@ -75,12 +80,14 @@
 ### Task 3: Hono Feedback Modules & RPC Routes di `apps/api`
 
 **Files:**
+
 - Create: `apps/api/src/modules/feedback/boards.route.ts`
 - Create: `apps/api/src/modules/feedback/posts.route.ts`
 - Modify: `apps/api/src/app.ts`
 - Test: `apps/api/tests/feedback.test.ts`
 
 **Steps:**
+
 - [ ] 1. Tulis test failing di `apps/api/tests/feedback.test.ts` yang menguji endpoint boards, post creation, upvote toggle, dan comment.
 - [ ] 2. Implementasikan handler modular:
   - `boardsRoute`: `GET /workspaces/:slug/boards`, `POST /workspaces/:slug/boards`
@@ -94,6 +101,7 @@
 ### Task 4: SvelteKit Public Feedback Board UI (`apps/web`)
 
 **Files:**
+
 - Create: `apps/web/src/routes/(public)/b/[workspaceSlug]/[boardSlug]/+page.server.ts`
 - Create: `apps/web/src/routes/(public)/b/[workspaceSlug]/[boardSlug]/+page.svelte`
 - Create: `apps/web/src/routes/(public)/b/[workspaceSlug]/[boardSlug]/[postId]/+page.server.ts`
@@ -104,6 +112,7 @@
 - Test: `apps/web/tests/feedback-ui.test.ts`
 
 **Steps:**
+
 - [ ] 1. Tulis test unit di `apps/web/tests/feedback-ui.test.ts` untuk memverifikasi fungsionalitas rendering PostCard dan VoteButton.
 - [ ] 2. Buat komponen reaktif Svelte 5: `PostCard.svelte`, `VoteButton.svelte`, `CreatePostModal.svelte`.
 - [ ] 3. Buat SSR loader di `+page.server.ts` yang memanggil `api.boards.posts.$get()` via Hono RPC Client.
@@ -116,13 +125,14 @@
 ### Task 5: Admin Dashboard Feedback Management & Pipeline Verification
 
 **Files:**
+
 - Create: `apps/web/src/routes/(admin)/dashboard/[workspaceSlug]/boards/+page.server.ts`
 - Create: `apps/web/src/routes/(admin)/dashboard/[workspaceSlug]/boards/+page.svelte`
 - Modify: `README.md`
 
 **Steps:**
+
 - [ ] 1. Implementasikan halaman admin board management untuk membuat board baru dan mengubah status post feedback (`Planned`, `In Progress`, `Completed`).
 - [ ] 2. Jalankan full type check dan test suite di seluruh monorepo (`turbo run check test`).
 - [ ] 3. Jalankan full production build (`turbo run build`).
 - [ ] 4. Commit: `feat(web): add admin feedback management dashboard and verify monorepo pipeline`.
-
