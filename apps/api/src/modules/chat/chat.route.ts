@@ -7,6 +7,9 @@ import {
   escalateConversationSchema,
 } from '@katauser/shared';
 
+import { getWorkspaceWebhookConfig } from '../integrations/integrations.route';
+import { dispatchWebhookEvent } from '../integrations/webhook-dispatcher';
+
 interface ConversationItem {
   id: string;
   workspaceId: string;
@@ -120,6 +123,22 @@ export const chatRoute = new Hono()
 
       conv.assignedTo = 'human';
 
+      // Dispatch webhook to Slack/Discord
+      const webhookConfig = getWorkspaceWebhookConfig(conv.workspaceId);
+      if (webhookConfig) {
+        dispatchWebhookEvent(webhookConfig, {
+          event: 'chat.escalated',
+          workspaceSlug: conv.workspaceId,
+          timestamp: new Date().toISOString(),
+          data: {
+            conversationId: conv.id,
+            authorName: conv.endUserId || 'Pelanggan',
+            initialMessage: 'Customer meminta bantuan live support manusia',
+            url: `https://katauser.com/dashboard/${conv.workspaceId}/inbox`,
+          },
+        }).catch(() => {});
+      }
+
       // System notification message
       messagesStore.push({
         id: 'msg_sys_' + Math.random().toString(36).substring(2, 10),
@@ -148,6 +167,22 @@ export const chatRoute = new Hono()
     const conv = conversationsStore.find((item) => item.id === id);
     if (conv && isHumanHandoffRequested) {
       conv.assignedTo = 'human';
+
+      // Dispatch webhook to Slack/Discord
+      const webhookConfig = getWorkspaceWebhookConfig(conv.workspaceId);
+      if (webhookConfig) {
+        dispatchWebhookEvent(webhookConfig, {
+          event: 'chat.escalated',
+          workspaceSlug: conv.workspaceId,
+          timestamp: new Date().toISOString(),
+          data: {
+            conversationId: conv.id,
+            authorName: conv.endUserId || 'Pelanggan',
+            initialMessage: 'Customer meminta bantuan live support manusia',
+            url: `https://katauser.com/dashboard/${conv.workspaceId}/inbox`,
+          },
+        }).catch(() => {});
+      }
     }
 
     const aiMessageChunks = isHumanHandoffRequested
