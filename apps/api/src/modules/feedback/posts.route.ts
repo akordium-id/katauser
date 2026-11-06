@@ -5,12 +5,14 @@ import {
   createPostSchema,
   updatePostStatusSchema,
   createCommentSchema,
+  similarPostsQuerySchema,
   type UserTraits,
 } from '@katauser/shared';
 import { createRateLimiter } from '../../middleware/rate-limiter';
 import { getWorkspaceWebhookConfig } from '../integrations/integrations.route';
 import { dispatchWebhookEvent } from '../integrations/webhook-dispatcher';
 import { sendVoterNotificationEmail } from '../../services/email-notifier';
+import { generateEmbedding, cosineSimilarity } from '../../services/ai-embeddings';
 
 // In-memory mock store for posts, votes, comments
 interface PostRecord {
@@ -22,6 +24,7 @@ interface PostRecord {
   votesCount: number;
   totalMrr: number;
   commentsCount: number;
+  embedding?: number[];
   createdAt: string;
 }
 
@@ -104,6 +107,11 @@ export const postsRoute = new Hono()
         createdAt: new Date().toISOString(),
       };
 
+      // Generate vector embedding for duplicate detection
+      try {
+        newPost.embedding = await generateEmbedding(`${newPost.title} ${newPost.content}`);
+      } catch {}
+
       postsStore.push(newPost);
 
       // Async dispatch webhook post.created
@@ -123,6 +131,55 @@ export const postsRoute = new Hono()
       }
 
       return c.json({ success: true, post: newPost }, 201);
+    }
+  )
+  .post(
+    '/boards/:boardId/posts/similar',
+    zValidator('json', similarPostsQuerySchema, (result, c) => {
+      if (!result.success) {
+        return c.json({ success: false, errors: result.error.errors }, 400);
+      }
+    }),
+    async (c) => {
+      const boardId = c.req.param('boardId');
+      const { title, content, threshold = 0.5, limit = 3 } = c.req.valid('json');
+
+      const queryText = `${title} ${content || ''}`.trim();
+      const queryEmbedding = await generateEmbedding(queryText);
+
+      const boardPosts = postsStore.filter((p) => p.boardId === boardId);
+      const candidates: Array<{
+        id: string;
+        title: string;
+        content: string;
+        votesCount: number;
+        totalMrr: number;
+        similarityScore: number;
+      }> = [];
+
+      for (const post of boardPosts) {
+        if (!post.embedding) {
+          post.embedding = await generateEmbedding(`${post.title} ${post.content}`);
+        }
+        const score = cosineSimilarity(queryEmbedding, post.embedding);
+        if (score >= threshold) {
+          candidates.push({
+            id: post.id,
+            title: post.title,
+            content: post.content,
+            votesCount: post.votesCount,
+            totalMrr: post.totalMrr,
+            similarityScore: score,
+          });
+        }
+      }
+
+      candidates.sort((a, b) => b.similarityScore - a.similarityScore);
+
+      return c.json({
+        success: true,
+        similarPosts: candidates.slice(0, limit),
+      });
     }
   )
   .post(
