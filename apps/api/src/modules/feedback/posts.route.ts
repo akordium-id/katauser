@@ -6,6 +6,7 @@ import {
   updatePostStatusSchema,
   createCommentSchema,
 } from '@katauser/shared';
+import { createRateLimiter } from '../../middleware/rate-limiter';
 
 // In-memory mock store for posts, votes, comments
 const postsStore: Array<{
@@ -87,9 +88,15 @@ export const postsRoute = new Hono()
       return c.json({ success: true, post: newPost }, 201);
     }
   )
-  .post('/posts/:postId/vote', async (c) => {
-    const postId = c.req.param('postId');
-    const userId = c.req.header('x-user-id') || 'guest_user';
+  .post(
+    '/posts/:postId/vote',
+    createRateLimiter({ max: 5, windowMs: 60000 }),
+    async (c) => {
+      const postId = c.req.param('postId');
+      if (!postId) {
+        return c.json({ success: false, message: 'Post ID is required' }, 400);
+      }
+      const userId = c.req.header('x-user-id') || 'guest_user';
 
     const existingIndex = votesStore.findIndex(
       (v) => v.postId === postId && v.userId === userId

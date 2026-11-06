@@ -8,6 +8,23 @@ import { createServerClient } from "@supabase/ssr"
 import { createClient, type AMREntry } from "@supabase/supabase-js"
 import type { Handle } from "@sveltejs/kit"
 import { sequence } from "@sveltejs/kit/hooks"
+import {
+  isRootDomain,
+  resolveCustomDomain,
+  rewritePathForCustomDomain,
+} from "$lib/domain-router"
+
+export const customDomainRouter: Handle = async ({ event, resolve }) => {
+  const host = event.request.headers.get("host") || ""
+  if (host && !isRootDomain(host)) {
+    const slug = resolveCustomDomain(host)
+    const newPath = rewritePathForCustomDomain(event.url.pathname, slug)
+    if (newPath !== event.url.pathname) {
+      event.url.pathname = newPath
+    }
+  }
+  return resolve(event)
+}
 
 export const supabase: Handle = async ({ event, resolve }) => {
   event.locals.supabase = createServerClient(
@@ -104,4 +121,4 @@ const authGuard: Handle = async ({ event, resolve }) => {
   return resolve(event)
 }
 
-export const handle: Handle = sequence(supabase, authGuard)
+export const handle: Handle = sequence(customDomainRouter, supabase, authGuard)
