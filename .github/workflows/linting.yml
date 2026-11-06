@@ -17,10 +17,10 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: NPM install
-        run: npm install
+        run: pnpm install
 
       - name: Linting
-        run: npm run lint
+        run: pnpm run lint
 
       - name: Typechecking
-        run: npm run check
+        run: pnpm run check
