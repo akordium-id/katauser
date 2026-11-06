@@ -90,3 +90,4 @@ export class ChangelogRepository {
     return Array.from(new Set(emails));
   }
 }
+

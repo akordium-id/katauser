@@ -86,3 +86,4 @@ describe('ChangelogRepository Unit Tests', () => {
     expect(emails).toEqual(['alice@example.com', 'bob@example.com']);
   });
 });
+

@@ -16,3 +16,4 @@ export const updateChangelogSchema = createChangelogSchema.partial();
 
 export type CreateChangelogInput = z.infer<typeof createChangelogSchema>;
 export type UpdateChangelogInput = z.infer<typeof updateChangelogSchema>;
+

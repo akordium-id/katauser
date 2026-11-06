@@ -29,3 +29,4 @@ export const changelogPosts = pgTable(
     primaryKey({ columns: [table.changelogId, table.postId] }),
   ]
 );
+

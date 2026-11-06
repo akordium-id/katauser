@@ -35,3 +35,4 @@ describe('Changelog Schemas Validation', () => {
     expect(parsed.postIds).toBeUndefined();
   });
 });
+
