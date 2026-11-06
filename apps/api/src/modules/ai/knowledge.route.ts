@@ -46,7 +46,7 @@ export async function findRelevantKnowledgeContext(
   for (const doc of docs) {
     for (const chunk of doc.chunks) {
       const score = cosineSimilarity(queryEmbedding, chunk.embedding);
-      if (score >= 0.4) {
+      if (score >= 0.25) {
         candidates.push({ text: chunk.text, score });
       }
     }
