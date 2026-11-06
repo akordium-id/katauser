@@ -1,32 +1,23 @@
-import {
-  Session,
-  SupabaseClient,
-  type AMREntry,
-  type User,
-} from "@supabase/supabase-js"
-import { Database } from "./DatabaseDefinitions"
-
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
 declare global {
   namespace App {
+    interface User {
+      id: string;
+      email: string;
+      name: string;
+      role: string;
+    }
+
     interface Locals {
-      supabase: SupabaseClient<Database>
-      supabaseServiceRole: SupabaseClient<Database>
-      safeGetSession: () => Promise<{
-        session: Session | null
-        user: User | null
-        amr: AMREntry[] | null
-      }>
-      session: Session | null
-      user: User | null
+      user: User | null;
+      sessionToken: string | null;
     }
+
     interface PageData {
-      session?: Session | null
+      user?: User | null;
     }
-    // interface Error {}
-    // interface Platform {}
   }
 }
 
-export {}
+export {};
