@@ -17,7 +17,7 @@ declare global {
       user: User | null
     }
     interface PageData {
-      session: Session | null
+      session?: any
     }
     // interface Error {}
     // interface Platform {}

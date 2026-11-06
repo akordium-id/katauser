@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
 import {
   createPostSchema,
@@ -32,10 +33,18 @@ const commentsStore: Array<{
 }> = [];
 
 export const postsRoute = new Hono()
-  .get('/boards/:boardId/posts', (c) => {
-    const boardId = c.req.param('boardId');
-    const sort = c.req.query('sort') || 'top_voted';
-    const status = c.req.query('status');
+  .get(
+    '/boards/:boardId/posts',
+    zValidator(
+      'query',
+      z.object({
+        sort: z.enum(['top_voted', 'newest']).optional(),
+        status: z.string().optional(),
+      })
+    ),
+    (c) => {
+      const boardId = c.req.param('boardId');
+      const { sort = 'top_voted', status } = c.req.valid('query');
 
     let filtered = postsStore.filter((p) => p.boardId === boardId);
     if (status) {
@@ -151,3 +160,4 @@ export const postsRoute = new Hono()
       return c.json({ success: true, post });
     }
   );
+
