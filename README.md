@@ -54,7 +54,7 @@ katauser-app/
 
 ### 1. Prasyarat Lingkungan
 
-- **Node.js** >= 20.0.0
+- **Node.js** >= 22.0.0 (LTS)
 - **pnpm** >= 9.0.0
 - **Docker & Docker Compose** (untuk PostgreSQL 16 + pgvector dan Redis)
 

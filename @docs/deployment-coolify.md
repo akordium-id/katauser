@@ -34,6 +34,9 @@ graph TD
 - **Database**: Add Managed PostgreSQL (aktifkan extension pgvector via SQL: `CREATE EXTENSION IF NOT EXISTS vector;`).
 - **Redis**: Add Managed Redis.
 
+> [!NOTE]
+> Seluruh layanan mensyaratkan **Node.js >= 22 (LTS)** karena dependensi `@supabase/supabase-js@2.119.0` memiliki engine constraint `node: >=22.0.0`. Dockerfile multi-stage di `docker/Dockerfile.api` dan `docker/Dockerfile.web` sudah menggunakan base image `node:22-alpine`. Jika menggunakan Nixpacks di Coolify, set environment variable `NIXPACKS_NODE_VERSION=22`.
+
 ---
 
 ## 3. Environment Variables Wajib
