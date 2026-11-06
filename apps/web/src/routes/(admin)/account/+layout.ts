@@ -1,6 +1,10 @@
 import { redirect } from "@sveltejs/kit"
 import type { LayoutLoad } from "./$types"
 
+export const _hasFullProfile = (profile: any) => {
+  return !!(profile && profile.full_name)
+}
+
 export const load: LayoutLoad = async ({ data }) => {
   if (!data?.user) {
     redirect(303, "/login/sign_in")
@@ -14,6 +18,7 @@ export const load: LayoutLoad = async ({ data }) => {
       full_name: data.user.name,
       company_name: "Acme",
       website: "https://acme.com",
+      unsubscribed: false,
     },
   }
 }

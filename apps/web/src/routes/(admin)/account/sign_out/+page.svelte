@@ -1,22 +1,14 @@
 <script lang="ts">
-  import { goto } from "$app/navigation"
   import { onMount } from "svelte"
+  import { goto } from "$app/navigation"
 
-  let { data } = $props()
-
-  let supabase = $derived(data.supabase)
-  let message = $state("Signing out....")
-
-  // on mount, sign out
   onMount(() => {
-    supabase.auth.signOut().then(({ error }) => {
-      if (error) {
-        message = "There was an issue signing out."
-      } else {
-        goto("/")
-      }
-    })
+    goto("/")
   })
 </script>
 
-<h1 class="text-2xl font-bold m-6 mx-auto my-auto">{message}</h1>
+<svelte:head>
+  <title>Signing Out - Katauser</title>
+</svelte:head>
+
+<h1 class="text-2xl font-bold m-6 mx-auto my-auto text-center">Signing out....</h1>

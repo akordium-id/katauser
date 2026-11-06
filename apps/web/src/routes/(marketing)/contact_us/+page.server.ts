@@ -1,9 +1,8 @@
 import { fail } from "@sveltejs/kit"
-import { sendAdminEmail } from "$lib/mailer.js"
+import { sendAdminEmail } from "$lib/mailer"
 
-/** @type {import('./$types').Actions} */
 export const actions = {
-  submitContactUs: async ({ request, locals: { supabaseServiceRole } }) => {
+  submitContactUs: async ({ request }) => {
     const formData = await request.formData()
     const errors: { [fieldName: string]: string } = {}
 
@@ -51,28 +50,11 @@ export const actions = {
       return fail(400, { errors })
     }
 
-    // Save to database
-    const { error: insertError } = await supabaseServiceRole
-      .from("contact_requests")
-      .insert({
-        first_name: firstName,
-        last_name: lastName,
-        email,
-        company_name: company,
-        phone,
-        message_body: message,
-        updated_at: new Date(),
-      })
-
-    if (insertError) {
-      console.error("Error saving contact request", insertError)
-      return fail(500, { errors: { _: "Error saving" } })
-    }
-
-    // Send email to admin
     await sendAdminEmail({
-      subject: "New contact request",
-      body: `New contact request from ${firstName} ${lastName}.\n\nEmail: ${email}\n\nPhone: ${phone}\n\nCompany: ${company}\n\nMessage: ${message}`,
+      subject: `New contact request from ${firstName} ${lastName}`,
+      body: `Name: ${firstName} ${lastName}\nEmail: ${email}\nCompany: ${company}\nPhone: ${phone}\n\nMessage:\n${message}`,
     })
+
+    return { success: true }
   },
 }
