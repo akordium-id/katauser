@@ -79,3 +79,4 @@ export const integrationsRoute = new Hono()
     const result = await dispatchWebhookEvent(config, testEvent);
     return c.json({ success: true, result });
   });
+

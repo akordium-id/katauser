@@ -94,3 +94,4 @@ describe('Integrations & Events Endpoints (Webhooks, Traits, and Notifications)'
     expect(statusJson.notificationsSent).toBeGreaterThanOrEqual(1);
   });
 });
+

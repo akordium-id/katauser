@@ -60,3 +60,4 @@ describe('Voter Email Notification Service', () => {
     expect(result.id).toBe('email_resend_12345');
   });
 });
+

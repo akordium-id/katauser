@@ -27,3 +27,4 @@ export interface WebhookEvent {
     initialMessage?: string;
   };
 }
+

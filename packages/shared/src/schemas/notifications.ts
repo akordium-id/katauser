@@ -14,3 +14,4 @@ export const voterNotificationPayloadSchema = z.object({
 });
 
 export type VoterNotificationPayload = z.infer<typeof voterNotificationPayloadSchema>;
+

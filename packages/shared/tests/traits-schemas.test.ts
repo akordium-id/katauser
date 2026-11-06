@@ -72,3 +72,4 @@ describe('User Traits & Revenue Calculation', () => {
     expect(result.formattedMrr).toBe('$248');
   });
 });
+

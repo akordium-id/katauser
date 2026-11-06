@@ -40,3 +40,4 @@ export function calculateRevenueImpact(voters: VoterWithTraits[]): RevenueImpact
     formattedMrr: `$${totalMrr.toLocaleString('en-US')}`,
   };
 }
+
