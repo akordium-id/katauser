@@ -17,6 +17,7 @@ export const fetchSubscription = async ({
 }: {
   customerId: string
 }) => {
+  void customerId
   return {
     primarySubscription: null as { appSubscription?: { id: string } } | null,
     hasEverHadSubscription: false,

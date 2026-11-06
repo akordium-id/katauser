@@ -92,11 +92,7 @@
     </div>
   </div>
 
-  <button
-    type="submit"
-    class="btn btn-primary w-full mt-2"
-    disabled={loading}
-  >
+  <button type="submit" class="btn btn-primary w-full mt-2" disabled={loading}>
     {#if loading}
       <span class="loading loading-spinner loading-sm"></span>
       Creating Account...
@@ -107,5 +103,8 @@
 </form>
 
 <div class="text-sm text-slate-600 mt-6 text-center">
-  Already have an account? <a class="link link-primary font-medium" href="/login/sign_in">Sign in</a>.
+  Already have an account? <a
+    class="link link-primary font-medium"
+    href="/login/sign_in">Sign in</a
+  >.
 </div>

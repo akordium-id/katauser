@@ -1,7 +1,9 @@
 import { redirect } from "@sveltejs/kit"
 import type { LayoutLoad } from "./$types"
 
-export const _hasFullProfile = (profile: any) => {
+export const _hasFullProfile = (
+  profile: { full_name?: string | null } | null | undefined,
+) => {
   return !!(profile && profile.full_name)
 }
 

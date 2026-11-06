@@ -24,7 +24,9 @@
         d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
       />
     </svg>
-    <span>Jika email {email} terdaftar, petunjuk reset password telah dikirim.</span>
+    <span
+      >Jika email {email} terdaftar, petunjuk reset password telah dikirim.</span
+    >
   </div>
 {:else}
   <p class="text-sm text-slate-600 mb-6 text-left">
@@ -61,5 +63,8 @@
 {/if}
 
 <div class="text-sm text-slate-600 mt-6 text-center">
-  Ingat kata sandi? <a class="link link-primary font-medium" href="/login/sign_in">Sign in</a>.
+  Ingat kata sandi? <a
+    class="link link-primary font-medium"
+    href="/login/sign_in">Sign in</a
+  >.
 </div>

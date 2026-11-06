@@ -1,10 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalEnv": [
-    "PRIVATE_STRIPE_API_KEY",
-    "PUBLIC_API_URL",
-    "INTERNAL_API_URL"
-  ],
+  "globalEnv": ["PRIVATE_STRIPE_API_KEY", "PUBLIC_API_URL", "INTERNAL_API_URL"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

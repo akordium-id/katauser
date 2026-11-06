@@ -102,7 +102,8 @@ export const actions = {
 
     if (!currentPassword) {
       return fail(400, {
-        errorMessage: "You must provide your current password to delete your account.",
+        errorMessage:
+          "You must provide your current password to delete your account.",
         errorFields: ["currentPassword"],
         currentPassword,
       })
@@ -115,7 +116,9 @@ export const actions = {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
         })
-      } catch {}
+      } catch {
+        // ignore logout error on session delete
+      }
       cookies.delete("katauser_session", { path: "/" })
     }
 
@@ -181,7 +184,9 @@ export const actions = {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
         })
-      } catch {}
+      } catch {
+        // ignore logout error on session delete
+      }
       cookies.delete("katauser_session", { path: "/" })
     }
     throw redirect(303, "/")

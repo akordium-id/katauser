@@ -5,6 +5,7 @@
 **Goal:** Menghapus seluruh dependensi Supabase (`@supabase/*`) dan menggantikannya dengan Native Authentication berbasis Hono API, Drizzle ORM schema (`users`, `sessions`, `accounts`), zero-dependency native password hashing (`node:crypto` scrypt), dan form login Svelte 5.
 
 **Architecture:**
+
 - `packages/shared/src/schemas/auth.ts`: Zod schemas untuk `registerSchema`, `loginSchema`, dan `userProfileSchema`.
 - `apps/api/src/modules/auth/auth.route.ts`: Endpoint `POST /auth/register`, `POST /auth/login`, `POST /auth/logout`, `GET /auth/me` dengan cookie HttpOnly session.
 - `apps/api/src/services/password-hasher.ts`: `hashPassword` dan `verifyPassword` berbasis `node:crypto.scryptSync`.
@@ -15,7 +16,9 @@
 ---
 
 ### Task 1: Auth Schemas & Native Password Hasher
+
 **Files:**
+
 - Create: `packages/shared/src/schemas/auth.ts`
 - Modify: `packages/shared/src/index.ts`
 - Create: `apps/api/src/services/password-hasher.ts`
@@ -27,7 +30,9 @@
 - [ ] Jalankan vitest hingga passing 100%.
 
 ### Task 2: Hono API Native Auth Route
+
 **Files:**
+
 - Create: `apps/api/src/modules/auth/auth.route.ts`
 - Modify: `apps/api/src/app.ts`
 - Create: `apps/api/tests/auth-native.test.ts`
@@ -38,7 +43,9 @@
 - [ ] Jalankan vitest di `apps/api` hingga passing 100%.
 
 ### Task 3: SvelteKit Hooks & Native Session Guard
+
 **Files:**
+
 - Modify: `apps/web/src/hooks.server.ts`
 - Modify: `apps/web/src/app.d.ts`
 - Create: `apps/web/tests/native-auth-guard.test.ts`
@@ -48,7 +55,9 @@
 - [ ] Perbarui `app.d.ts` Locals interface (`user?: { id, email, name, role }`).
 
 ### Task 4: Svelte 5 Native Login & Register UI
+
 **Files:**
+
 - Modify: `apps/web/src/routes/(marketing)/login/sign_in/+page.svelte` & `+page.server.ts`
 - Modify: `apps/web/src/routes/(marketing)/login/sign_up/+page.svelte` & `+page.server.ts`
 - Modify: `apps/web/src/routes/(marketing)/login/+layout.svelte`
@@ -59,7 +68,9 @@
 - [ ] Jalankan `svelte-check` dan vitest di `apps/web` hingga 100% passing.
 
 ### Task 5: Supabase Clean Up & Monorepo Hardening
+
 **Files:**
+
 - Modify: `apps/web/package.json` (uninstall `@supabase/*`)
 - Delete: `supabase/` directory & `database_migration.sql`
 - Modify: `.env.example`, `apps/api/.env`, `apps/web/.env`

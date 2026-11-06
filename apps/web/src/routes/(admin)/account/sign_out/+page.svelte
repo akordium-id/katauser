@@ -11,4 +11,6 @@
   <title>Signing Out - Katauser</title>
 </svelte:head>
 
-<h1 class="text-2xl font-bold m-6 mx-auto my-auto text-center">Signing out....</h1>
+<h1 class="text-2xl font-bold m-6 mx-auto my-auto text-center">
+  Signing out....
+</h1>

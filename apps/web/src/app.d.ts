@@ -3,21 +3,21 @@
 declare global {
   namespace App {
     interface User {
-      id: string;
-      email: string;
-      name: string;
-      role: string;
+      id: string
+      email: string
+      name: string
+      role: string
     }
 
     interface Locals {
-      user: User | null;
-      sessionToken: string | null;
+      user: User | null
+      sessionToken: string | null
     }
 
     interface PageData {
-      user?: User | null;
+      user?: User | null
     }
   }
 }
 
-export {};
+export {}

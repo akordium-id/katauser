@@ -52,9 +52,12 @@ describe("account api actions", () => {
         locals: { user: { id: "user123", email: "old@example.com" } },
       } as any)
 
-      expect(fail).toHaveBeenCalledWith(400, expect.objectContaining({
-        errorMessage: "A valid email address is required",
-      }))
+      expect(fail).toHaveBeenCalledWith(
+        400,
+        expect.objectContaining({
+          errorMessage: "A valid email address is required",
+        }),
+      )
     })
   })
 })

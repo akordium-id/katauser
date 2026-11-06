@@ -266,8 +266,10 @@
         <a href="https://hono.dev" class="link font-bold" target="_blank"
           >Hono</a
         >,
-        <a href="https://orm.drizzle.team" class="link font-bold" target="_blank"
-          >Drizzle</a
+        <a
+          href="https://orm.drizzle.team"
+          class="link font-bold"
+          target="_blank">Drizzle</a
         >,
         <a href="https://tailwindcss.com" class="link font-bold" target="_blank"
           >Tailwind</a

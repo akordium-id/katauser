@@ -92,11 +92,7 @@
     />
   </div>
 
-  <button
-    type="submit"
-    class="btn btn-primary w-full mt-2"
-    disabled={loading}
-  >
+  <button type="submit" class="btn btn-primary w-full mt-2" disabled={loading}>
     {#if loading}
       <span class="loading loading-spinner loading-sm"></span>
       Signing in...
@@ -110,5 +106,8 @@
   <a class="link link-hover" href="/login/forgot_password">Forgot password?</a>
 </div>
 <div class="text-sm text-slate-600 mt-2 text-center">
-  Don't have an account? <a class="link link-primary font-medium" href="/login/sign_up">Sign up</a>.
+  Don't have an account? <a
+    class="link link-primary font-medium"
+    href="/login/sign_up">Sign up</a
+  >.
 </div>
