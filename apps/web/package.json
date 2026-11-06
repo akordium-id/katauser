@@ -8,7 +8,7 @@
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-    "test": "vitest",
+    "test": "vitest run",
     "test_run": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write --plugin prettier-plugin-svelte ./"
@@ -46,6 +46,9 @@
   },
   "type": "module",
   "dependencies": {
+    "@katauser/api": "workspace:*",
+    "@katauser/shared": "workspace:*",
+    "hono": "^4.7.2",
     "@supabase/auth-ui-shared": "^0.1.8",
     "@supabase/auth-ui-svelte": "^0.2.9",
     "@supabase/ssr": "^0.5.2",
