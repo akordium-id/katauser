@@ -14,7 +14,9 @@ export const load: PageServerLoad = async ({ fetch, params }) => {
     })
 
     if (res.ok) {
-      const { boards } = (await res.json()) as { boards?: Array<{ slug: string }> }
+      const { boards } = (await res.json()) as {
+        boards?: Array<{ slug: string }>
+      }
       if (Array.isArray(boards) && boards.length > 0 && boards[0]?.slug) {
         targetBoardSlug = boards[0].slug
       }

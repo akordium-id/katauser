@@ -7,7 +7,8 @@ Dokumen ini merangkum arsitektur, modul utama, dan alur kerja teknis di monorepo
 ## 1. Workspace Hub & Dashboard Admin
 
 ### Rute & Alur Navigasi
-- **/account**: Berfungsi sebagai *Workspace Hub*. Menampilkan daftar workspace milik user, status plan (`Free` / `Pro`), jumlah board aktif, tombol akses cepat ke dashboard, dan tautan ke portal publik.
+
+- **/account**: Berfungsi sebagai _Workspace Hub_. Menampilkan daftar workspace milik user, status plan (`Free` / `Pro`), jumlah board aktif, tombol akses cepat ke dashboard, dan tautan ke portal publik.
 - **/dashboard**: Otomatis me-redirect pengguna ke `/account`.
 - **/dashboard/[workspaceSlug]**: Otomatis me-redirect ke `/dashboard/[workspaceSlug]/boards`.
 - **/dashboard/[workspaceSlug]/boards**: Manajemen papan masukan (tambah board baru, filter, status).
@@ -20,8 +21,9 @@ Dokumen ini merangkum arsitektur, modul utama, dan alur kerja teknis di monorepo
   - `widget`: Generator dan kustomisasi kode embed widget.
 
 ### Arsitektur Layout
+
 - **Unified Sidebar (`apps/web/src/routes/(admin)/dashboard/[workspaceSlug]/+layout.svelte`)**:
-  - Mengelompokkan modul ke dalam dua grup utama: *Manajemen Produk* dan *Pengaturan*.
+  - Mengelompokkan modul ke dalam dua grup utama: _Manajemen Produk_ dan _Pengaturan_.
   - Dilengkapi workspace switcher ke `/account`, menu dropdown tautan portal publik, dan mobile drawer responsif.
   - 100% menggunakan library ikon `lucide-svelte`.
 
@@ -30,16 +32,19 @@ Dokumen ini merangkum arsitektur, modul utama, dan alur kerja teknis di monorepo
 ## 2. Database Seeder untuk Onboarding (`pnpm db:seed`)
 
 ### Cara Menjalankan
+
 ```bash
 # Menggunakan environment variable DATABASE_URL lokal atau default:
 pnpm db:seed
 ```
 
 ### Struktur File
+
 - **`packages/db/src/seed-data.ts`**: Pure data definisi demo (bisa diuji via Vitest tanpa koneksi DB).
-- **`packages/db/src/seed.ts`**: Runner CLI yang menjalankan operasi *idempotent upsert* (`onConflictDoUpdate` / `onConflictDoNothing`).
+- **`packages/db/src/seed.ts`**: Runner CLI yang menjalankan operasi _idempotent upsert_ (`onConflictDoUpdate` / `onConflictDoNothing`).
 
 ### Data Demo yang Di-seed
+
 1. **Admin Demo User**:
    - Email: `demo@katauser.com`
    - Password: `katauser123` (di-hash dengan `scryptSync` native `node:crypto`).
@@ -51,8 +56,8 @@ pnpm db:seed
    - Siti Rahma (`siti@cloudscale.io` — Growth MRR \$99).
    - Alex Chandra (`alex@digiagency.com` — Starter MRR \$49).
 4. **Boards**:
-   - `fitur` (*Papan Ide & Fitur*).
-   - `kendala` (*Laporan Kendala & Bug*).
+   - `fitur` (_Papan Ide & Fitur_).
+   - `kendala` (_Laporan Kendala & Bug_).
 5. **Feedback Posts (5 Post Nyata)**:
    - Integrasi Discord & Slack Webhook (`in_progress`, 54 votes).
    - Single Sign-On (SSO) SAML / Okta (`planned`, 38 votes).
@@ -60,7 +65,7 @@ pnpm db:seed
    - Ekspor Masukan ke Format CSV & Excel (`under_review`, 16 votes).
    - Notifikasi Email Terlambat (`completed`, 7 votes).
 6. **Changelog**:
-   - Rilis publik v1.2.0 (*Dukungan Dark Mode di Widget & Optimasi Ukuran Bundle*).
+   - Rilis publik v1.2.0 (_Dukungan Dark Mode di Widget & Optimasi Ukuran Bundle_).
 
 ---
 
@@ -69,6 +74,7 @@ pnpm db:seed
 Memungkinkan pengelola produk mengonfigurasi dan mempratinjau widget sebelum dipasang di aplikasi web host.
 
 ### Fitur Kustomisasi
+
 - **Posisi**: `bottom-right` (kanan bawah) atau `bottom-left` (kiri bawah).
 - **Warna Aksen**: Preset warna (Indigo, Emerald, Violet, Rose, Slate) atau custom hex input.
 - **Default Tab**: `feedback`, `roadmap`, `changelog`, atau `messages`.
@@ -77,6 +83,7 @@ Memungkinkan pengelola produk mengonfigurasi dan mempratinjau widget sebelum dip
 ### Format Pemasangan
 
 #### A. Universal HTML Script Tag (1 Baris)
+
 ```html
 <script
   defer
@@ -90,6 +97,7 @@ Memungkinkan pengelola produk mengonfigurasi dan mempratinjau widget sebelum dip
 ```
 
 #### B. Modern SPA / Framework (NPM)
+
 ```typescript
 import { Katauser } from "@katauser/widget"
 
@@ -110,7 +118,9 @@ Katauser.identify({
 ```
 
 #### C. Keamanan HMAC Identity
+
 Untuk mencegah pemalsuan identitas pelanggan dan bobot MRR, generate HMAC hash di backend aplikasi host:
+
 ```typescript
 import { createHmac } from "node:crypto"
 
@@ -127,28 +137,32 @@ const userHash = createHmac("sha256", secret)
 Portal publik digunakan oleh end-user untuk berpartisipasi menyampaikan feedback, melihat progres tim, dan membaca pengumuman rilis.
 
 ### Rute Publik
+
 - **/b/[workspaceSlug]**: Loader `+page.server.ts` secara otomatis me-redirect ke board aktif pertama (`/b/[workspaceSlug]/[boardSlug]`) untuk menghindari 404.
 - **/b/[workspaceSlug]/[boardSlug]**: Papan masukan publik dengan filter status, pengurutan, voting optimistik, dan modal pengiriman ide baru.
-- **/roadmap/[workspaceSlug]**: Papan Kanban transparan tiga kolom (*Planned*, *In Progress*, *Completed*).
+- **/roadmap/[workspaceSlug]**: Papan Kanban transparan tiga kolom (_Planned_, _In Progress_, _Completed_).
 - **/changelog/[workspaceSlug]**: Timeline catatan rilis dengan tag kategori dan badge relasi penyelesaian request customer.
 
 ### Komponen Terpadu
+
 - **`PortalHeader.svelte`**:
-  - Sticky header dengan efek *backdrop-blur*.
+  - Sticky header dengan efek _backdrop-blur_.
   - Tab navigasi terpadu: **Feedback**, **Roadmap**, dan **Changelog** dengan indikator aktif yang jelas.
-  - Slot actions dinamis (misal: tombol aksi *"+ Kirim Ide"*).
+  - Slot actions dinamis (misal: tombol aksi _"+ Kirim Ide"_).
 - **`PortalFooter.svelte`**:
-  - Branding halus *"Didukung oleh Katauser — Platform Masukan Pengguna & AI"*.
+  - Branding halus _"Didukung oleh Katauser — Platform Masukan Pengguna & AI"_.
 
 ---
 
 ## 5. Ringkasan Pengujian & Linting
 
 Seluruh modul dilengkapi dengan automated unit tests di Vitest:
+
 - `@katauser/db`: `tests/seed.test.ts`, `tests/schema.test.ts`, `tests/feedback-repo.test.ts`, `tests/changelog-repo.test.ts`, `tests/chat-repo.test.ts`.
 - `@katauser/web`: `tests/dashboard-hub.test.ts`, `tests/widget-generator.test.ts`, `tests/public-portal.test.ts`, `tests/landing-page.test.ts`, dll.
 
 Perintah verifikasi monorepo:
+
 ```bash
 # Menjalankan seluruh test suite
 pnpm test

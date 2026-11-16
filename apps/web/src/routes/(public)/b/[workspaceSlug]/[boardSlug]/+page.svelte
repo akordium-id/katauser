@@ -90,11 +90,16 @@
   <!-- Main Content -->
   <main class="flex-1 max-w-4xl w-full mx-auto px-4 py-8">
     <!-- Board Info Title -->
-    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+    <div
+      class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
+    >
       <div>
-        <h2 class="text-xl font-bold tracking-tight text-slate-900">{data.boardName}</h2>
+        <h2 class="text-xl font-bold tracking-tight text-slate-900">
+          {data.boardName}
+        </h2>
         <p class="text-xs text-slate-500 mt-0.5">
-          Suarakan saran fitur, berikan suara pada ide pengguna lain, dan bantu kami menentukan prioritas rilis.
+          Suarakan saran fitur, berikan suara pada ide pengguna lain, dan bantu
+          kami menentukan prioritas rilis.
         </p>
       </div>
     </div>
@@ -174,7 +179,8 @@
       >
         <h3 class="text-sm font-semibold text-slate-900">Belum Ada Masukan</h3>
         <p class="mt-1 text-xs text-slate-500">
-          Jadilah orang pertama yang mengirimkan ide atau saran untuk produk ini!
+          Jadilah orang pertama yang mengirimkan ide atau saran untuk produk
+          ini!
         </p>
         <button
           type="button"

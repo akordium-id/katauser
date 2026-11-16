@@ -2,8 +2,12 @@
   import { Sparkles } from "lucide-svelte"
 </script>
 
-<footer class="mt-auto border-t border-slate-200/80 bg-white/50 py-6 text-center text-xs text-slate-500">
-  <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+<footer
+  class="mt-auto border-t border-slate-200/80 bg-white/50 py-6 text-center text-xs text-slate-500"
+>
+  <div
+    class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3"
+  >
     <div class="text-[11px] text-slate-400">
       Portal Komunitas & Masukan Produk
     </div>

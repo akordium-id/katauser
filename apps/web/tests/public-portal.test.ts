@@ -17,11 +17,18 @@ describe("Public Tenant Portal Navigation & Structure", () => {
   })
 
   it("determines correct redirect target for root workspace portal", () => {
-    function resolveTargetBoard(boards: Array<{ slug: string }>, defaultFallback = "fitur") {
-      return boards.length > 0 && boards[0]?.slug ? boards[0].slug : defaultFallback
+    function resolveTargetBoard(
+      boards: Array<{ slug: string }>,
+      defaultFallback = "fitur",
+    ) {
+      return boards.length > 0 && boards[0]?.slug
+        ? boards[0].slug
+        : defaultFallback
     }
 
-    expect(resolveTargetBoard([{ slug: "fitur" }, { slug: "kendala" }])).toBe("fitur")
+    expect(resolveTargetBoard([{ slug: "fitur" }, { slug: "kendala" }])).toBe(
+      "fitur",
+    )
     expect(resolveTargetBoard([{ slug: "custom-board" }])).toBe("custom-board")
     expect(resolveTargetBoard([])).toBe("fitur")
   })
