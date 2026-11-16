@@ -16,3 +16,4 @@ export const load: PageServerLoad = async ({ params, url }) => {
     demoJwtSecret: "sec_" + Buffer.from(workspaceSlug + "_demo_secret").toString("hex").slice(0, 24),
   }
 }
+
