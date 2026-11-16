@@ -62,64 +62,43 @@
   <title>Kelola Feedback Boards | Katauser Admin</title>
 </svelte:head>
 
-<div class="min-h-screen bg-slate-50 text-slate-900 p-8">
-  <div class="max-w-5xl mx-auto">
-    <!-- Header -->
-    <div
-      class="flex items-center justify-between pb-6 border-b border-slate-200"
-    >
-      <div>
-        <h1 class="text-2xl font-bold text-slate-900">Feedback Boards</h1>
-        <p class="text-sm text-slate-500 mt-1">
-          Kelola board masukan, ide pengguna, dan status voting untuk workspace <span
-            class="font-semibold text-slate-700">{data.workspaceSlug}</span
-          >.
-        </p>
-      </div>
-
-      <div class="flex items-center gap-2">
-        <a
-          href="/dashboard/{data.workspaceSlug}/settings/ai"
-          class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-xs"
-        >
-          <span>🤖 AI Juno Docs</span>
-        </a>
-        <a
-          href="/dashboard/{data.workspaceSlug}/settings/integrations"
-          class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-xs"
-        >
-          <span>💬 Integrasi Webhook</span>
-        </a>
-        <a
-          href="/dashboard/{data.workspaceSlug}/settings/domain"
-          class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-xs"
-        >
-          <span>🌐 Custom Domain</span>
-        </a>
-        <button
-          type="button"
-          onclick={() => (isCreateBoardOpen = true)}
-          class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-700 transition-colors"
-        >
-          <svg
-            class="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2.5"
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
-          Tambah Board Baru
-        </button>
-      </div>
+<div class="max-w-5xl mx-auto space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-base-300 gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-base-content">Feedback Boards</h1>
+      <p class="text-sm text-base-content/60 mt-1">
+        Kelola papan masukan, ide pengguna, dan status voting untuk workspace <span
+          class="font-semibold text-base-content">{data.workspaceSlug}</span
+        >.
+      </p>
     </div>
 
-    <!-- Boards List -->
+    <div class="flex items-center gap-2">
+      <button
+        type="button"
+        onclick={() => (isCreateBoardOpen = true)}
+        class="btn btn-primary btn-sm font-semibold shadow-xs"
+      >
+        <svg
+          class="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2.5"
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
+        <span>Buat Board Baru</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Boards List -->
     <div class="mt-8">
       {#if boards.length === 0}
         <div
@@ -310,4 +289,4 @@
       </div>
     </div>
   {/if}
-</div>
+

@@ -101,46 +101,10 @@
   <title>Inbox & Live Chat | Katauser Admin</title>
 </svelte:head>
 
-<div class="min-h-screen bg-slate-50 text-slate-900 antialiased flex flex-col">
-  <!-- Top Navigation Bar -->
-  <header
-    class="border-b border-slate-200/80 bg-white px-6 py-4 flex items-center justify-between sticky top-0 z-20"
-  >
-    <div class="flex items-center gap-3">
-      <div
-        class="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-xs"
-      >
-        K
-      </div>
-      <div>
-        <h1 class="text-base font-bold text-slate-900">
-          Live Chat & Support Inbox
-        </h1>
-        <div class="text-xs text-slate-400">
-          Workspace: {data.workspaceSlug}
-        </div>
-      </div>
-    </div>
-
-    <div class="flex items-center gap-2">
-      <a
-        href="/dashboard/{data.workspaceSlug}/boards"
-        class="rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50"
-      >
-        Boards
-      </a>
-      <a
-        href="/dashboard/{data.workspaceSlug}/changelog/new"
-        class="rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50"
-      >
-        Buat Changelog
-      </a>
-    </div>
-  </header>
-
+<div class="h-[calc(100vh-140px)] flex flex-col">
   <!-- Split View Inbox Container -->
   <div
-    class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 md:grid-cols-3 gap-6 h-[calc(100vh-100px)]"
+    class="flex-1 w-full grid grid-cols-1 md:grid-cols-3 gap-6 overflow-hidden"
   >
     <!-- Left Column: Conversations List -->
     <div

@@ -84,8 +84,7 @@
   <title>Publikasikan Changelog | Katauser Admin</title>
 </svelte:head>
 
-<div class="min-h-screen bg-slate-50 text-slate-900 antialiased p-6 sm:p-10">
-  <div class="max-w-3xl mx-auto">
+<div class="max-w-3xl mx-auto space-y-6">
     <!-- Breadcrumb & Nav -->
     <div class="mb-6 flex items-center justify-between">
       <div class="flex items-center gap-2 text-sm text-slate-500">
@@ -310,4 +309,3 @@
       </div>
     </form>
   </div>
-</div>
