@@ -13,11 +13,16 @@
     "./schema": {
       "import": "./src/schema/index.ts",
       "types": "./src/schema/index.ts"
+    },
+    "./seed-data": {
+      "import": "./src/seed-data.ts",
+      "types": "./src/seed-data.ts"
     }
   },
   "scripts": {
     "test": "vitest run",
     "check": "tsc --noEmit",
+    "seed": "node ../../apps/api/node_modules/tsx/dist/cli.mjs ./src/seed.ts",
     "generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate"
   },

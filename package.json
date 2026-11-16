@@ -13,6 +13,7 @@
     "build": "turbo run build",
     "check": "turbo run check",
     "test": "turbo run test",
+    "db:seed": "node ./apps/api/node_modules/tsx/dist/cli.mjs ./packages/db/src/seed.ts",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,js,json,svelte,md}\""
   },
