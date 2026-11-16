@@ -1,5 +1,7 @@
 <script lang="ts">
   import KanbanColumn from "$lib/components/roadmap/KanbanColumn.svelte"
+  import PortalHeader from "$lib/components/portal/PortalHeader.svelte"
+  import PortalFooter from "$lib/components/portal/PortalFooter.svelte"
   import {
     countTotalRoadmapItems,
     type RoadmapData,
@@ -25,53 +27,12 @@
 </svelte:head>
 
 <div class="min-h-screen bg-slate-50 text-slate-900 antialiased flex flex-col">
-  <!-- Header -->
-  <header class="border-b border-slate-200/80 bg-white sticky top-0 z-20">
-    <div
-      class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between"
-    >
-      <div class="flex items-center gap-3">
-        <div
-          class="h-9 w-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold text-base shadow-xs"
-        >
-          K
-        </div>
-        <div>
-          <span
-            class="text-xs font-semibold uppercase tracking-wider text-slate-400"
-            >Roadmap Publik</span
-          >
-          <h1 class="text-base font-bold text-slate-900 capitalize">
-            {data.workspaceSlug}
-          </h1>
-        </div>
-      </div>
-
-      <!-- Navigation tabs -->
-      <nav
-        class="flex items-center gap-1 rounded-xl bg-slate-100 p-1 text-xs font-medium text-slate-600"
-      >
-        <a
-          href="/b/{data.workspaceSlug}/general"
-          class="rounded-lg px-3 py-1.5 transition-colors hover:text-slate-900"
-        >
-          Feedback
-        </a>
-        <a
-          href="/roadmap/{data.workspaceSlug}"
-          class="rounded-lg bg-white px-3 py-1.5 font-semibold text-slate-900 shadow-xs"
-        >
-          Roadmap
-        </a>
-        <a
-          href="/changelog/{data.workspaceSlug}"
-          class="rounded-lg px-3 py-1.5 transition-colors hover:text-slate-900"
-        >
-          Changelog
-        </a>
-      </nav>
-    </div>
-  </header>
+  <!-- Unified Tenant Portal Header -->
+  <PortalHeader
+    workspaceSlug={data.workspaceSlug}
+    workspaceName={data.workspaceSlug}
+    activeTab="roadmap"
+  />
 
   <!-- Main Content -->
   <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8">
@@ -96,4 +57,6 @@
       <KanbanColumn columnKey="completed" posts={roadmap.completed} />
     </div>
   </main>
+
+  <PortalFooter />
 </div>

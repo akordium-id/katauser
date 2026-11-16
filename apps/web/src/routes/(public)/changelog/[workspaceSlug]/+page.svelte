@@ -3,6 +3,9 @@
     formatChangelogDate,
     getChangelogTagMeta,
   } from "$lib/changelog-helpers"
+  import PortalHeader from "$lib/components/portal/PortalHeader.svelte"
+  import PortalFooter from "$lib/components/portal/PortalFooter.svelte"
+  import { Check } from "lucide-svelte"
   import type { ChangelogItem } from "./+page.server"
 
   let { data } = $props()
@@ -19,53 +22,12 @@
 </svelte:head>
 
 <div class="min-h-screen bg-slate-50 text-slate-900 antialiased flex flex-col">
-  <!-- Header -->
-  <header class="border-b border-slate-200/80 bg-white sticky top-0 z-20">
-    <div
-      class="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between"
-    >
-      <div class="flex items-center gap-3">
-        <div
-          class="h-9 w-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold text-base shadow-xs"
-        >
-          K
-        </div>
-        <div>
-          <span
-            class="text-xs font-semibold uppercase tracking-wider text-slate-400"
-            >Changelog Publik</span
-          >
-          <h1 class="text-base font-bold text-slate-900 capitalize">
-            {data.workspaceSlug}
-          </h1>
-        </div>
-      </div>
-
-      <!-- Navigation tabs -->
-      <nav
-        class="flex items-center gap-1 rounded-xl bg-slate-100 p-1 text-xs font-medium text-slate-600"
-      >
-        <a
-          href="/b/{data.workspaceSlug}/general"
-          class="rounded-lg px-3 py-1.5 transition-colors hover:text-slate-900"
-        >
-          Feedback
-        </a>
-        <a
-          href="/roadmap/{data.workspaceSlug}"
-          class="rounded-lg px-3 py-1.5 transition-colors hover:text-slate-900"
-        >
-          Roadmap
-        </a>
-        <a
-          href="/changelog/{data.workspaceSlug}"
-          class="rounded-lg bg-white px-3 py-1.5 font-semibold text-slate-900 shadow-xs"
-        >
-          Changelog
-        </a>
-      </nav>
-    </div>
-  </header>
+  <!-- Unified Tenant Portal Header -->
+  <PortalHeader
+    workspaceSlug={data.workspaceSlug}
+    workspaceName={data.workspaceSlug}
+    activeTab="changelog"
+  />
 
   <!-- Main Content -->
   <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-10">
@@ -110,20 +72,7 @@
               <div
                 class="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-100"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-3.5 w-3.5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
+                <Check class="h-3.5 w-3.5 text-emerald-600" />
                 <span
                   >Menyelesaikan {release.postIds.length} request pengguna</span
                 >
@@ -144,4 +93,6 @@
       {/each}
     </div>
   </main>
+
+  <PortalFooter />
 </div>
