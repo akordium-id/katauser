@@ -44,7 +44,9 @@
 
 <div class="max-w-4xl mx-auto space-y-6">
   <!-- Header -->
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-slate-200">
+  <div
+    class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-slate-200"
+  >
     <div>
       <div class="flex items-center gap-2 mb-1">
         <Sparkles class="w-5 h-5 text-indigo-600" />
@@ -112,7 +114,9 @@
             <div class="flex items-start justify-between mb-2">
               <div class="flex items-center gap-2">
                 <FileText class="w-4 h-4 text-indigo-600 shrink-0" />
-                <h3 class="text-sm font-bold text-slate-900 line-clamp-1">{doc.title}</h3>
+                <h3 class="text-sm font-bold text-slate-900 line-clamp-1">
+                  {doc.title}
+                </h3>
               </div>
               <span class="badge badge-sm badge-info font-mono text-[10px]"
                 >{doc.chunksCount || 1} Chunks</span
@@ -134,7 +138,10 @@
             <div
               class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400"
             >
-              <span class="uppercase tracking-wider text-[10px] font-semibold text-slate-500">Tipe: {doc.sourceType}</span>
+              <span
+                class="uppercase tracking-wider text-[10px] font-semibold text-slate-500"
+                >Tipe: {doc.sourceType}</span
+              >
               <span class="badge badge-xs badge-success">Aktif di RAG</span>
             </div>
           </div>

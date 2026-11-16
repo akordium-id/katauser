@@ -77,7 +77,8 @@
     </div>
     <p class="text-sm text-slate-500">
       Hubungkan workspace Katauser Anda dengan channel tim untuk menerima
-      notifikasi real-time saat ada feedback baru, vote, atau percakapan eskalasi.
+      notifikasi real-time saat ada feedback baru, vote, atau percakapan
+      eskalasi.
     </p>
   </div>
 
@@ -97,7 +98,9 @@
 
   <form method="POST" action="?/saveWebhook" class="space-y-6">
     <!-- Slack Section -->
-    <div class="card bg-base-100 border border-slate-200 shadow-xs p-6 space-y-4">
+    <div
+      class="card bg-base-100 border border-slate-200 shadow-xs p-6 space-y-4"
+    >
       <div class="flex items-center gap-3">
         <div
           class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-lg"
@@ -116,7 +119,9 @@
 
       <div class="form-control">
         <label for="slack-url" class="label pb-1">
-          <span class="label-text text-xs font-semibold text-slate-700">Webhook URL</span>
+          <span class="label-text text-xs font-semibold text-slate-700"
+            >Webhook URL</span
+          >
         </label>
         <input
           id="slack-url"
@@ -135,7 +140,9 @@
     </div>
 
     <!-- Discord Section -->
-    <div class="card bg-base-100 border border-slate-200 shadow-xs p-6 space-y-4">
+    <div
+      class="card bg-base-100 border border-slate-200 shadow-xs p-6 space-y-4"
+    >
       <div class="flex items-center gap-3">
         <div
           class="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-lg"
@@ -143,7 +150,9 @@
           <Gamepad2 class="w-5 h-5" />
         </div>
         <div>
-          <h3 class="text-base font-semibold text-slate-900">Discord Webhook</h3>
+          <h3 class="text-base font-semibold text-slate-900">
+            Discord Webhook
+          </h3>
           <p class="text-xs text-slate-500">
             Kirim rich embeds ke text channel Discord komunitas atau internal.
           </p>
@@ -152,7 +161,9 @@
 
       <div class="form-control">
         <label for="discord-url" class="label pb-1">
-          <span class="label-text text-xs font-semibold text-slate-700">Webhook URL</span>
+          <span class="label-text text-xs font-semibold text-slate-700"
+            >Webhook URL</span
+          >
         </label>
         <input
           id="discord-url"
@@ -172,7 +183,9 @@
 
     <!-- Event Triggers Info -->
     <div class="bg-slate-50 rounded-xl p-5 border border-slate-200">
-      <h4 class="text-xs font-semibold text-slate-800 uppercase tracking-wider mb-3">
+      <h4
+        class="text-xs font-semibold text-slate-800 uppercase tracking-wider mb-3"
+      >
         Event yang otomatis dikirim:
       </h4>
       <ul class="space-y-2 text-xs text-slate-600">
@@ -201,7 +214,9 @@
     </div>
 
     <!-- Actions -->
-    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">
+    <div
+      class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2"
+    >
       <button
         type="button"
         onclick={handleTestWebhook}
@@ -211,7 +226,10 @@
         <span>Kirim Tes Notifikasi</span>
       </button>
 
-      <button type="submit" class="inline-flex items-center justify-center gap-2 btn btn-primary btn-sm px-6">
+      <button
+        type="submit"
+        class="inline-flex items-center justify-center gap-2 btn btn-primary btn-sm px-6"
+      >
         <Save class="w-3.5 h-3.5" />
         <span>Simpan Pengaturan</span>
       </button>
@@ -228,11 +246,11 @@
               ? 'border-rose-200 bg-rose-50 text-rose-800'
               : 'border-slate-200 bg-slate-100 text-slate-700'}"
       >
-        {#if testingStatus.type === 'success'}
+        {#if testingStatus.type === "success"}
           <CheckCircle2 class="w-4 h-4 shrink-0 text-emerald-600" />
-        {:else if testingStatus.type === 'warning'}
+        {:else if testingStatus.type === "warning"}
           <AlertTriangle class="w-4 h-4 shrink-0 text-amber-600" />
-        {:else if testingStatus.type === 'error'}
+        {:else if testingStatus.type === "error"}
           <XCircle class="w-4 h-4 shrink-0 text-rose-600" />
         {/if}
         <span>{testingStatus.message}</span>

@@ -13,7 +13,10 @@ export const load: PageServerLoad = async ({ params, url }) => {
       defaultTab: "feedback",
       theme: "auto",
     },
-    demoJwtSecret: "sec_" + Buffer.from(workspaceSlug + "_demo_secret").toString("hex").slice(0, 24),
+    demoJwtSecret:
+      "sec_" +
+      Buffer.from(workspaceSlug + "_demo_secret")
+        .toString("hex")
+        .slice(0, 24),
   }
 }
-

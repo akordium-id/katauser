@@ -14,7 +14,9 @@ describe("Widget Generator & Snippet Logic", () => {
   }
 
   function generateHmacHash(email: string, secret: string) {
-    return createHmac("sha256", secret).update(email.toLowerCase().trim()).digest("hex")
+    return createHmac("sha256", secret)
+      .update(email.toLowerCase().trim())
+      .digest("hex")
   }
 
   it("generates correct HTML script tag snippet with custom attributes", () => {
@@ -70,4 +72,3 @@ describe("Widget Generator & Snippet Logic", () => {
     expect(config.primaryColor).toMatch(/^#[0-9a-fA-F]{6}$/)
   })
 })
-

@@ -68,7 +68,9 @@ export async function runSeed(connectionString?: string) {
         },
       })
 
-    console.log(`[seed] Seeding workspace (${SEED_WORKSPACE.name} - /${SEED_WORKSPACE.slug})...`)
+    console.log(
+      `[seed] Seeding workspace (${SEED_WORKSPACE.name} - /${SEED_WORKSPACE.slug})...`,
+    )
     await db
       .insert(schema.workspaces)
       .values({
@@ -100,7 +102,9 @@ export async function runSeed(connectionString?: string) {
       })
       .onConflictDoNothing()
 
-    console.log(`[seed] Seeding end users (${SEED_END_USERS.length} customer personas)...`)
+    console.log(
+      `[seed] Seeding end users (${SEED_END_USERS.length} customer personas)...`,
+    )
     for (const eu of SEED_END_USERS) {
       await db
         .insert(schema.endUsers)

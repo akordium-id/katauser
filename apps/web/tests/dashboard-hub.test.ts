@@ -19,7 +19,13 @@ describe("Workspace Hub & Dashboard Logic", () => {
   })
 
   it("rejects reserved slugs in workspace hub creation", () => {
-    for (const reserved of ["admin", "dashboard", "billing", "settings", "api"]) {
+    for (const reserved of [
+      "admin",
+      "dashboard",
+      "billing",
+      "settings",
+      "api",
+    ]) {
       const result = createWorkspaceSchema.safeParse({
         name: "Test Workspace",
         slug: reserved,

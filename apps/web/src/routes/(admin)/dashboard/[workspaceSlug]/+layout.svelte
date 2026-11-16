@@ -82,19 +82,30 @@
 
 <div class="min-h-screen bg-base-200/50 flex">
   <!-- Desktop Sidebar -->
-  <aside class="hidden lg:flex flex-col w-64 bg-base-100 border-r border-base-300 shrink-0">
+  <aside
+    class="hidden lg:flex flex-col w-64 bg-base-100 border-r border-base-300 shrink-0"
+  >
     <!-- Brand / Workspace Switcher -->
     <div class="p-4 border-b border-base-200">
       <a href="/account" class="flex items-center gap-2 group">
-        <div class="w-8 h-8 rounded-lg bg-primary text-primary-content flex items-center justify-center font-bold text-base shadow-xs">
+        <div
+          class="w-8 h-8 rounded-lg bg-primary text-primary-content flex items-center justify-center font-bold text-base shadow-xs"
+        >
           K
         </div>
         <div class="min-w-0 flex-1">
           <div class="flex items-center gap-1">
-            <span class="font-bold text-sm text-base-content truncate">{data.workspaceSlug}</span>
-            <span class="badge badge-primary badge-xs uppercase font-bold text-[10px]">Free</span>
+            <span class="font-bold text-sm text-base-content truncate"
+              >{data.workspaceSlug}</span
+            >
+            <span
+              class="badge badge-primary badge-xs uppercase font-bold text-[10px]"
+              >Free</span
+            >
           </div>
-          <span class="text-xs text-base-content/50 hover:text-primary flex items-center gap-0.5 transition-colors">
+          <span
+            class="text-xs text-base-content/50 hover:text-primary flex items-center gap-0.5 transition-colors"
+          >
             <LayoutGrid class="w-3 h-3" />
             <span>Ganti Workspace</span>
           </span>
@@ -105,7 +116,9 @@
     <!-- Navigation Links -->
     <div class="flex-1 overflow-y-auto p-3 space-y-6">
       <div>
-        <span class="px-3 text-[11px] font-bold uppercase tracking-wider text-base-content/40">
+        <span
+          class="px-3 text-[11px] font-bold uppercase tracking-wider text-base-content/40"
+        >
           Manajemen Produk
         </span>
         <ul class="mt-2 space-y-1">
@@ -128,7 +141,9 @@
       </div>
 
       <div>
-        <span class="px-3 text-[11px] font-bold uppercase tracking-wider text-base-content/40">
+        <span
+          class="px-3 text-[11px] font-bold uppercase tracking-wider text-base-content/40"
+        >
           Pengaturan
         </span>
         <ul class="mt-2 space-y-1">
@@ -151,7 +166,9 @@
       </div>
 
       <div>
-        <span class="px-3 text-[11px] font-bold uppercase tracking-wider text-base-content/40">
+        <span
+          class="px-3 text-[11px] font-bold uppercase tracking-wider text-base-content/40"
+        >
           Portal Publik
         </span>
         <ul class="mt-2 space-y-1 text-xs">
@@ -182,10 +199,16 @@
     </div>
 
     <!-- User Profile & Sign Out Footer -->
-    <div class="p-3 border-t border-base-200 bg-base-100 flex items-center justify-between">
+    <div
+      class="p-3 border-t border-base-200 bg-base-100 flex items-center justify-between"
+    >
       <div class="min-w-0 pr-2">
-        <p class="text-xs font-bold text-base-content truncate">{data.user.name}</p>
-        <p class="text-[11px] text-base-content/50 truncate">{data.user.email}</p>
+        <p class="text-xs font-bold text-base-content truncate">
+          {data.user.name}
+        </p>
+        <p class="text-[11px] text-base-content/50 truncate">
+          {data.user.email}
+        </p>
       </div>
       <a
         href="/account/sign_out"
@@ -209,13 +232,21 @@
       ></button>
 
       <!-- Mobile Sidebar Content -->
-      <div class="relative w-64 bg-base-100 h-full flex flex-col z-10 shadow-2xl">
-        <div class="p-4 border-b border-base-200 flex items-center justify-between">
+      <div
+        class="relative w-64 bg-base-100 h-full flex flex-col z-10 shadow-2xl"
+      >
+        <div
+          class="p-4 border-b border-base-200 flex items-center justify-between"
+        >
           <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-lg bg-primary text-primary-content flex items-center justify-center font-bold text-base">
+            <div
+              class="w-8 h-8 rounded-lg bg-primary text-primary-content flex items-center justify-center font-bold text-base"
+            >
               K
             </div>
-            <span class="font-bold text-sm text-base-content truncate">{data.workspaceSlug}</span>
+            <span class="font-bold text-sm text-base-content truncate"
+              >{data.workspaceSlug}</span
+            >
           </div>
           <button
             onclick={() => (isMobileOpen = false)}
@@ -267,9 +298,15 @@
           </ul>
         </div>
 
-        <div class="p-3 border-t border-base-200 flex items-center justify-between">
-          <span class="text-xs font-semibold text-base-content truncate">{data.user.email}</span>
-          <a href="/account/sign_out" class="btn btn-ghost btn-xs text-error">Keluar</a>
+        <div
+          class="p-3 border-t border-base-200 flex items-center justify-between"
+        >
+          <span class="text-xs font-semibold text-base-content truncate"
+            >{data.user.email}</span
+          >
+          <a href="/account/sign_out" class="btn btn-ghost btn-xs text-error"
+            >Keluar</a
+          >
         </div>
       </div>
     </div>
@@ -278,7 +315,9 @@
   <!-- Main Content Wrapper -->
   <div class="flex-1 flex flex-col min-w-0">
     <!-- Topbar -->
-    <header class="bg-base-100 border-b border-base-300 px-4 py-3 flex items-center justify-between lg:px-8">
+    <header
+      class="bg-base-100 border-b border-base-300 px-4 py-3 flex items-center justify-between lg:px-8"
+    >
       <div class="flex items-center gap-3">
         <button
           onclick={() => (isMobileOpen = true)}
@@ -288,10 +327,14 @@
           <Menu class="w-5 h-5" />
         </button>
 
-        <nav class="flex items-center gap-1.5 text-xs text-base-content/60 font-medium">
+        <nav
+          class="flex items-center gap-1.5 text-xs text-base-content/60 font-medium"
+        >
           <a href="/account" class="hover:text-primary">Dashboard</a>
           <ChevronRight class="w-3 h-3 opacity-40" />
-          <span class="text-base-content font-semibold">{data.workspaceSlug}</span>
+          <span class="text-base-content font-semibold"
+            >{data.workspaceSlug}</span
+          >
         </nav>
       </div>
 

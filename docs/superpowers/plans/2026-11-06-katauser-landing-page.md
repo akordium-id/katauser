@@ -4,7 +4,8 @@
 
 **Goal:** Membangun landing page modern, berkarakter, dan bebas dari AI slop untuk Katauser (Open Source User Feedback & Roadmap Platform), lengkap dengan hero demo interaktif, perbandingan biaya self-host vs Canny, dan integrasi antislop UI/copywriting.
 
-**Architecture:** 
+**Architecture:**
+
 - Svelte 5 + Tailwind CSS + daisyUI komponen responsif.
 - Modular sections di `apps/web/src/routes/(marketing)/`:
   - `apps/web/src/routes/(marketing)/+layout.svelte`: Header navigasi & footer resmi Katauser.
@@ -18,7 +19,8 @@
 **Tech Stack:** Svelte 5 Runes (`$state`, `$derived`), Tailwind CSS, daisyUI, TypeScript, Lucide/Heroicons SVG.
 
 ## Global Constraints & Antislop Filters
-- **No generic AI buzzwords**: Dilarang menggunakan frasa klise seperti *"Unlock potential"*, *"Revolutionize feedback"*, *"Seamless integration"*, *"Supercharge your team"*. Gunakan kalimat teknis, lugas, dan faktual.
+
+- **No generic AI buzzwords**: Dilarang menggunakan frasa klise seperti _"Unlock potential"_, _"Revolutionize feedback"_, _"Seamless integration"_, _"Supercharge your team"_. Gunakan kalimat teknis, lugas, dan faktual.
 - **Purpose test on visuals**: Setiap warna, border, dan badge memiliki makna fungsional (misal: badge `Planned` biru, `In Progress` kuning/oranye, `Completed` hijau).
 - **Interactive fidelity**: Komponen demo di Hero harus bisa diklik langsung oleh pengunjung (klik tombol upvote menambah angka, tab status berganti aktif).
 - **Zero broken links**: Semua tautan internal mengarah ke `/login/sign_in`, `/login/sign_up`, `/account`, dan GitHub repo Katauser.
@@ -26,7 +28,9 @@
 ---
 
 ### Task 1: Navigation Bar & Footer Refactoring
+
 **Files:**
+
 - Modify: `apps/web/src/routes/(marketing)/+layout.svelte`
 - Test: Vitest UI / Layout test
 
@@ -35,16 +39,20 @@
 - [ ] Verifikasi tampilan mobile (responsive drawer/dropdown).
 
 ### Task 2: Interactive Hero Section & Live Feedback Card Demo
+
 **Files:**
+
 - Create: `apps/web/src/routes/(marketing)/components/HeroDemo.svelte`
 - Modify: `apps/web/src/routes/(marketing)/+page.svelte`
 
 - [ ] Tulis copy hero yang lugas dan tajam: Value proposition User Feedback + Roadmap + In-App Widget 100% Self-Hosted.
 - [ ] Buat komponen interaktif `HeroDemo.svelte`: Card feedback dengan toggle upvote interaktif (state reaktif Svelte 5 `$state(42) -> $state(43)`), status badge, dan AI duplicate detection badge preview.
-- [ ] Tambahkan dual CTA: *"Mulai Gratis (Self-Host)"* & *"Coba Live Demo"*.
+- [ ] Tambahkan dual CTA: _"Mulai Gratis (Self-Host)"_ & _"Coba Live Demo"_.
 
 ### Task 3: Product Pillars & Feature Showcase (Boards, Roadmap, Changelog, AI)
+
 **Files:**
+
 - Create: `apps/web/src/routes/(marketing)/components/FeatureShowcase.svelte`
 
 - [ ] Showcase 1: **Feedback Boards** (Upvoting, voting anonymously, deteksi duplikasi bertenaga AI Juno).
@@ -53,7 +61,9 @@
 - [ ] Beri visual mockup minimalis yang menyerupai antarmuka asli dashboard.
 
 ### Task 4: Self-Hosting & Independence Architecture (The Moat)
+
 **Files:**
+
 - Create: `apps/web/src/routes/(marketing)/components/SelfHostGrid.svelte`
 
 - [ ] Visual stack architecture: PostgreSQL 16 + Redis + Hono + SvelteKit + Coolify/Docker.
@@ -61,7 +71,9 @@
 - [ ] Copy-paste 1-command deploy: `git clone ... && docker compose up -d`.
 
 ### Task 5: Transparent Comparison & FAQ Section
+
 **Files:**
+
 - Create: `apps/web/src/routes/(marketing)/components/ComparisonSection.svelte`
 - Create: `apps/web/src/routes/(marketing)/components/FaqSection.svelte`
 
@@ -70,11 +82,12 @@
 - [ ] Final bottom CTA banner.
 
 ### Task 6: Testing & Quality Gate (Antislop Delivery Gate)
+
 **Files:**
+
 - Test: `apps/web/tests/landing-page.test.ts`
 - Run: `pnpm --filter @katauser/web check && pnpm --filter @katauser/web test`
 
 - [ ] Buat unit/integration test untuk komponen landing page.
 - [ ] Jalankan svelte-check dan vitest untuk memastikan 0 error dan 0 warning.
 - [ ] Delivery Gate Antislop: Evaluasi visual contrast, semantic hierarchy, dan ketiadaan slop copy.
-

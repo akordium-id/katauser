@@ -40,7 +40,10 @@
   <div class="drawer-content flex flex-col min-h-screen bg-slate-50/50">
     <div class="navbar bg-white border-b border-slate-200 lg:hidden px-4">
       <div class="flex-1">
-        <a class="btn btn-ghost normal-case text-lg font-bold text-slate-900" href="/">
+        <a
+          class="btn btn-ghost normal-case text-lg font-bold text-slate-900"
+          href="/"
+        >
           {WebsiteName}
         </a>
       </div>
@@ -61,10 +64,19 @@
 
   <div class="drawer-side">
     <label for="admin-drawer" class="drawer-overlay"></label>
-    <div class="w-72 min-h-full bg-white border-r border-slate-200 flex flex-col p-4">
-      <div class="flex items-center justify-between pb-6 pt-2 px-3 border-b border-slate-100">
-        <a href="/" class="flex items-center gap-2 text-lg font-bold text-slate-900">
-          <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">
+    <div
+      class="w-72 min-h-full bg-white border-r border-slate-200 flex flex-col p-4"
+    >
+      <div
+        class="flex items-center justify-between pb-6 pt-2 px-3 border-b border-slate-100"
+      >
+        <a
+          href="/"
+          class="flex items-center gap-2 text-lg font-bold text-slate-900"
+        >
+          <div
+            class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-sm"
+          >
             K
           </div>
           <span>{WebsiteName}</span>
@@ -78,7 +90,9 @@
         </label>
       </div>
 
-      <div class="px-3 pt-6 pb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+      <div
+        class="px-3 pt-6 pb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400"
+      >
         Akun & Manajemen
       </div>
 
@@ -92,7 +106,11 @@
               : 'hover:bg-slate-100 text-slate-700'}"
             onclick={closeDrawer}
           >
-            <Building2 class="w-4 h-4 shrink-0 {adminSection === 'home' ? 'text-indigo-600' : 'text-slate-400'}" />
+            <Building2
+              class="w-4 h-4 shrink-0 {adminSection === 'home'
+                ? 'text-indigo-600'
+                : 'text-slate-400'}"
+            />
             <span>Workspace Hub</span>
           </a>
         </li>
@@ -105,7 +123,11 @@
               : 'hover:bg-slate-100 text-slate-700'}"
             onclick={closeDrawer}
           >
-            <CreditCard class="w-4 h-4 shrink-0 {adminSection === 'billing' ? 'text-indigo-600' : 'text-slate-400'}" />
+            <CreditCard
+              class="w-4 h-4 shrink-0 {adminSection === 'billing'
+                ? 'text-indigo-600'
+                : 'text-slate-400'}"
+            />
             <span>Langganan & Billing</span>
           </a>
         </li>
@@ -118,7 +140,11 @@
               : 'hover:bg-slate-100 text-slate-700'}"
             onclick={closeDrawer}
           >
-            <Settings class="w-4 h-4 shrink-0 {adminSection === 'settings' ? 'text-indigo-600' : 'text-slate-400'}" />
+            <Settings
+              class="w-4 h-4 shrink-0 {adminSection === 'settings'
+                ? 'text-indigo-600'
+                : 'text-slate-400'}"
+            />
             <span>Pengaturan Akun</span>
           </a>
         </li>

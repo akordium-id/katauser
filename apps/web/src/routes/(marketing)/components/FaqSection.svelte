@@ -26,25 +26,36 @@
 <section id="faq" class="py-20 bg-base-200/50 border-t border-base-300">
   <div class="container mx-auto px-4 max-w-4xl">
     <div class="text-center mb-16">
-      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-info/10 text-info text-xs font-bold uppercase tracking-wider mb-3">
+      <div
+        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-info/10 text-info text-xs font-bold uppercase tracking-wider mb-3"
+      >
         Tanya Jawab
       </div>
-      <h2 class="text-3xl sm:text-4xl font-extrabold text-base-content tracking-tight">
+      <h2
+        class="text-3xl sm:text-4xl font-extrabold text-base-content tracking-tight"
+      >
         Pertanyaan yang Sering Diajukan
       </h2>
       <p class="mt-4 text-base sm:text-lg text-base-content/70">
-        Hal-hal penting seputar lisensi, deployment, dan integrasi teknis Katauser.
+        Hal-hal penting seputar lisensi, deployment, dan integrasi teknis
+        Katauser.
       </p>
     </div>
 
     <div class="space-y-4">
       {#each faqs as faq, i (i)}
-        <div class="collapse collapse-plus bg-base-100 border border-base-300 rounded-xl shadow-xs">
+        <div
+          class="collapse collapse-plus bg-base-100 border border-base-300 rounded-xl shadow-xs"
+        >
           <input type="radio" name="landing-faq" checked={i === 0} />
-          <div class="collapse-title text-base sm:text-lg font-bold text-base-content pr-12">
+          <div
+            class="collapse-title text-base sm:text-lg font-bold text-base-content pr-12"
+          >
             {faq.q}
           </div>
-          <div class="collapse-content text-sm sm:text-base text-base-content/70 leading-relaxed">
+          <div
+            class="collapse-content text-sm sm:text-base text-base-content/70 leading-relaxed"
+          >
             <p>{faq.a}</p>
           </div>
         </div>
@@ -52,4 +63,3 @@
     </div>
   </div>
 </section>
-
