@@ -7,6 +7,7 @@
     Globe,
     Webhook,
     Bot,
+    Code2,
     ExternalLink,
     LayoutGrid,
     LogOut,
@@ -66,6 +67,11 @@
       label: "AI Juno Knowledge",
       href: `/dashboard/${data.workspaceSlug}/settings/ai`,
       icon: Bot,
+    },
+    {
+      label: "Embed Widget",
+      href: `/dashboard/${data.workspaceSlug}/settings/widget`,
+      icon: Code2,
     },
   ])
 </script>
