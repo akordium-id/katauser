@@ -1,5 +1,5 @@
 {
-  "$schema": "https://turbo.build/schema.json",
+  "$schema": "https://v2-11-11.turborepo.dev/schema.json",
   "globalEnv": ["PRIVATE_STRIPE_API_KEY", "PUBLIC_API_URL", "INTERNAL_API_URL"],
   "tasks": {
     "build": {
