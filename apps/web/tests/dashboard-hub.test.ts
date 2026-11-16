@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { createWorkspaceSchema, RESERVED_SLUGS } from "@katauser/shared"
+import { createWorkspaceSchema } from "@katauser/shared"
 
 describe("Workspace Hub & Dashboard Logic", () => {
   it("generates a valid clean slug from workspace name", () => {

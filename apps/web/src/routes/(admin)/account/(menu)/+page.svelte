@@ -10,7 +10,6 @@
     X,
     Layers,
     ArrowRight,
-    Sparkles,
     AlertCircle,
     CheckCircle2,
   } from "lucide-svelte"

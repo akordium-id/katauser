@@ -10,11 +10,9 @@
     Sparkles,
     MessageSquare,
     Eye,
-    Laptop,
     MapPin,
     SunMoon,
     FileCode2,
-    Terminal,
   } from "lucide-svelte"
 
   let { data }: { data: PageData } = $props()
@@ -46,7 +44,7 @@
   data-color="${primaryColor}"
   data-default-tab="${defaultTab}"
   data-theme="${theme}"
-><\/script>`,
+></` + `script>`,
   )
 
   const spaSnippet = $derived(
