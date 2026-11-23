@@ -3,6 +3,7 @@ import pg from "pg"
 import * as schema from "./schema"
 import { FeedbackRepository } from "./repositories/feedback"
 import { ChangelogRepository } from "./repositories/changelog"
+import { IntegrationRepository } from "./repositories/integrations"
 
 const { Pool } = pg
 
@@ -10,6 +11,7 @@ export * from "./schema"
 export * from "./repositories/feedback"
 export * from "./repositories/changelog"
 export * from "./repositories/chat"
+export * from "./repositories/integrations"
 
 export function createDbClient(connectionString: string) {
   const pool = new Pool({
