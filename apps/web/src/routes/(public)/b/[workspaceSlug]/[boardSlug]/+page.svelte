@@ -150,6 +150,15 @@
           >
             Completed
           </a>
+          <a
+            href="?status=merged&sort={activeSort}"
+            class="rounded-lg px-2.5 py-1 text-xs font-medium transition-colors {activeStatus ===
+            'merged'
+              ? 'bg-amber-100 text-amber-800'
+              : 'text-slate-600 hover:bg-slate-100'}"
+          >
+            Merged
+          </a>
         </div>
       </div>
 

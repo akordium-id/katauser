@@ -10,6 +10,8 @@ export function formatPostStatus(status: string): string {
       return "Completed"
     case "closed":
       return "Closed"
+    case "merged":
+      return "Merged"
     case "pending":
     default:
       return "Pending"
@@ -28,6 +30,8 @@ export function getStatusBadgeColor(status: string): string {
       return "bg-purple-50 text-purple-700 border-purple-200"
     case "closed":
       return "bg-gray-100 text-gray-600 border-gray-200"
+    case "merged":
+      return "bg-amber-50 text-amber-800 border-amber-300"
     case "pending":
     default:
       return "bg-slate-100 text-slate-600 border-slate-200"

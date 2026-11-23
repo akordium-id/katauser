@@ -28,6 +28,8 @@ Katauser dirancang untuk membantu startup, founder SaaS, dan software agency men
 - 🌐 **Multi-Tenant Custom Domains**: Hubungkan domain kustom tenant Anda (misal `feedback.yourcompany.com`) dengan verifikasi DNS CNAME instan dan transparent routing middleware.
 - 💬 **Outbound Webhooks (Slack & Discord)**: Notifikasi real-time ke channel tim Anda saat ada feedback baru (`post.created`), upvote baru (`post.voted`), atau eskalasi chat (`chat.escalated`).
 - ⚡ **Linear 2-Way Issue Sync**: Buat issue baru atau tautkan issue Linear langsung dari feedback post. Saat developer menyelesaikan issue di Linear (`Done`), status post Katauser otomatis `completed` dan voter menerima notifikasi rilis.
+- 🔀 **Post Merging (Deduplikasi Feedback)**: Gabungkan masukan serupa secara aman (_soft merge_) dengan deduplikasi voter otomatis, konsolidasi dampak MRR, dan audit trail transparan tanpa merusak tautan publik.
+- 👥 **Vote on Behalf (B2B Customer Attribution)**: Catatkan masukan langsung atas nama pelanggan enterprise beserta estimasi MRR dan catatan pembicaraan sales/CS tanpa memaksa klien membuka portal.
 
 ---
 
