@@ -86,4 +86,53 @@ describe("Katauser MCP Server Instance", () => {
       globalThis.fetch = originalFetch
     }
   })
+
+  it("formats Zod validation errors from backend into readable text", async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 400,
+      json: async () => ({
+        success: false,
+        message: "title: String must contain at least 3 character(s)",
+        errors: [{ path: ["title"], message: "String must contain at least 3 character(s)" }],
+      }),
+    }) as any
+
+    try {
+      const { executeTool } = createMcpServerInstance({
+        apiUrl: "http://localhost:3000",
+        apiKey: "ku_live_test_key_12345",
+      })
+
+      const response = await executeTool("create_feedback", { title: "ab" })
+      expect(response.isError).toBe(true)
+      expect(response.content[0].text).toContain("title: String must contain at least 3 character(s)")
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+
+  it("handles non-JSON error pages from reverse proxy safely", async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 502,
+      json: async () => {
+        throw new Error("Unexpected token < in JSON at position 0")
+      },
+      text: async () => "<html><body>502 Bad Gateway</body></html>",
+    }) as any
+
+    try {
+      const { executeTool } = createMcpServerInstance({
+        apiUrl: "http://localhost:3000",
+        apiKey: "ku_live_test_key_12345",
+      })
+
+      const response = await executeTool("list_feedback", {})
+      expect(response.isError).toBe(true)
+      expect(response.content[0].text).toContain("502 Bad Gateway")
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
 })

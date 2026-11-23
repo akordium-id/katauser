@@ -51,6 +51,22 @@ describe("MCP Tool Zod Schemas", () => {
     })
     expect(valid.status).toBe("completed")
     expect(valid.notifyVoters).toBe(true)
+
+    // Reopen post
+    const reopen = updatePostStatusMcpSchema.parse({
+      postId: "p_1",
+      status: "open",
+    })
+    expect(reopen.status).toBe("open")
+  })
+
+  it("handles empty string email gracefully in create_feedback", () => {
+    const valid = createFeedbackMcpSchema.parse({
+      title: "Some feature",
+      content: "Details here",
+      customerEmail: "",
+    })
+    expect(valid.customerEmail).toBe("")
   })
 
   it("validates get_roadmap_kanban schema", () => {

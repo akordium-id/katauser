@@ -149,6 +149,20 @@ export const mcpToolsMetadata = [
   },
 ]
 
+function formatZodError(error: {
+  errors: Array<{ path: (string | number)[]; message: string }>
+}): string {
+  return error.errors
+    .map((e) => `${e.path.join(".") || "input"}: ${e.message}`)
+    .join("; ")
+}
+
+const WRITE_TOOLS = [
+  "create_feedback",
+  "update_post_status",
+  "create_changelog_release",
+]
+
 export const mcpRoute = new Hono<{
   Variables: {
     workspaceId: string
@@ -165,6 +179,19 @@ export const mcpRoute = new Hono<{
   .post("/tools/:toolName", async (c) => {
     const toolName = c.req.param("toolName")
     const workspaceId = c.get("workspaceId") as string
+    const permissions =
+      (c.get("apiKeyPermissions") as string[]) || ["read", "write"]
+
+    if (WRITE_TOOLS.includes(toolName) && !permissions.includes("write")) {
+      return c.json(
+        {
+          success: false,
+          message: `Forbidden: API key does not have 'write' permission required for tool '${toolName}'`,
+        },
+        403,
+      )
+    }
+
     const service = new McpService(workspaceId)
     const body = await c.req.json().catch(() => ({}))
     const args = body.arguments ?? body
@@ -173,7 +200,14 @@ export const mcpRoute = new Hono<{
       case "list_feedback": {
         const parsed = listFeedbackMcpSchema.safeParse(args)
         if (!parsed.success) {
-          return c.json({ success: false, errors: parsed.error.errors }, 400)
+          return c.json(
+            {
+              success: false,
+              message: formatZodError(parsed.error),
+              errors: parsed.error.errors,
+            },
+            400,
+          )
         }
         const result = await service.listFeedback(parsed.data)
         return c.json(result)
@@ -181,7 +215,14 @@ export const mcpRoute = new Hono<{
       case "get_feedback_details": {
         const parsed = getFeedbackDetailsMcpSchema.safeParse(args)
         if (!parsed.success) {
-          return c.json({ success: false, errors: parsed.error.errors }, 400)
+          return c.json(
+            {
+              success: false,
+              message: formatZodError(parsed.error),
+              errors: parsed.error.errors,
+            },
+            400,
+          )
         }
         const result = await service.getFeedbackDetails(parsed.data)
         if (!result.success) {
@@ -192,15 +233,32 @@ export const mcpRoute = new Hono<{
       case "create_feedback": {
         const parsed = createFeedbackMcpSchema.safeParse(args)
         if (!parsed.success) {
-          return c.json({ success: false, errors: parsed.error.errors }, 400)
+          return c.json(
+            {
+              success: false,
+              message: formatZodError(parsed.error),
+              errors: parsed.error.errors,
+            },
+            400,
+          )
         }
         const result = await service.createFeedback(parsed.data)
+        if (!result.success) {
+          return c.json(result, 400)
+        }
         return c.json(result)
       }
       case "update_post_status": {
         const parsed = updatePostStatusMcpSchema.safeParse(args)
         if (!parsed.success) {
-          return c.json({ success: false, errors: parsed.error.errors }, 400)
+          return c.json(
+            {
+              success: false,
+              message: formatZodError(parsed.error),
+              errors: parsed.error.errors,
+            },
+            400,
+          )
         }
         const result = await service.updatePostStatus(parsed.data)
         if (!result.success) {
@@ -211,7 +269,14 @@ export const mcpRoute = new Hono<{
       case "get_roadmap_kanban": {
         const parsed = getRoadmapKanbanMcpSchema.safeParse(args)
         if (!parsed.success) {
-          return c.json({ success: false, errors: parsed.error.errors }, 400)
+          return c.json(
+            {
+              success: false,
+              message: formatZodError(parsed.error),
+              errors: parsed.error.errors,
+            },
+            400,
+          )
         }
         const result = await service.getRoadmapKanban()
         return c.json(result)
@@ -219,9 +284,19 @@ export const mcpRoute = new Hono<{
       case "create_changelog_release": {
         const parsed = createChangelogReleaseMcpSchema.safeParse(args)
         if (!parsed.success) {
-          return c.json({ success: false, errors: parsed.error.errors }, 400)
+          return c.json(
+            {
+              success: false,
+              message: formatZodError(parsed.error),
+              errors: parsed.error.errors,
+            },
+            400,
+          )
         }
         const result = await service.createChangelogRelease(parsed.data)
+        if (!result.success) {
+          return c.json(result, 400)
+        }
         return c.json(result)
       }
       default:

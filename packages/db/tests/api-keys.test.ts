@@ -78,6 +78,54 @@ describe("ApiKeyRepository Unit Tests", () => {
     expect(nonExistent.isValid).toBe(false)
   })
 
+  it("rejects expired API keys", async () => {
+    const expiredRecord = {
+      id: "key_exp",
+      workspaceId: "ws_acme",
+      permissions: ["read", "write"],
+      expiresAt: new Date(Date.now() - 1000 * 60 * 60), // expired 1 hour ago
+    }
+
+    const mockDb: any = {
+      select: vi.fn().mockReturnValue({
+        from: vi.fn().mockReturnValue({
+          where: vi.fn().mockReturnValue({
+            limit: vi.fn().mockResolvedValue([expiredRecord]),
+          }),
+        }),
+      }),
+    }
+
+    const repo = new ApiKeyRepository(mockDb)
+    const res = await repo.validateApiKey("ku_live_" + "c".repeat(64))
+    expect(res.isValid).toBe(false)
+  })
+
+  it("lists and revokes API keys", async () => {
+    const mockDb: any = {
+      select: vi.fn().mockReturnValue({
+        from: vi.fn().mockReturnValue({
+          where: vi.fn().mockResolvedValue([
+            { id: "key_1", name: "Claude" },
+            { id: "key_2", name: "Cursor" },
+          ]),
+        }),
+      }),
+      delete: vi.fn().mockReturnValue({
+        where: vi.fn().mockReturnValue({
+          returning: vi.fn().mockResolvedValue([{ id: "key_1" }]),
+        }),
+      }),
+    }
+
+    const repo = new ApiKeyRepository(mockDb)
+    const list = await repo.listApiKeys("ws_acme")
+    expect(list).toHaveLength(2)
+
+    const revoked = await repo.revokeApiKey("key_1", "ws_acme")
+    expect(revoked).toBe(true)
+  })
+
   it("records key usage with current timestamp", async () => {
     const mockDb: any = {
       update: vi.fn().mockReturnValue({

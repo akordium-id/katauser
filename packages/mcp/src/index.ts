@@ -172,16 +172,41 @@ export function createMcpServerInstance(config: McpConfig) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(args),
+        signal: AbortSignal.timeout(15000),
       })
 
-      const data = await response.json()
-      if (!response.ok || !data.success) {
+      let data: any
+      try {
+        data = await response.json()
+      } catch {
+        const text = await response.text().catch(() => "")
         return {
           isError: true,
           content: [
             {
               type: "text" as const,
-              text: data.message || `Error calling tool ${name}: HTTP ${response.status}`,
+              text: `Server returned non-JSON response (HTTP ${response.status}): ${text.slice(0, 200)}`,
+            },
+          ],
+        }
+      }
+
+      if (!response.ok || !data.success) {
+        let errorText = data.message
+        if (!errorText && data.errors && Array.isArray(data.errors)) {
+          errorText = data.errors
+            .map((e: any) => `${e.path?.join(".") || "input"}: ${e.message}`)
+            .join("; ")
+        }
+        errorText =
+          errorText || `Error calling tool ${name}: HTTP ${response.status}`
+
+        return {
+          isError: true,
+          content: [
+            {
+              type: "text" as const,
+              text: errorText,
             },
           ],
         }

@@ -140,7 +140,14 @@ export class McpService {
 
     if (input.boardSlug) {
       const found = boards.find((b) => b.slug === input.boardSlug)
-      if (found) targetBoard = found
+      if (!found) {
+        return {
+          success: false,
+          message: `Board with slug '${input.boardSlug}' not found in workspace`,
+          post: null,
+        }
+      }
+      targetBoard = found
     }
 
     if (!targetBoard) {
@@ -285,6 +292,22 @@ export class McpService {
   }
 
   async createChangelogRelease(input: CreateChangelogReleaseMcpInput) {
+    if (input.postIds && input.postIds.length > 0) {
+      const allowedBoardIds = this.getWorkspaceBoardIds()
+      const validPosts = postsStore.filter(
+        (p) =>
+          allowedBoardIds.includes(p.boardId) && input.postIds!.includes(p.id),
+      )
+      if (validPosts.length !== input.postIds.length) {
+        return {
+          success: false,
+          message:
+            "Invalid postIds: One or more posts do not exist or belong to another workspace",
+          changelog: null,
+        }
+      }
+    }
+
     const newChangelog = {
       id: "ch_" + Math.random().toString(36).substring(2, 10),
       workspaceId: this.workspaceId,

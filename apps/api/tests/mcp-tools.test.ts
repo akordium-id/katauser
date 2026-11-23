@@ -239,6 +239,31 @@ describe("MCP Tools Execution API", () => {
   })
 
   it("create_changelog_release publishes a new changelog release", async () => {
+    postsStore.push(
+      {
+        id: "p_1",
+        boardId: "board_acme_1",
+        title: "Planned item",
+        content: "...",
+        status: "completed",
+        votesCount: 2,
+        totalMrr: 100,
+        commentsCount: 0,
+        createdAt: new Date().toISOString(),
+      },
+      {
+        id: "p_2",
+        boardId: "board_acme_1",
+        title: "In progress item",
+        content: "...",
+        status: "completed",
+        votesCount: 5,
+        totalMrr: 200,
+        commentsCount: 0,
+        createdAt: new Date().toISOString(),
+      },
+    )
+
     const res = await app.request(
       "/api/v1/mcp/tools/create_changelog_release",
       {
@@ -261,5 +286,114 @@ describe("MCP Tools Execution API", () => {
     expect(data.success).toBe(true)
     expect(data.changelog.version).toBe("v1.5.0")
     expect(changelogsStore).toHaveLength(1)
+  })
+
+  it("get_feedback_details returns details or 404 if not found / cross-workspace", async () => {
+    postsStore.push({
+      id: "p_detail_1",
+      boardId: "board_acme_1",
+      title: "Detailed Post",
+      content: "Detailed content",
+      status: "open",
+      votesCount: 3,
+      totalMrr: 600,
+      commentsCount: 1,
+      createdAt: new Date().toISOString(),
+    })
+
+    // Found for Acme
+    const resFound = await app.request("/api/v1/mcp/tools/get_feedback_details", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${acmeKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ postId: "p_detail_1" }),
+    })
+    expect(resFound.status).toBe(200)
+    const dataFound = await resFound.json()
+    expect(dataFound.success).toBe(true)
+    expect(dataFound.post.id).toBe("p_detail_1")
+    expect(dataFound.post.totalMrr).toBe(600)
+
+    // Not found / isolated for Beta
+    const resNotFound = await app.request("/api/v1/mcp/tools/get_feedback_details", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${betaKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ postId: "p_detail_1" }),
+    })
+    expect(resNotFound.status).toBe(404)
+  })
+
+  it("create_feedback rejects non-existent boardSlug with 400", async () => {
+    const res = await app.request("/api/v1/mcp/tools/create_feedback", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${acmeKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title: "Test post",
+        content: "Test content",
+        boardSlug: "non-existent-board-slug",
+      }),
+    })
+    expect(res.status).toBe(400)
+    const data = await res.json()
+    expect(data.success).toBe(false)
+    expect(data.message).toContain("not found in workspace")
+  })
+
+  it("create_changelog_release rejects cross-workspace postIds with 400", async () => {
+    postsStore.push({
+      id: "p_beta_secret",
+      boardId: "board_beta_1", // belongs to beta!
+      title: "Beta feature",
+      content: "...",
+      status: "completed",
+      votesCount: 1,
+      totalMrr: 0,
+      commentsCount: 0,
+      createdAt: new Date().toISOString(),
+    })
+
+    const res = await app.request("/api/v1/mcp/tools/create_changelog_release", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${acmeKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        version: "v1.9.0",
+        title: "Hacked Release",
+        content: "Trying to link beta post",
+        postIds: ["p_beta_secret"],
+      }),
+    })
+    expect(res.status).toBe(400)
+    const data = await res.json()
+    expect(data.success).toBe(false)
+    expect(data.message).toContain("Invalid postIds")
+  })
+
+  it("formats Zod validation errors with clear message on invalid input", async () => {
+    const res = await app.request("/api/v1/mcp/tools/create_feedback", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${acmeKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title: "ab", // too short (min 3)
+        content: "",
+      }),
+    })
+    expect(res.status).toBe(400)
+    const data = await res.json()
+    expect(data.success).toBe(false)
+    expect(data.message).toContain("title")
   })
 })

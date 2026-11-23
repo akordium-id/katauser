@@ -31,6 +31,7 @@ export const createFeedbackMcpSchema = z.object({
     .string()
     .email()
     .optional()
+    .or(z.literal(""))
     .describe("Email customer jika diinput atas nama customer"),
   customerName: z.string().optional(),
   customerCompany: z.string().optional(),
@@ -41,7 +42,7 @@ export type CreateFeedbackMcpInput = z.infer<typeof createFeedbackMcpSchema>
 
 export const updatePostStatusMcpSchema = z.object({
   postId: z.string().min(1),
-  status: z.enum(["planned", "in_progress", "completed", "closed"]),
+  status: z.enum(["open", "planned", "in_progress", "completed", "closed"]),
   notifyVoters: z
     .boolean()
     .optional()
@@ -65,9 +66,8 @@ export const createChangelogReleaseMcpSchema = z.object({
     .describe("Daftar post ID yang dirilis pada versi ini"),
   publishedAt: z
     .string()
-    .datetime()
     .optional()
-    .describe("Tanggal rilis ISO format"),
+    .describe("Tanggal rilis ISO format atau YYYY-MM-DD"),
 })
 
 export type CreateChangelogReleaseMcpInput = z.infer<
