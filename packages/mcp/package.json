@@ -1,0 +1,32 @@
+{
+  "name": "@katauser/mcp",
+  "version": "0.0.1",
+  "description": "Native Model Context Protocol (MCP) server for Katauser",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "katauser-mcp": "./bin/katauser-mcp.js"
+  },
+  "files": [
+    "dist",
+    "bin"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "test": "vitest run",
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.6.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@katauser/tsconfig": "workspace:*",
+    "@types/node": "^22.13.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.5.0",
+    "vitest": "^3.0.7"
+  }
+}
