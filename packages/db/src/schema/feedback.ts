@@ -39,7 +39,8 @@ export const posts = pgTable("posts", {
   }),
   title: text("title").notNull(),
   content: text("content").notNull(),
-  status: text("status").default("pending").notNull(), // pending, under_review, planned, in_progress, completed, closed
+  status: text("status").default("pending").notNull(), // pending, under_review, planned, in_progress, completed, closed, merged
+  mergedIntoPostId: text("merged_into_post_id"),
   votesCount: integer("votes_count").default(0).notNull(),
   commentsCount: integer("comments_count").default(0).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -59,6 +60,10 @@ export const votes = pgTable(
     endUserId: text("end_user_id")
       .notNull()
       .references(() => endUsers.id, { onDelete: "cascade" }),
+    votedByTeamUserId: text("voted_by_team_user_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    internalNote: text("internal_note"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [

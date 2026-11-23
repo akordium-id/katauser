@@ -8,6 +8,7 @@ export const POST_STATUSES = [
   "completed",
   "shipped",
   "closed",
+  "merged",
 ] as const
 
 export type PostStatus = (typeof POST_STATUSES)[number]
@@ -48,9 +49,30 @@ export const createCommentSchema = z.object({
   isInternal: z.boolean().default(false),
 })
 
+export const mergePostsSchema = z.object({
+  targetPostId: z.string().min(1, "Target Post ID wajib diisi"),
+})
+
+export const voteOnBehalfSchema = z.object({
+  customerEmail: z.string().email("Format email customer tidak valid"),
+  customerName: z
+    .string()
+    .min(2, "Nama customer minimal 2 karakter")
+    .max(100)
+    .optional(),
+  company: z.string().max(100).optional(),
+  mrr: z.number().min(0, "MRR tidak boleh bernilai negatif").optional(),
+  internalNote: z
+    .string()
+    .max(1000, "Catatan internal maksimal 1000 karakter")
+    .optional(),
+})
+
 export type CreateBoardInput = z.infer<typeof createBoardSchema>
 export type UpdateBoardInput = z.infer<typeof updateBoardSchema>
 export type CreatePostInput = z.infer<typeof createPostSchema>
 export type UpdatePostStatusInput = z.infer<typeof updatePostStatusSchema>
 export type VotePostInput = z.infer<typeof votePostSchema>
 export type CreateCommentInput = z.infer<typeof createCommentSchema>
+export type MergePostsInput = z.infer<typeof mergePostsSchema>
+export type VoteOnBehalfInput = z.infer<typeof voteOnBehalfSchema>
