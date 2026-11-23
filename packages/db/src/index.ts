@@ -12,6 +12,7 @@ export * from "./repositories/feedback"
 export * from "./repositories/changelog"
 export * from "./repositories/chat"
 export * from "./repositories/integrations"
+export * from "./repositories/api-key"
 
 export function createDbClient(connectionString: string) {
   const pool = new Pool({
