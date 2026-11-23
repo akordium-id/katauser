@@ -1,13 +1,33 @@
-export function parseSSEChunk(line: string): string | null {
-  const trimmed = line.trim()
-  if (!trimmed.startsWith("data:")) return null
+import type { JunoActionPayload } from "@katauser/shared"
 
-  const data = trimmed.replace(/^data:\s*/, "")
-  if (data === "[DONE]") return null
+export interface ChatMessage {
+  id: string
+  sender: "user" | "juno" | "human"
+  text: string
+  time: string
+  action?: JunoActionPayload
+  actionResolved?: boolean
+}
+
+export function parseSSEChunk(
+  line: string,
+): string | { text?: string; action?: JunoActionPayload } | null {
+  const trimmed = line.trim()
+  const data = trimmed.startsWith("data:")
+    ? trimmed.replace(/^data:\s*/, "")
+    : trimmed
+
+  if (!data || data === "[DONE]") return null
 
   try {
     const parsed = JSON.parse(data)
-    return parsed.text ?? null
+    if (parsed.action) {
+      return parsed
+    }
+    if (typeof parsed.text === "string") {
+      return parsed.text
+    }
+    return null
   } catch {
     return null
   }

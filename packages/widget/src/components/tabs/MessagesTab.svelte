@@ -3,14 +3,8 @@
     parseSSEChunk,
     isEscalationRequested,
     formatMessageTime,
+    type ChatMessage,
   } from "../../chat-helpers"
-
-  interface ChatMessage {
-    id: string
-    sender: "user" | "juno" | "human"
-    text: string
-    time: string
-  }
 
   let {
     workspaceId = "default",
@@ -28,6 +22,10 @@
   let isEscalated = $state(false)
   let chatContainer = $state<HTMLDivElement | null>(null)
 
+  let guestEmail = $state("")
+  let guestEmailError = $state<string | null>(null)
+  let isActionSubmitting = $state(false)
+
   let messages = $state<ChatMessage[]>([
     {
       id: "init_1",
@@ -36,6 +34,44 @@
       time: formatMessageTime(new Date().toISOString()),
     },
   ])
+
+  function validateEmail(emailStr: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailStr)
+  }
+
+  function getStatusLabel(status: string): string {
+    switch (status) {
+      case "planned":
+        return "Planned"
+      case "in_progress":
+        return "In Progress"
+      case "completed":
+        return "Completed"
+      case "under_review":
+        return "Under Review"
+      case "closed":
+        return "Closed"
+      default:
+        return "Open"
+    }
+  }
+
+  function getStatusBadgeClass(status: string): string {
+    switch (status) {
+      case "planned":
+        return "badge-blue"
+      case "in_progress":
+        return "badge-amber"
+      case "completed":
+        return "badge-emerald"
+      case "under_review":
+        return "badge-amber"
+      case "closed":
+        return "badge-gray"
+      default:
+        return "badge-blue"
+    }
+  }
 
   function scrollToBottom() {
     if (chatContainer) {
@@ -142,9 +178,17 @@
           const lines = chunk.split("\n")
 
           for (const line of lines) {
-            const token = parseSSEChunk(line)
-            if (token) {
-              messages[aiMsgIndex].text += token
+            const chunkRes = parseSSEChunk(line)
+            if (typeof chunkRes === "string") {
+              messages[aiMsgIndex].text += chunkRes
+              scrollToBottom()
+            } else if (chunkRes && typeof chunkRes === "object") {
+              if (chunkRes.text) {
+                messages[aiMsgIndex].text += chunkRes.text
+              }
+              if (chunkRes.action) {
+                messages[aiMsgIndex].action = chunkRes.action
+              }
               scrollToBottom()
             }
           }
@@ -158,7 +202,7 @@
           time: formatMessageTime(new Date().toISOString()),
         })
       }
-    } catch (err) {
+    } catch {
       messages.push({
         id: "juno_err_" + Date.now(),
         sender: "juno",
@@ -168,6 +212,106 @@
     } finally {
       isSending = false
       scrollToBottom()
+    }
+  }
+
+  async function handleVoteSimilarPost(msg: ChatMessage, postId: string) {
+    const email = user?.email || guestEmail.trim()
+    if (!email) {
+      guestEmailError = "Silakan masukkan email Anda untuk melanjutkan."
+      return
+    }
+    if (!validateEmail(email)) {
+      guestEmailError = "Format email tidak valid."
+      return
+    }
+    guestEmailError = null
+    isActionSubmitting = true
+
+    try {
+      const res = await fetch(`${apiUrl}/api/v1/posts/${postId}/vote`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-id": user?.userId || `guest_${email}`,
+          ...(email ? { "x-user-email": email } : {}),
+        },
+      })
+
+      if (res.ok) {
+        msg.actionResolved = true
+        messages.push({
+          id: "juno_conf_" + Date.now(),
+          sender: "juno",
+          text: "Terima kasih! Suara Anda telah berhasil ditambahkan. Kami akan mengabari Anda jika ada pembaruan status pada fitur ini.",
+          time: formatMessageTime(new Date().toISOString()),
+        })
+        scrollToBottom()
+      } else {
+        const data = await res.json().catch(() => null)
+        guestEmailError =
+          data?.message ||
+          data?.error ||
+          "Gagal menambahkan suara. Silakan coba lagi."
+      }
+    } catch {
+      guestEmailError = "Gagal menghubungi server. Silakan coba lagi."
+    } finally {
+      isActionSubmitting = false
+    }
+  }
+
+  async function handleCreateFeedbackFromChat(
+    msg: ChatMessage,
+    boardId: string,
+    draft: { title: string; content: string },
+  ) {
+    const email = user?.email || guestEmail.trim()
+    if (!email) {
+      guestEmailError = "Silakan masukkan email Anda untuk melanjutkan."
+      return
+    }
+    if (!validateEmail(email)) {
+      guestEmailError = "Format email tidak valid."
+      return
+    }
+    guestEmailError = null
+    isActionSubmitting = true
+
+    try {
+      const res = await fetch(`${apiUrl}/api/v1/boards/${boardId}/posts`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-id": user?.userId || `guest_${email}`,
+          ...(email ? { "x-user-email": email } : {}),
+        },
+        body: JSON.stringify({
+          title: draft.title,
+          content: draft.content,
+        }),
+      })
+
+      if (res.ok) {
+        msg.actionResolved = true
+        messages.push({
+          id: "juno_conf_" + Date.now(),
+          sender: "juno",
+          text: "Saran Anda telah berhasil dikirim ke board masukan. Tim produk kami akan segera meninjaunya!",
+          time: formatMessageTime(new Date().toISOString()),
+        })
+        scrollToBottom()
+      } else {
+        const data = await res.json().catch(() => null)
+        guestEmailError =
+          data?.message ||
+          data?.error ||
+          "Gagal mengirim ide feedback. Silakan coba lagi."
+      }
+    } catch {
+      guestEmailError = "Gagal menghubungi server. Silakan coba lagi."
+    } finally {
+      isActionSubmitting = false
     }
   }
 
@@ -213,7 +357,104 @@
               ? 'user-bubble'
               : 'bot-bubble'}"
           >
-            {msg.text}
+            {#if msg.text}
+              <div class="bubble-text">{msg.text}</div>
+            {/if}
+
+            {#if msg.action}
+              <div class="action-card">
+                {#if msg.action.type === "similar_post"}
+                  {@const action = msg.action}
+                  <div class="action-card-header">
+                    <span class="status-badge {getStatusBadgeClass(action.post.status)}">
+                      {getStatusLabel(action.post.status)}
+                    </span>
+                    <span class="similarity-pill">
+                      {Math.round(action.similarityScore * 100)}% Cocok
+                    </span>
+                    <span class="votes-pill">▲ {action.post.votesCount}</span>
+                  </div>
+                  <div class="action-card-title">{action.post.title}</div>
+                  {#if action.post.content}
+                    <div class="action-card-desc">{action.post.content}</div>
+                  {/if}
+
+                  <div class="action-card-footer">
+                    {#if msg.actionResolved}
+                      <div class="action-resolved">
+                        <span>✓ Upvote Anda telah ditambahkan</span>
+                      </div>
+                    {:else}
+                      {#if !user?.email}
+                        <div class="action-email-box">
+                          <input
+                            type="email"
+                            bind:value={guestEmail}
+                            placeholder="Email Anda untuk notifikasi..."
+                            class="action-email-input"
+                            disabled={isActionSubmitting}
+                          />
+                        </div>
+                      {/if}
+                      {#if guestEmailError}
+                        <div class="action-error-msg">{guestEmailError}</div>
+                      {/if}
+                      <button
+                        type="button"
+                        class="btn-card-action"
+                        disabled={isActionSubmitting}
+                        onclick={() => handleVoteSimilarPost(msg, action.post.id)}
+                      >
+                        {isActionSubmitting ? "Memproses..." : "+1 Upvote"}
+                      </button>
+                    {/if}
+                  </div>
+                {:else if msg.action.type === "create_feedback"}
+                  {@const action = msg.action}
+                  <div class="action-card-header">
+                    <span class="board-badge">
+                      Board #{action.boardSlug}
+                    </span>
+                    <span class="new-pill">Saran Baru</span>
+                  </div>
+                  <div class="action-card-title">{action.draft.title}</div>
+                  {#if action.draft.content}
+                    <div class="action-card-desc">{action.draft.content}</div>
+                  {/if}
+
+                  <div class="action-card-footer">
+                    {#if msg.actionResolved}
+                      <div class="action-resolved">
+                        <span>✓ Ide telah dikirim ke board</span>
+                      </div>
+                    {:else}
+                      {#if !user?.email}
+                        <div class="action-email-box">
+                          <input
+                            type="email"
+                            bind:value={guestEmail}
+                            placeholder="Email Anda untuk update..."
+                            class="action-email-input"
+                            disabled={isActionSubmitting}
+                          />
+                        </div>
+                      {/if}
+                      {#if guestEmailError}
+                        <div class="action-error-msg">{guestEmailError}</div>
+                      {/if}
+                      <button
+                        type="button"
+                        class="btn-card-action"
+                        disabled={isActionSubmitting}
+                        onclick={() => handleCreateFeedbackFromChat(msg, action.boardId, action.draft)}
+                      >
+                        {isActionSubmitting ? "Mengirim..." : "Kirim ke Feedback Board"}
+                      </button>
+                    {/if}
+                  </div>
+                {/if}
+              </div>
+            {/if}
           </div>
           <span class="message-time">{msg.time}</span>
         </div>
@@ -339,7 +580,7 @@
   .message-content {
     display: flex;
     flex-direction: column;
-    max-width: 80%;
+    max-width: 85%;
   }
   .user-row .message-content {
     align-items: flex-end;
@@ -351,6 +592,9 @@
     line-height: 1.4;
     word-break: break-word;
   }
+  .bubble-text {
+    word-break: break-word;
+  }
   .bot-bubble {
     background: #f1f5f9;
     color: #1e293b;
@@ -360,6 +604,166 @@
     background: #4f46e5;
     color: #ffffff;
     border-bottom-right-radius: 2px;
+  }
+  .action-card {
+    margin-top: 8px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-align: left;
+    color: #0f172a;
+  }
+  .action-card-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 2px;
+  }
+  .status-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 9999px;
+  }
+  .badge-blue {
+    background: #eff6ff;
+    color: #2563eb;
+    border: 1px solid #bfdbfe;
+  }
+  .badge-amber {
+    background: #fffbeb;
+    color: #d97706;
+    border: 1px solid #fde68a;
+  }
+  .badge-emerald {
+    background: #ecfdf5;
+    color: #059669;
+    border: 1px solid #a7f3d0;
+  }
+  .badge-gray {
+    background: #f1f5f9;
+    color: #64748b;
+    border: 1px solid #cbd5e1;
+  }
+  .similarity-pill {
+    font-size: 10px;
+    font-weight: 700;
+    color: #7c3aed;
+    background: #f5f3ff;
+    border: 1px solid #ddd6fe;
+    padding: 2px 6px;
+    border-radius: 9999px;
+  }
+  .votes-pill {
+    font-size: 10px;
+    font-weight: 700;
+    color: #475569;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 2px 6px;
+    border-radius: 6px;
+  }
+  .board-badge {
+    font-size: 10px;
+    font-weight: 600;
+    color: #4338ca;
+    background: #e0e7ff;
+    border: 1px solid #c7d2fe;
+    padding: 2px 6px;
+    border-radius: 6px;
+  }
+  .new-pill {
+    font-size: 10px;
+    font-weight: 700;
+    color: #059669;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    padding: 2px 6px;
+    border-radius: 9999px;
+  }
+  .action-card-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.3;
+  }
+  .action-card-desc {
+    font-size: 11px;
+    color: #475569;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .action-card-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 4px;
+    padding-top: 6px;
+    border-top: 1px solid #f1f5f9;
+  }
+  .action-resolved {
+    font-size: 11px;
+    font-weight: 600;
+    color: #059669;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 0;
+  }
+  .action-email-box {
+    width: 100%;
+  }
+  .action-email-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 5px 8px;
+    font-size: 11px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    outline: none;
+    background: #f8fafc;
+    color: #0f172a;
+    font-family: inherit;
+  }
+  .action-email-input:focus {
+    border-color: #6366f1;
+    background: #ffffff;
+  }
+  .action-error-msg {
+    font-size: 10px;
+    color: #dc2626;
+    font-weight: 500;
+  }
+  .btn-card-action {
+    background: #4f46e5;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+  .btn-card-action:hover:not(:disabled) {
+    background: #4338ca;
+  }
+  .btn-card-action:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
   .message-time {
     font-size: 9px;
