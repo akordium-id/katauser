@@ -10,6 +10,7 @@
     XCircle,
     Save,
   } from "lucide-svelte"
+  import LinearSettingsCard from "$lib/components/dashboard/LinearSettingsCard.svelte"
 
   interface Props {
     data: PageData
@@ -66,7 +67,15 @@
   <title>Integrations & Webhooks | Katauser Admin</title>
 </svelte:head>
 
-<div class="max-w-4xl mx-auto space-y-6">
+<div class="max-w-4xl mx-auto space-y-8">
+  <!-- Linear Integration Card -->
+  <LinearSettingsCard
+    workspaceSlug={data.workspaceSlug}
+    integration={data.linear}
+  />
+
+  <div class="divider my-2"></div>
+
   <!-- Header -->
   <div>
     <div class="flex items-center gap-2 mb-1">

@@ -5,13 +5,18 @@ import { validateWebhookUrl } from "$lib/integrations-helpers"
 export const load: PageServerLoad = async ({ params }) => {
   const workspaceSlug = params.workspaceSlug
 
-  // Mock / default integrations config
+  // Default integrations config
   return {
     workspaceSlug,
     webhook: {
       slackWebhookUrl: "",
       discordWebhookUrl: "",
       enabledEvents: ["post.created", "post.voted", "chat.escalated"],
+    },
+    linear: {
+      connected: false,
+      organizationName: undefined,
+      defaultTeamId: undefined,
     },
   }
 }
