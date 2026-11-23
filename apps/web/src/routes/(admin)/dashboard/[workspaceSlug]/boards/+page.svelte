@@ -1,14 +1,48 @@
 <script lang="ts">
   import { createApiClient } from "$lib/api"
   import type { BoardItem } from "./+page.server"
-  import { Layers } from "lucide-svelte"
+  import { Layers, GitMerge, UserCheck } from "lucide-svelte"
   import LinearIssueModal from "$lib/components/dashboard/LinearIssueModal.svelte"
+  import MergePostModal, {
+    type PostItem,
+  } from "$lib/components/dashboard/MergePostModal.svelte"
+  import VoteOnBehalfModal from "$lib/components/dashboard/VoteOnBehalfModal.svelte"
 
   let { data } = $props()
 
   let boards = $state<BoardItem[]>([])
   let isCreateBoardOpen = $state(false)
   let isLinearModalOpen = $state(false)
+  let isMergeModalOpen = $state(false)
+  let isVoteBehalfModalOpen = $state(false)
+
+  let selectedPost = $state<PostItem>({
+    id: "post_sample",
+    title: "Sample Feedback Idea",
+    votesCount: 3,
+    totalMrr: 500,
+  })
+
+  let sampleBoardPosts = $state<PostItem[]>([
+    {
+      id: "post_sample",
+      title: "Sample Feedback Idea",
+      votesCount: 3,
+      totalMrr: 500,
+    },
+    {
+      id: "post_target_main",
+      title: "Main Consolidated Feature Post",
+      votesCount: 12,
+      totalMrr: 2400,
+    },
+    {
+      id: "post_secondary",
+      title: "Alternative Layout Design",
+      votesCount: 5,
+      totalMrr: 300,
+    },
+  ])
   let newBoardName = $state("")
   let newBoardSlug = $state("")
   let newBoardDesc = $state("")
@@ -80,6 +114,24 @@
     </div>
 
     <div class="flex items-center gap-2">
+      <button
+        type="button"
+        onclick={() => (isVoteBehalfModalOpen = true)}
+        class="btn btn-outline btn-sm font-semibold gap-1.5 shadow-xs"
+      >
+        <UserCheck class="w-4 h-4 text-emerald-600" />
+        <span>Vote on Behalf</span>
+      </button>
+
+      <button
+        type="button"
+        onclick={() => (isMergeModalOpen = true)}
+        class="btn btn-outline btn-sm font-semibold gap-1.5 shadow-xs"
+      >
+        <GitMerge class="w-4 h-4 text-amber-600" />
+        <span>Merge Post</span>
+      </button>
+
       <button
         type="button"
         onclick={() => (isLinearModalOpen = true)}
@@ -312,4 +364,29 @@
   postContent=""
   isOpen={isLinearModalOpen}
   onClose={() => (isLinearModalOpen = false)}
+/>
+
+<!-- Post Merging Modal -->
+<MergePostModal
+  workspaceSlug={data.workspaceSlug}
+  sourcePost={selectedPost}
+  availablePosts={sampleBoardPosts}
+  isOpen={isMergeModalOpen}
+  onClose={() => (isMergeModalOpen = false)}
+  onSuccess={() => {
+    selectedPost.status = "merged"
+  }}
+/>
+
+<!-- Vote on Behalf Modal -->
+<VoteOnBehalfModal
+  workspaceSlug={data.workspaceSlug}
+  post={selectedPost}
+  isOpen={isVoteBehalfModalOpen}
+  onClose={() => (isVoteBehalfModalOpen = false)}
+  onSuccess={(res) => {
+    selectedPost.votesCount =
+      res.post?.votesCount ?? (selectedPost.votesCount ?? 0) + 1
+    selectedPost.totalMrr = res.post?.totalMrr ?? selectedPost.totalMrr
+  }}
 />
