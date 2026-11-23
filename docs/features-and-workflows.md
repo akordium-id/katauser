@@ -154,12 +154,77 @@ Portal publik digunakan oleh end-user untuk berpartisipasi menyampaikan feedback
 
 ---
 
-## 5. Ringkasan Pengujian & Linting
+## 5. Post Merging & Vote on Behalf
+
+### Post Merging (Deduplikasi Feedback)
+- Menggabungkan post duplikat (*source*) ke post utama (*target*) dengan soft-merge (`status = 'merged'`, `mergedIntoPostId = targetId`).
+- Voter unik dipindahkan tanpa duplikasi suara, total MRR dan skor bobot dikalkulasi ulang secara otomatis.
+- Catatan audit disematkan secara otomatis di thread komentar post target.
+- Proteksi terhadap circular merge dan self-merge.
+- Endpoint: `POST /api/v1/posts/:postId/merge`.
+
+### Vote on Behalf (Atas Nama Klien B2B)
+- Memungkinkan tim Sales/CS mencatatkan suara atas nama customer dengan MRR traits langsung dari dashboard admin.
+- Upsert otomatis profil customer di tabel `end_users`.
+- Endpoint: `POST /api/v1/posts/:postId/vote-on-behalf`.
+
+---
+
+## 6. Integrasi Linear Issue Tracker
+
+Menghubungkan post masukan pengguna dengan tiket kerja engineering di Linear secara bilateral.
+
+### Fitur Utama
+- **Link Linear Issue**: Menghubungkan ID post dengan identifier issue Linear (misal `KAT-42`).
+- **Webhook Sync Handler**: Menerima event update status dari Linear (misal tiket bergeser ke `Done` / `Completed` di Linear) lalu otomatis memperbarui status post Katauser ke `completed` dan memberi tahu voter.
+- **Detached Isolation**: Perubahan di Linear tidak akan merusak integritas post lokal Katauser jika webhook terputus.
+
+---
+
+## 7. In-App Changelog Popover & Unread Badge
+
+Komponen widget interaktif untuk mengumumkan rilis produk baru langsung di aplikasi induk.
+
+### Fitur Utama
+- **Floating Popover Teaser**: Muncul secara non-intrusif di atas launcher widget saat ada rilis baru yang belum pernah dilihat oleh user.
+- **Unread Badge Dinamis**: Indikator unread count di launcher button dan tab navigasi changelog widget.
+- **Hybrid Local Storage State**: Menyimpan timestamp pembacaan terakhir (`katauser_changelog_seen_<workspaceId>`) di browser untuk performa instan tanpa delay DB.
+- **Auto Mark-as-Read**: Otomatis mereset status unread saat popover diklik atau tab changelog dibuka.
+- **Endpoint API**: `GET /api/v1/workspaces/:slug/changelogs/latest?since=<ISO_DATE>`.
+
+---
+
+## 8. Native Model Context Protocol (MCP) Server & CLI Bridge
+
+Menghubungkan AI coding agent (Cursor, Claude Code, Antigravity, Windsurf) langsung dengan Katauser melalui arsitektur hybrid.
+
+### Arsitektur
+- **Remote Hono API (`apps/api`)**: Endpoint `/api/v1/mcp/tools` dengan autentikasi API Key bertoken `ku_live_...` (di-hash SHA-256 pada database).
+- **Executable CLI STDIO Bridge (`packages/mcp`)**: Package `@katauser/mcp` yang dapat dieksekusi instan via `npx -y @katauser/mcp`.
+- **Daftar Tools V1**:
+  - `list_feedback`: Mengambil daftar feedback dengan filter status, sorting popularitas/MRR.
+  - `get_feedback_details`: Membaca detail post, komentar, voter, dan tiket Linear terhubung.
+  - `create_feedback`: Membuat post masukan baru langsung dari percakapan AI.
+  - `update_post_status`: Mengubah status workflow (`planned`, `in_progress`, `completed`, `closed`).
+  - `get_roadmap_kanban`: Mengambil ringkasan roadmap 3 kolom.
+  - `create_changelog_release`: Mempublikasikan catatan rilis changelog baru sekaligus menautkan post yang diselesaikan.
+- **Keamanan & Guard**:
+  - Penegakan izin granular (`read` vs `write`).
+  - Validasi ketat batas tenant/workspace pada relational ID (`postIds`).
+  - Pesan error Zod yang ramah bagi AI assistant untuk self-correction.
+
+---
+
+## 9. Ringkasan Pengujian & Linting
 
 Seluruh modul dilengkapi dengan automated unit tests di Vitest:
 
-- `@katauser/db`: `tests/seed.test.ts`, `tests/schema.test.ts`, `tests/feedback-repo.test.ts`, `tests/changelog-repo.test.ts`, `tests/chat-repo.test.ts`.
+- `@katauser/db`: `tests/seed.test.ts`, `tests/schema.test.ts`, `tests/feedback-repo.test.ts`, `tests/changelog-repo.test.ts`, `tests/chat-repo.test.ts`, `tests/api-keys.test.ts`.
+- `@katauser/shared`: `tests/mcp-schemas.test.ts`, `tests/feedback-schemas.test.ts`, dll.
+- `@katauser/api`: `tests/mcp-auth.test.ts`, `tests/mcp-tools.test.ts`, `tests/feedback.test.ts`, `tests/integrations.test.ts`.
+- `@katauser/mcp`: `tests/stdio-bridge.test.ts`.
 - `@katauser/web`: `tests/dashboard-hub.test.ts`, `tests/widget-generator.test.ts`, `tests/public-portal.test.ts`, `tests/landing-page.test.ts`, dll.
+- `@katauser/widget`: `tests/changelog-popover.test.ts`, `tests/widget.test.ts`.
 
 Perintah verifikasi monorepo:
 
