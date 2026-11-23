@@ -1,4 +1,14 @@
+import { getStoredLastSeenDate, storeLastSeenDate } from "./changelog-helpers"
+
 export type WidgetTab = "feedback" | "roadmap" | "changelog" | "messages"
+
+export interface ChangelogSummary {
+  id: string
+  title: string
+  slug: string
+  content: string
+  publishedAt: string
+}
 
 export interface WidgetUser {
   userId: string
@@ -12,6 +22,7 @@ export interface WidgetInitOptions {
   apiUrl?: string
   primaryColor?: string
   position?: "bottom-right" | "bottom-left"
+  showPopover?: boolean
 }
 
 export function createWidgetState() {
@@ -21,6 +32,9 @@ export function createWidgetState() {
   let workspaceId: string | null = null
   let apiUrl = "http://localhost:3000"
   let user: WidgetUser | null = null
+  let latestChangelog: ChangelogSummary | null = null
+  let isPopoverDismissed = false
+  let showPopover = true
   let subscribers: Array<() => void> = []
 
   const notify = () => {
@@ -46,6 +60,53 @@ export function createWidgetState() {
     get user() {
       return user
     },
+    get latestChangelog() {
+      return latestChangelog
+    },
+    get isPopoverDismissed() {
+      return isPopoverDismissed
+    },
+    get showPopover() {
+      return showPopover
+    },
+    setShowPopover(val: boolean) {
+      showPopover = val
+      notify()
+    },
+    setLatestChangelog(rel: ChangelogSummary | null) {
+      latestChangelog = rel
+      notify()
+    },
+    dismissPopover() {
+      isPopoverDismissed = true
+      notify()
+    },
+    markChangelogAsRead(workspace: string, publishedAt: string) {
+      unreadCount = 0
+      isPopoverDismissed = true
+      storeLastSeenDate(workspace, publishedAt)
+      notify()
+    },
+    async syncChangelogStatus(workspace: string, baseApiUrl?: string) {
+      const url = baseApiUrl || apiUrl
+      const lastSeen = getStoredLastSeenDate(workspace)
+      try {
+        const endpoint = `${url}/api/v1/workspaces/${workspace}/changelogs/latest${
+          lastSeen ? `?since=${encodeURIComponent(lastSeen)}` : ""
+        }`
+        const res = await fetch(endpoint)
+        if (res.ok) {
+          const data = await res.json()
+          if (data.success && data.latest) {
+            latestChangelog = data.latest
+            unreadCount = data.unreadCount ?? 0
+            notify()
+          }
+        }
+      } catch {
+        // Graceful fallback
+      }
+    },
     open() {
       isOpen = true
       notify()
@@ -70,6 +131,9 @@ export function createWidgetState() {
       workspaceId = options.workspace
       if (options.apiUrl) {
         apiUrl = options.apiUrl
+      }
+      if (options.showPopover !== undefined) {
+        showPopover = options.showPopover
       }
       notify()
     },
