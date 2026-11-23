@@ -30,6 +30,7 @@ Katauser dirancang untuk membantu startup, founder SaaS, dan software agency men
 - ⚡ **Linear 2-Way Issue Sync**: Buat issue baru atau tautkan issue Linear langsung dari feedback post. Saat developer menyelesaikan issue di Linear (`Done`), status post Katauser otomatis `completed` dan voter menerima notifikasi rilis.
 - 🔀 **Post Merging (Deduplikasi Feedback)**: Gabungkan masukan serupa secara aman (_soft merge_) dengan deduplikasi voter otomatis, konsolidasi dampak MRR, dan audit trail transparan tanpa merusak tautan publik.
 - 👥 **Vote on Behalf (B2B Customer Attribution)**: Catatkan masukan langsung atas nama pelanggan enterprise beserta estimasi MRR dan catatan pembicaraan sales/CS tanpa memaksa klien membuka portal.
+- 📣 **In-App Changelog Popover & Unread Badge**: Umumkan rilis fitur baru secara non-intrusif langsung di aplikasi induk via floating teaser card & unread counter pada `<katauser-widget>` tanpa latensi.
 
 ---
 
