@@ -2,7 +2,7 @@ import { Hono } from "hono"
 import { zValidator } from "@hono/zod-validator"
 import { createChangelogSchema } from "@katauser/shared"
 
-const changelogsStore: Array<{
+export const changelogsStore: Array<{
   id: string
   workspaceId: string
   title: string

@@ -3,7 +3,7 @@ import { zValidator } from "@hono/zod-validator"
 import { createBoardSchema } from "@katauser/shared"
 
 // In-memory mock store for API tests / fallback when live DB is not connected
-const boardsStore: Array<{
+export const boardsStore: Array<{
   id: string
   workspaceId: string
   name: string

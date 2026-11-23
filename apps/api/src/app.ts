@@ -13,6 +13,7 @@ import { integrationsRoute } from "./modules/integrations/integrations.route"
 import { linearRoute } from "./modules/integrations/linear.route"
 import { knowledgeRoute } from "./modules/ai/knowledge.route"
 import { authRoute } from "./modules/auth/auth.route"
+import { mcpRoute } from "./modules/mcp/mcp.route"
 
 export const app = new Hono()
   .use(
@@ -43,5 +44,6 @@ export const app = new Hono()
   .route("/", linearRoute)
   .route("/", knowledgeRoute)
   .route("/", authRoute)
+  .route("/mcp", mcpRoute)
 
 export type AppType = typeof app

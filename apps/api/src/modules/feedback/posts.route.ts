@@ -20,7 +20,7 @@ import {
 } from "../../services/ai-embeddings"
 
 // In-memory mock store for posts, votes, comments
-interface PostRecord {
+export interface PostRecord {
   id: string
   boardId: string
   title: string
@@ -43,10 +43,10 @@ interface VoteRecord {
   internalNote?: string
 }
 
-const postsStore: PostRecord[] = []
-const votesStore: VoteRecord[] = []
+export const postsStore: PostRecord[] = []
+export const votesStore: VoteRecord[] = []
 
-const commentsStore: Array<{
+export const commentsStore: Array<{
   id: string
   postId: string
   content: string
