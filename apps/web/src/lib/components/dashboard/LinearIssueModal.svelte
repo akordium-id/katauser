@@ -146,10 +146,11 @@
       <div class="space-y-4">
         {#if mode === "create"}
           <div class="form-control">
-            <label class="label py-1">
+            <label for="linear-issue-title" class="label py-1">
               <span class="label-text text-xs font-medium text-slate-700">Judul Issue</span>
             </label>
             <input
+              id="linear-issue-title"
               type="text"
               bind:value={title}
               class="input input-sm input-bordered w-full rounded-lg text-xs"
@@ -158,10 +159,11 @@
           </div>
 
           <div class="form-control">
-            <label class="label py-1">
+            <label for="linear-issue-desc" class="label py-1">
               <span class="label-text text-xs font-medium text-slate-700">Deskripsi</span>
             </label>
             <textarea
+              id="linear-issue-desc"
               bind:value={description}
               rows="3"
               class="textarea textarea-bordered w-full rounded-lg text-xs"
@@ -170,10 +172,11 @@
           </div>
 
           <div class="form-control">
-            <label class="label py-1">
+            <label for="linear-issue-priority" class="label py-1">
               <span class="label-text text-xs font-medium text-slate-700">Prioritas</span>
             </label>
             <select
+              id="linear-issue-priority"
               bind:value={priority}
               class="select select-sm select-bordered w-full rounded-lg text-xs"
             >
@@ -186,11 +189,12 @@
           </div>
         {:else}
           <div class="form-control">
-            <label class="label py-1">
+            <label for="linear-issue-id" class="label py-1">
               <span class="label-text text-xs font-medium text-slate-700">Identifier Issue</span>
               <span class="label-text-alt text-xs text-slate-400">Contoh: ENG-142</span>
             </label>
             <input
+              id="linear-issue-id"
               type="text"
               bind:value={issueIdOrKey}
               class="input input-sm input-bordered w-full rounded-lg font-mono text-xs uppercase"

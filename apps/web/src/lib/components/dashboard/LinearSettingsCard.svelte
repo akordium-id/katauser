@@ -179,7 +179,7 @@
       <!-- Setup Form (when disconnected) -->
       <div class="space-y-4 pt-2">
         <div class="form-control">
-          <label class="label py-1">
+          <label for="linear-api-key" class="label py-1">
             <span class="label-text text-xs font-semibold text-slate-700">
               Linear Personal API Key
             </span>
@@ -193,6 +193,7 @@
             </a>
           </label>
           <input
+            id="linear-api-key"
             type="password"
             bind:value={apiKey}
             placeholder="lin_api_..."
@@ -201,7 +202,7 @@
         </div>
 
         <div class="form-control">
-          <label class="label py-1">
+          <label for="linear-webhook-secret" class="label py-1">
             <span class="label-text text-xs font-semibold text-slate-700">
               Webhook Signing Secret
             </span>
@@ -210,6 +211,7 @@
             </span>
           </label>
           <input
+            id="linear-webhook-secret"
             type="password"
             bind:value={webhookSecret}
             placeholder="whsec_..."

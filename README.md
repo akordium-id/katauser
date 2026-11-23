@@ -27,6 +27,7 @@ Katauser dirancang untuk membantu startup, founder SaaS, dan software agency men
 - 📦 **In-App Widget (< 28 kB gzipped)**: Web Component Custom Element mandiri (`<katauser-widget>`) di dalam **Shadow DOM** tanpa bentrok dengan CSS aplikasi induk, lengkap dengan verifikasi identitas HMAC SHA-256.
 - 🌐 **Multi-Tenant Custom Domains**: Hubungkan domain kustom tenant Anda (misal `feedback.yourcompany.com`) dengan verifikasi DNS CNAME instan dan transparent routing middleware.
 - 💬 **Outbound Webhooks (Slack & Discord)**: Notifikasi real-time ke channel tim Anda saat ada feedback baru (`post.created`), upvote baru (`post.voted`), atau eskalasi chat (`chat.escalated`).
+- ⚡ **Linear 2-Way Issue Sync**: Buat issue baru atau tautkan issue Linear langsung dari feedback post. Saat developer menyelesaikan issue di Linear (`Done`), status post Katauser otomatis `completed` dan voter menerima notifikasi rilis.
 
 ---
 
@@ -157,6 +158,7 @@ Panduan deployment langkah-demi-langkah tersedia di:
 ## 📚 Dokumentasi Lengkap (`@docs/`)
 
 - [📐 Arsitektur Sistem & Data Model](@docs/architecture.md)
+- [⚡ Panduan Integrasi Linear Issue Tracker](@docs/integrations-linear.md)
 - [🤖 RAG AI Agent Juno & Ingestion Docs](@docs/ai-rag-juno.md)
 - [💬 Webhooks & Email Notifications](@docs/integrations-webhooks.md)
 - [📦 Panduan Integrasi Widget SDK](@docs/widget-integration.md)
