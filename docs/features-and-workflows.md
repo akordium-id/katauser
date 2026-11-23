@@ -215,16 +215,30 @@ Menghubungkan AI coding agent (Cursor, Claude Code, Antigravity, Windsurf) langs
 
 ---
 
-## 9. Ringkasan Pengujian & Linting
+## 10. Chat-to-Feedback Bridge di Juno AI
+
+Menghubungkan modul live chat asisten AI Juno langsung ke feedback board dan roadmap produk (fitur pembeda utama ala UserJot).
+
+### Fitur Utama
+- **Deteksi Intent Otomatis**: Membedakan saran fitur dari pertanyaan dokumentasi/how-to biasa secara real-time.
+- **Rekomendasi Post Serupa (`similarityScore >= 0.70`)**: Menyajikan kartu interaktif dengan status badge, persentase kecocokan, dan tombol **1-Click Upvote** untuk postingan aktif yang sudah ada di roadmap.
+- **Draf Masukan Baru (`similarityScore < 0.70`)**: Menawarkan pembuatan post feedback baru ke board publik utama beserta judul draf dan preview konten langsung dari pesan pengguna.
+- **Dukungan Guest & Identified User**: Memberikan kemudahan 1-klik bagi user terotentikasi, serta inline email capture dengan validasi otomatis untuk pengunjung anonim agar terdaftar dalam loop notifikasi email.
+- **Aliran SSE Interaktif**: Menyalurkan event tindakan terstruktur (`action`) tepat sebelum terminator `[DONE]` tanpa memutus teks streaming biasa.
+- **Dokumentasi Lengkap**: Lihat [`docs/features/chat-to-feedback-bridge.md`](docs/features/chat-to-feedback-bridge.md).
+
+---
+
+## 11. Ringkasan Pengujian & Linting
 
 Seluruh modul dilengkapi dengan automated unit tests di Vitest:
 
 - `@katauser/db`: `tests/seed.test.ts`, `tests/schema.test.ts`, `tests/feedback-repo.test.ts`, `tests/changelog-repo.test.ts`, `tests/chat-repo.test.ts`, `tests/api-keys.test.ts`.
-- `@katauser/shared`: `tests/mcp-schemas.test.ts`, `tests/feedback-schemas.test.ts`, dll.
-- `@katauser/api`: `tests/mcp-auth.test.ts`, `tests/mcp-tools.test.ts`, `tests/feedback.test.ts`, `tests/integrations.test.ts`.
+- `@katauser/shared`: `tests/mcp-schemas.test.ts`, `tests/feedback-schemas.test.ts`, `tests/chat-schemas.test.ts`, dll.
+- `@katauser/api`: `tests/mcp-auth.test.ts`, `tests/mcp-tools.test.ts`, `tests/feedback.test.ts`, `tests/integrations.test.ts`, `tests/chat-feedback-bridge.test.ts`.
 - `@katauser/mcp`: `tests/stdio-bridge.test.ts`.
 - `@katauser/web`: `tests/dashboard-hub.test.ts`, `tests/widget-generator.test.ts`, `tests/public-portal.test.ts`, `tests/landing-page.test.ts`, dll.
-- `@katauser/widget`: `tests/changelog-popover.test.ts`, `tests/widget.test.ts`.
+- `@katauser/widget`: `tests/changelog-popover.test.ts`, `tests/widget.test.ts`, `tests/chat-feedback-bridge.test.ts`.
 
 Perintah verifikasi monorepo:
 

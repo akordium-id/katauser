@@ -24,6 +24,7 @@ Katauser dirancang untuk membantu startup, founder SaaS, dan software agency men
 - 🗺️ **Public Roadmap Kanban**: Publikasikan tahapan rilis fitur (_Planned_, _In Progress_, _Shipped_) secara real-time yang terhubung langsung dengan board masukan.
 - 🚀 **AI-Powered Changelog & Auto-Notifications**: Publikasikan catatan rilis dan beri tahu semua voter secara otomatis melalui email transaksional (**Resend**) saat fitur yang mereka dukung telah selesai dirilis.
 - 🤖 **Live Chat & AI Support Agent (Juno)**: Asisten dukungan live chat cerdas dengan **RAG (Retrieval-Augmented Generation)** yang mempelajari website docs & FAQ Anda, dengan dukungan SSE streaming dan handoff otomatis ke staf manusia.
+- 🌉 **Chat-to-Feedback Bridge (UserJot-Style Killer Feature)**: Menghubungkan live chat Juno langsung ke feedback boards & public roadmap. Mendeteksi intent fitur secara real-time, merekomendasikan post serupa untuk 1-click upvote (`similarity >= 0.70`), atau menawarkan pembuatan feedback baru (`< 0.70`) langsung di gelembung obrolan tanpa berpindah tab.
 - 📦 **In-App Widget (< 28 kB gzipped)**: Web Component Custom Element mandiri (`<katauser-widget>`) di dalam **Shadow DOM** tanpa bentrok dengan CSS aplikasi induk, lengkap dengan verifikasi identitas HMAC SHA-256.
 - 🌐 **Multi-Tenant Custom Domains**: Hubungkan domain kustom tenant Anda (misal `feedback.yourcompany.com`) dengan verifikasi DNS CNAME instan dan transparent routing middleware.
 - 💬 **Outbound Webhooks (Slack & Discord)**: Notifikasi real-time ke channel tim Anda saat ada feedback baru (`post.created`), upvote baru (`post.voted`), atau eskalasi chat (`chat.escalated`).
@@ -165,6 +166,7 @@ Panduan deployment langkah-demi-langkah tersedia di:
 - [📐 Arsitektur Sistem & Data Model](@docs/architecture.md)
 - [⚡ Panduan Integrasi Linear Issue Tracker](@docs/integrations-linear.md)
 - [🤖 RAG AI Agent Juno & Ingestion Docs](@docs/ai-rag-juno.md)
+- [🌉 Chat-to-Feedback Bridge di Juno AI](docs/features/chat-to-feedback-bridge.md)
 - [💬 Webhooks & Email Notifications](@docs/integrations-webhooks.md)
 - [📦 Panduan Integrasi Widget SDK](@docs/widget-integration.md)
 - [🌐 Panduan Deployment di Coolify](@docs/deployment-coolify.md)
