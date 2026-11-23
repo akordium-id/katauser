@@ -21,22 +21,28 @@
   } = $props()
 </script>
 
-<div
-  role="button"
-  tabindex="0"
-  onclick={onClick}
-  onkeydown={(e) => e.key === "Enter" && onClick?.()}
-  class="group relative flex cursor-pointer items-start gap-4 rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs transition-all hover:border-slate-300 hover:shadow-sm"
+<article
+  class="group relative flex items-start gap-4 rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs transition-all hover:border-slate-300 hover:shadow-sm"
 >
   <VoteButton postId={post.id} votesCount={post.votesCount} {onVote} />
 
   <div class="flex-1 min-w-0">
     <div class="flex items-center gap-2 mb-1.5 flex-wrap">
-      <h3
-        class="text-base font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors"
-      >
-        {post.title}
-      </h3>
+      {#if onClick}
+        <button
+          type="button"
+          onclick={onClick}
+          class="text-left text-base font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors cursor-pointer"
+        >
+          {post.title}
+        </button>
+      {:else}
+        <h3
+          class="text-base font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors"
+        >
+          {post.title}
+        </h3>
+      {/if}
       <span
         class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium border {getStatusBadgeColor(
           post.status,
@@ -79,4 +85,4 @@
       </span>
     </div>
   </div>
-</div>
+</article>

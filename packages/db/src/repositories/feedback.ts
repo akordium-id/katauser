@@ -281,16 +281,15 @@ export class FeedbackRepository {
         }
       }
 
-      // 4. Update target post votes count
-      if (transferredVotesCount > 0) {
-        await tx
-          .update(posts)
-          .set({
-            votesCount: sql`${posts.votesCount} + ${transferredVotesCount}`,
-            updatedAt: new Date(),
-          })
-          .where(eq(posts.id, params.targetPostId))
-      }
+      // 4. Update target post counters (votes and comments for internal audit note)
+      await tx
+        .update(posts)
+        .set({
+          votesCount: sql`${posts.votesCount} + ${transferredVotesCount}`,
+          commentsCount: sql`${posts.commentsCount} + 1`,
+          updatedAt: new Date(),
+        })
+        .where(eq(posts.id, params.targetPostId))
 
       // 5. Update source post: status merged & mergedIntoPostId
       await tx
@@ -303,7 +302,16 @@ export class FeedbackRepository {
         })
         .where(eq(posts.id, params.sourcePostId))
 
-      // 6. Insert internal audit comment on target post
+      // 6. Update transitive pointers for posts previously merged into sourcePost
+      await tx
+        .update(posts)
+        .set({
+          mergedIntoPostId: params.targetPostId,
+          updatedAt: new Date(),
+        })
+        .where(eq(posts.mergedIntoPostId, params.sourcePostId))
+
+      // 7. Insert internal audit comment on target post
       const commentId =
         "comment_" + Math.random().toString(36).substring(2, 10)
       await tx.insert(comments).values({
@@ -328,12 +336,28 @@ export class FeedbackRepository {
     mrr?: number
     internalNote?: string
   }): Promise<{ success: boolean; voteId: string }> {
+    const normalizedEmail = params.customerEmail.trim().toLowerCase()
+
     return this.db.transaction(async (tx: any) => {
-      // 1. Find or create endUser
+      // 1. Verify target post exists and is not merged
+      const targetPost = await tx.query.posts.findFirst({
+        where: and(
+          eq(posts.id, params.postId),
+          eq(posts.workspaceId, params.workspaceId),
+        ),
+      })
+      if (!targetPost) {
+        throw new Error("Post not found")
+      }
+      if (targetPost.status === "merged" || targetPost.mergedIntoPostId) {
+        throw new Error("Cannot vote on a merged post")
+      }
+
+      // 2. Find or create endUser
       let endUser = await tx.query.endUsers.findFirst({
         where: and(
           eq(endUsers.workspaceId, params.workspaceId),
-          eq(endUsers.email, params.customerEmail),
+          eq(endUsers.email, normalizedEmail),
         ),
       })
 
@@ -345,7 +369,7 @@ export class FeedbackRepository {
           .values({
             id: newEndUserId,
             workspaceId: params.workspaceId,
-            email: params.customerEmail,
+            email: normalizedEmail,
             name: params.customerName ?? null,
             metadata: {
               company: params.company ?? undefined,
@@ -356,7 +380,7 @@ export class FeedbackRepository {
         endUser = created ?? { id: newEndUserId }
       }
 
-      // 2. Check if customer already voted
+      // 3. Check if customer already voted
       const existingVote = await tx.query.votes.findFirst({
         where: and(
           eq(votes.postId, params.postId),
@@ -367,7 +391,7 @@ export class FeedbackRepository {
         throw new Error("Customer has already voted on this post")
       }
 
-      // 3. Insert vote with staff attribution and note
+      // 4. Insert vote with staff attribution and note
       const voteId = "vote_" + Math.random().toString(36).substring(2, 10)
       await tx.insert(votes).values({
         id: voteId,

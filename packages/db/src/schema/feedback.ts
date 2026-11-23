@@ -5,6 +5,7 @@ import {
   boolean,
   integer,
   uniqueIndex,
+  type AnyPgColumn,
 } from "drizzle-orm/pg-core"
 import { workspaces, endUsers } from "./workspaces"
 import { users } from "./auth"
@@ -40,7 +41,10 @@ export const posts = pgTable("posts", {
   title: text("title").notNull(),
   content: text("content").notNull(),
   status: text("status").default("pending").notNull(), // pending, under_review, planned, in_progress, completed, closed, merged
-  mergedIntoPostId: text("merged_into_post_id"),
+  mergedIntoPostId: text("merged_into_post_id").references(
+    (): AnyPgColumn => posts.id,
+    { onDelete: "set null" },
+  ),
   votesCount: integer("votes_count").default(0).notNull(),
   commentsCount: integer("comments_count").default(0).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),

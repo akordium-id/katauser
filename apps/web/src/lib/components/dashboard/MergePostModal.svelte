@@ -96,7 +96,11 @@
         onSuccess?.(data)
         onClose()
       } else {
-        errorMessage = data.error || data.message || "Gagal menggabungkan post"
+        errorMessage =
+          data.error ||
+          data.message ||
+          data.errors?.[0]?.message ||
+          "Gagal menggabungkan post"
       }
     } catch (err: unknown) {
       errorMessage =
@@ -107,11 +111,16 @@
   }
 </script>
 
+<svelte:window
+  onkeydown={(e) => e.key === "Escape" && isOpen && onClose()}
+/>
+
 {#if isOpen}
   <div
     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150"
     role="dialog"
     aria-modal="true"
+    aria-labelledby="merge-modal-title"
   >
     <div
       class="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-lg overflow-hidden flex flex-col"
@@ -122,7 +131,9 @@
       >
         <div class="flex items-center gap-2 text-slate-800">
           <GitMerge class="w-5 h-5 text-indigo-600" />
-          <h2 class="text-base font-semibold">Gabungkan Postingan (Merge)</h2>
+          <h2 id="merge-modal-title" class="text-base font-semibold">
+            Gabungkan Postingan (Merge)
+          </h2>
         </div>
         <button
           type="button"

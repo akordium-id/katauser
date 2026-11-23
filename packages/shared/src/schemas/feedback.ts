@@ -54,7 +54,10 @@ export const mergePostsSchema = z.object({
 })
 
 export const voteOnBehalfSchema = z.object({
-  customerEmail: z.string().email("Format email customer tidak valid"),
+  customerEmail: z
+    .string()
+    .email("Format email customer tidak valid")
+    .transform((val) => val.trim().toLowerCase()),
   customerName: z
     .string()
     .min(2, "Nama customer minimal 2 karakter")

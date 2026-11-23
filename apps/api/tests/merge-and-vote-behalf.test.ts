@@ -202,4 +202,144 @@ describe("Posts Merging & Vote on Behalf API Routes", () => {
     const errBody = await invalidMerge.json()
     expect(errBody.error).toContain("already merged")
   })
+
+  it("rejects vote or vote-on-behalf on a merged post with 400", async () => {
+    // 1. Create target and source post
+    const tRes = await app.request("/boards/default_board/posts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        boardId: "default_board",
+        title: "Target Post Active",
+        content: "Content",
+      }),
+    })
+    const { post: tPost } = await tRes.json()
+
+    const sRes = await app.request("/boards/default_board/posts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        boardId: "default_board",
+        title: "Source Post Merged",
+        content: "Content",
+      }),
+    })
+    const { post: sPost } = await sRes.json()
+
+    // 2. Merge sPost into tPost
+    await app.request(`/posts/${sPost.id}/merge`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ targetPostId: tPost.id }),
+    })
+
+    // 3. Normal vote on sPost rejected
+    const voteRes = await app.request(`/posts/${sPost.id}/vote`, {
+      method: "POST",
+    })
+    expect(voteRes.status).toBe(400)
+    const voteErr = await voteRes.json()
+    expect(voteErr.error).toContain("Cannot vote on a merged post")
+
+    // 4. Vote on behalf on sPost rejected
+    const behalfRes = await app.request(`/posts/${sPost.id}/vote-on-behalf`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        customerEmail: "cust_blocked@test.com",
+      }),
+    })
+    expect(behalfRes.status).toBe(400)
+    const behalfErr = await behalfRes.json()
+    expect(behalfErr.error).toContain("Cannot vote on a merged post")
+  })
+
+  it("handles case-insensitive duplicate customerEmail in vote-on-behalf", async () => {
+    const res = await app.request("/boards/default_board/posts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        boardId: "default_board",
+        title: "Case Insensitive Vote Test",
+        content: "Content",
+      }),
+    })
+    const { post } = await res.json()
+
+    // First vote with uppercase
+    const v1 = await app.request(`/posts/${post.id}/vote-on-behalf`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        customerEmail: "User@Enterprise.COM",
+      }),
+    })
+    expect(v1.status).toBe(201)
+
+    // Second vote with lowercase
+    const v2 = await app.request(`/posts/${post.id}/vote-on-behalf`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        customerEmail: "user@enterprise.com",
+      }),
+    })
+    expect(v2.status).toBe(409)
+  })
+
+  it("updates transitive pointers when a merged post is merged into another", async () => {
+    const r1 = await app.request("/boards/default_board/posts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        boardId: "default_board",
+        title: "Root Post A",
+        content: "Content",
+      }),
+    })
+    const { post: pA } = await r1.json()
+
+    const r2 = await app.request("/boards/default_board/posts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        boardId: "default_board",
+        title: "Middle Post B",
+        content: "Content",
+      }),
+    })
+    const { post: pB } = await r2.json()
+
+    const r3 = await app.request("/boards/default_board/posts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        boardId: "default_board",
+        title: "Leaf Post C",
+        content: "Content",
+      }),
+    })
+    const { post: pC } = await r3.json()
+
+    // Merge C into B
+    await app.request(`/posts/${pC.id}/merge`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ targetPostId: pB.id }),
+    })
+
+    // Now merge B into A
+    await app.request(`/posts/${pB.id}/merge`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ targetPostId: pA.id }),
+    })
+
+    // Transitive check: C should now point to A
+    const getC = await app.request(`/posts/${pC.id}`)
+    const cData = await getC.json()
+    expect(cData.post.mergedIntoPostId).toBe(pA.id)
+    expect(cData.mergedInto.id).toBe(pA.id)
+  })
 })

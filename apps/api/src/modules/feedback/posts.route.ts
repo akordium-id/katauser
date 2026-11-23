@@ -239,6 +239,15 @@ export const postsRoute = new Hono()
       )
 
       const post = postsStore.find((p) => p.id === postId)
+      if (!post) {
+        return c.json({ success: false, message: "Post not found" }, 404)
+      }
+      if (post.status === "merged" || post.mergedIntoPostId) {
+        return c.json(
+          { success: false, error: "Cannot vote on a merged post" },
+          400,
+        )
+      }
 
       if (existingIndex > -1) {
         // unvote
@@ -463,6 +472,13 @@ export const postsRoute = new Hono()
       sourcePost.votesCount = 0
       sourcePost.totalMrr = 0
 
+      // Update transitive pointers
+      for (const p of postsStore) {
+        if (p.mergedIntoPostId === postId) {
+          p.mergedIntoPostId = targetPostId
+        }
+      }
+
       // Add internal comment on target post
       commentsStore.push({
         id: "comment_" + Math.random().toString(36).substring(2, 10),
@@ -495,13 +511,22 @@ export const postsRoute = new Hono()
       if (!post) {
         return c.json({ success: false, error: "Post not found" }, 404)
       }
+      if (post.status === "merged" || post.mergedIntoPostId) {
+        return c.json(
+          { success: false, error: "Cannot vote on a merged post" },
+          400,
+        )
+      }
 
       const data = c.req.valid("json")
       const teamUserId = c.req.header("x-team-user-id") || "staff"
+      const normalizedEmail = data.customerEmail.toLowerCase().trim()
 
       // Check if voter with this email already voted on this post
       const existingVote = votesStore.find(
-        (v) => v.postId === postId && v.userEmail === data.customerEmail,
+        (v) =>
+          v.postId === postId &&
+          v.userEmail?.toLowerCase() === normalizedEmail,
       )
       if (existingVote) {
         return c.json(

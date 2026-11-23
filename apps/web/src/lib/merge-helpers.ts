@@ -49,7 +49,7 @@ export function formatVoteOnBehalfPayload(input: {
   mrr?: number
   internalNote?: string
 } {
-  const customerEmail = input.customerEmail.trim()
+  const customerEmail = input.customerEmail.trim().toLowerCase()
   const customerName = input.customerName?.trim() || undefined
   const company = input.company?.trim() || undefined
   const internalNote = input.internalNote?.trim() || undefined

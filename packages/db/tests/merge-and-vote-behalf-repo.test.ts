@@ -131,9 +131,62 @@ describe("FeedbackRepository - Merge Posts & Vote on Behalf", () => {
     expect(mockTx.insert).toHaveBeenCalled() // Comment added
   })
 
+  it("voteOnBehalf rejects if post is not found", async () => {
+    const mockTx: any = {
+      query: {
+        posts: {
+          findFirst: vi.fn().mockResolvedValue(null),
+        },
+      },
+    }
+    const mockDb: any = {
+      transaction: vi.fn().mockImplementation((cb) => cb(mockTx)),
+    }
+    const repo = new FeedbackRepository(mockDb)
+
+    await expect(
+      repo.voteOnBehalf({
+        workspaceId: "ws_1",
+        postId: "missing_post",
+        teamUserId: "staff_1",
+        customerEmail: "cust@corp.com",
+      }),
+    ).rejects.toThrow("Post not found")
+  })
+
+  it("voteOnBehalf rejects if post is already merged", async () => {
+    const mockTx: any = {
+      query: {
+        posts: {
+          findFirst: vi.fn().mockResolvedValue({
+            id: "merged_post",
+            status: "merged",
+            mergedIntoPostId: "target_post",
+          }),
+        },
+      },
+    }
+    const mockDb: any = {
+      transaction: vi.fn().mockImplementation((cb) => cb(mockTx)),
+    }
+    const repo = new FeedbackRepository(mockDb)
+
+    await expect(
+      repo.voteOnBehalf({
+        workspaceId: "ws_1",
+        postId: "merged_post",
+        teamUserId: "staff_1",
+        customerEmail: "cust@corp.com",
+      }),
+    ).rejects.toThrow("Cannot vote on a merged post")
+  })
+
   it("voteOnBehalf rejects if customer already voted", async () => {
     const mockTx: any = {
       query: {
+        posts: {
+          findFirst: vi.fn().mockResolvedValue({ id: "post_1", status: "planned" }),
+        },
         endUsers: {
           findFirst: vi.fn().mockResolvedValue({ id: "user_cust_1" }),
         },
@@ -160,6 +213,9 @@ describe("FeedbackRepository - Merge Posts & Vote on Behalf", () => {
   it("voteOnBehalf creates endUser if new, inserts vote with staff attribution, and increments votes", async () => {
     const mockTx: any = {
       query: {
+        posts: {
+          findFirst: vi.fn().mockResolvedValue({ id: "post_1", status: "planned" }),
+        },
         endUsers: {
           findFirst: vi.fn().mockResolvedValue(null),
         },

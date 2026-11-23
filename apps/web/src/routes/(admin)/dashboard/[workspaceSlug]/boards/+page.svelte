@@ -384,7 +384,7 @@
   post={selectedPost}
   isOpen={isVoteBehalfModalOpen}
   onClose={() => (isVoteBehalfModalOpen = false)}
-  onSuccess={(res) => {
+  onSuccess={(res: any) => {
     selectedPost.votesCount =
       res.post?.votesCount ?? (selectedPost.votesCount ?? 0) + 1
     selectedPost.totalMrr = res.post?.totalMrr ?? selectedPost.totalMrr
