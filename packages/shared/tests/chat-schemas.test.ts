@@ -3,7 +3,11 @@ import {
   createConversationSchema,
   sendMessageSchema,
   escalateConversationSchema,
-} from "../src/schemas/chat"
+  junoActionPayloadSchema,
+  type JunoSimilarPostAction,
+  type JunoCreateFeedbackAction,
+  type JunoStreamChunk,
+} from "../src"
 
 describe("Chat & Conversation Zod Schemas", () => {
   it("validates conversation creation payload", () => {
@@ -50,5 +54,48 @@ describe("Chat & Conversation Zod Schemas", () => {
     const parsed = escalateConversationSchema.parse(validEscalation)
     expect(parsed.conversationId).toBe("conv_456")
     expect(parsed.reason).toContain("staf manusia")
+  })
+})
+
+describe("Juno Action Schemas", () => {
+  it("validates a similar_post action payload", () => {
+    const validSimilar: JunoSimilarPostAction = {
+      type: "similar_post",
+      post: {
+        id: "post_123",
+        title: "Ekspor Laporan ke CSV",
+        content: "Tambahkan opsi ekspor CSV",
+        votesCount: 15,
+        status: "planned",
+        boardSlug: "fitur",
+      },
+      similarityScore: 0.85,
+    }
+
+    const parsed = junoActionPayloadSchema.safeParse(validSimilar)
+    expect(parsed.success).toBe(true)
+  })
+
+  it("validates a create_feedback action payload", () => {
+    const validCreate: JunoCreateFeedbackAction = {
+      type: "create_feedback",
+      boardId: "board_abc",
+      boardSlug: "fitur",
+      draft: {
+        title: "Integrasi WhatsApp Notifikasi",
+        content: "Kirim notifikasi ke nomor WA user",
+      },
+    }
+
+    const parsed = junoActionPayloadSchema.safeParse(validCreate)
+    expect(parsed.success).toBe(true)
+  })
+
+  it("rejects invalid action payload type", () => {
+    const invalid = {
+      type: "unknown_action",
+    }
+    const parsed = junoActionPayloadSchema.safeParse(invalid)
+    expect(parsed.success).toBe(false)
   })
 })
