@@ -1,5 +1,6 @@
 import { eq, and, desc, sql } from "drizzle-orm"
 import { boards, posts, votes, comments } from "../schema/feedback"
+import { endUsers } from "../schema/workspaces"
 
 export class FeedbackRepository {
   constructor(private db: any) {}
@@ -212,5 +213,181 @@ export class FeedbackRepository {
           : and(eq(comments.postId, postId), eq(comments.isInternal, false)),
       )
       .orderBy(comments.createdAt)
+  }
+
+  async mergePosts(params: {
+    workspaceId: string
+    sourcePostId: string
+    targetPostId: string
+  }): Promise<{ success: boolean; transferredVotesCount: number }> {
+    if (params.sourcePostId === params.targetPostId) {
+      throw new Error("Cannot merge post into itself")
+    }
+
+    return this.db.transaction(async (tx: any) => {
+      // 1. Fetch target post
+      const targetPost = await tx.query.posts.findFirst({
+        where: and(
+          eq(posts.id, params.targetPostId),
+          eq(posts.workspaceId, params.workspaceId),
+        ),
+      })
+      if (!targetPost) {
+        throw new Error("Target post not found")
+      }
+      if (targetPost.status === "merged" || targetPost.mergedIntoPostId) {
+        throw new Error("Target post is already merged")
+      }
+
+      // 2. Fetch source post
+      const sourcePost = await tx.query.posts.findFirst({
+        where: and(
+          eq(posts.id, params.sourcePostId),
+          eq(posts.workspaceId, params.workspaceId),
+        ),
+      })
+      if (!sourcePost) {
+        throw new Error("Source post not found")
+      }
+      if (sourcePost.status === "merged" || sourcePost.mergedIntoPostId) {
+        throw new Error("Source post is already merged")
+      }
+
+      // 3. Fetch votes from both posts
+      const sourceVotes = await tx.query.votes.findMany({
+        where: eq(votes.postId, params.sourcePostId),
+      })
+      const targetVotes = await tx.query.votes.findMany({
+        where: eq(votes.postId, params.targetPostId),
+      })
+
+      const targetEndUserIds = new Set(
+        targetVotes.map((v: any) => v.endUserId),
+      )
+      let transferredVotesCount = 0
+
+      for (const sVote of sourceVotes) {
+        if (targetEndUserIds.has(sVote.endUserId)) {
+          // Duplicate vote on target post: delete duplicate from source post
+          await tx.delete(votes).where(eq(votes.id, sVote.id))
+        } else {
+          // Reassign vote to target post
+          await tx
+            .update(votes)
+            .set({ postId: params.targetPostId })
+            .where(eq(votes.id, sVote.id))
+          targetEndUserIds.add(sVote.endUserId)
+          transferredVotesCount++
+        }
+      }
+
+      // 4. Update target post votes count
+      if (transferredVotesCount > 0) {
+        await tx
+          .update(posts)
+          .set({
+            votesCount: sql`${posts.votesCount} + ${transferredVotesCount}`,
+            updatedAt: new Date(),
+          })
+          .where(eq(posts.id, params.targetPostId))
+      }
+
+      // 5. Update source post: status merged & mergedIntoPostId
+      await tx
+        .update(posts)
+        .set({
+          status: "merged",
+          mergedIntoPostId: params.targetPostId,
+          votesCount: 0,
+          updatedAt: new Date(),
+        })
+        .where(eq(posts.id, params.sourcePostId))
+
+      // 6. Insert internal audit comment on target post
+      const commentId =
+        "comment_" + Math.random().toString(36).substring(2, 10)
+      await tx.insert(comments).values({
+        id: commentId,
+        workspaceId: params.workspaceId,
+        postId: params.targetPostId,
+        content: `Post "${sourcePost.title}" was merged into this post with ${transferredVotesCount} voters.`,
+        isInternal: true,
+      })
+
+      return { success: true, transferredVotesCount }
+    })
+  }
+
+  async voteOnBehalf(params: {
+    workspaceId: string
+    postId: string
+    teamUserId: string
+    customerEmail: string
+    customerName?: string
+    company?: string
+    mrr?: number
+    internalNote?: string
+  }): Promise<{ success: boolean; voteId: string }> {
+    return this.db.transaction(async (tx: any) => {
+      // 1. Find or create endUser
+      let endUser = await tx.query.endUsers.findFirst({
+        where: and(
+          eq(endUsers.workspaceId, params.workspaceId),
+          eq(endUsers.email, params.customerEmail),
+        ),
+      })
+
+      if (!endUser) {
+        const newEndUserId =
+          "enduser_" + Math.random().toString(36).substring(2, 10)
+        const [created] = await tx
+          .insert(endUsers)
+          .values({
+            id: newEndUserId,
+            workspaceId: params.workspaceId,
+            email: params.customerEmail,
+            name: params.customerName ?? null,
+            metadata: {
+              company: params.company ?? undefined,
+              mrr: params.mrr ?? undefined,
+            },
+          })
+          .returning()
+        endUser = created ?? { id: newEndUserId }
+      }
+
+      // 2. Check if customer already voted
+      const existingVote = await tx.query.votes.findFirst({
+        where: and(
+          eq(votes.postId, params.postId),
+          eq(votes.endUserId, endUser.id),
+        ),
+      })
+      if (existingVote) {
+        throw new Error("Customer has already voted on this post")
+      }
+
+      // 3. Insert vote with staff attribution and note
+      const voteId = "vote_" + Math.random().toString(36).substring(2, 10)
+      await tx.insert(votes).values({
+        id: voteId,
+        workspaceId: params.workspaceId,
+        postId: params.postId,
+        endUserId: endUser.id,
+        votedByTeamUserId: params.teamUserId,
+        internalNote: params.internalNote ?? null,
+      })
+
+      // 4. Increment post votesCount
+      await tx
+        .update(posts)
+        .set({
+          votesCount: sql`${posts.votesCount} + 1`,
+          updatedAt: new Date(),
+        })
+        .where(eq(posts.id, params.postId))
+
+      return { success: true, voteId }
+    })
   }
 }
