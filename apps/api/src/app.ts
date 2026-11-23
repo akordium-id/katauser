@@ -25,6 +25,8 @@ export const app = new Hono()
         "Authorization",
         "X-Workspace-Slug",
         "X-User-Id",
+        "X-User-Email",
+        "X-User-Traits",
       ],
       allowMethods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
       credentials: true,

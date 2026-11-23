@@ -65,8 +65,11 @@ export function extractFeedbackTitle(prompt: string): string {
       "",
     )
     .trim()
-  if (!title) {
+  if (title.length < 3) {
     title = prompt.trim()
+  }
+  if (title.length < 3) {
+    title = "Feedback Baru"
   }
   title = title.charAt(0).toUpperCase() + title.slice(1)
   if (title.length > 80) {
@@ -244,7 +247,7 @@ export const chatRoute = new Hono()
     } else if (isFeedbackIntent(prompt)) {
       const workspaceId = conv?.workspaceId || "acme"
       const workspaceBoards = boardsStore.filter(
-        (b) => b.workspaceId === workspaceId,
+        (b) => b.workspaceId === workspaceId && !b.isPrivate,
       )
       const boardIds = new Set(workspaceBoards.map((b) => b.id))
       const boardMap = new Map(workspaceBoards.map((b) => [b.id, b]))
@@ -263,6 +266,29 @@ export const chatRoute = new Hono()
       if (activePosts.length > 0) {
         const queryEmbedding = await generateEmbedding(prompt)
 
+        const stopWords = new Set([
+          "bisa",
+          "tolong",
+          "buatkan",
+          "tambahkan",
+          "fitur",
+          "untuk",
+          "yang",
+          "dan",
+          "dari",
+          "saya",
+          "ada",
+          "ke",
+          "di",
+          "ini",
+          "itu",
+        ])
+        const queryTokens: string[] = prompt
+          .toLowerCase()
+          .replace(/[^a-z0-9\s]/g, " ")
+          .split(/\s+/)
+          .filter((w: string) => w.length > 2 && !stopWords.has(w))
+
         for (const post of activePosts) {
           if (!post.embedding) {
             post.embedding = await generateEmbedding(
@@ -273,29 +299,6 @@ export const chatRoute = new Hono()
           const scoreWithFull = cosineSimilarity(queryEmbedding, post.embedding)
           const scoreWithTitle = cosineSimilarity(queryEmbedding, titleEmbedding)
           let score = Math.max(scoreWithFull, scoreWithTitle)
-
-          const stopWords = new Set([
-            "bisa",
-            "tolong",
-            "buatkan",
-            "tambahkan",
-            "fitur",
-            "untuk",
-            "yang",
-            "dan",
-            "dari",
-            "saya",
-            "ada",
-            "ke",
-            "di",
-            "ini",
-            "itu",
-          ])
-          const queryTokens: string[] = prompt
-            .toLowerCase()
-            .replace(/[^a-z0-9\s]/g, " ")
-            .split(/\s+/)
-            .filter((w: string) => w.length > 2 && !stopWords.has(w))
 
           const targetTokens: string[] = `${post.title} ${post.content}`
             .toLowerCase()

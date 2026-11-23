@@ -135,4 +135,50 @@ describe("Chat to Feedback Bridge (Hono API)", () => {
     expect(text).not.toContain("p_closed_1")
     expect(text).toContain('"type":"create_feedback"')
   })
+
+  it("ignores posts from private boards to prevent internal data leaks", async () => {
+    // Setup private board
+    boardsStore.push({
+      id: "board_private_1",
+      workspaceId: "acme",
+      name: "Internal Secret Board",
+      slug: "secret",
+      description: null,
+      isPrivate: true,
+      allowGuestPosts: false,
+      createdAt: new Date().toISOString(),
+    })
+
+    // Post on private board
+    postsStore.push({
+      id: "p_secret_feature",
+      boardId: "board_private_1",
+      title: "Project Titan AI Bot",
+      content: "Fitur rahasia internal tim",
+      status: "in_progress",
+      votesCount: 50,
+      totalMrr: 10000,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    })
+
+    const res = await chatRoute.request(
+      "/chat/conversations/conv_test_1/juno-stream",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: "Bisa buatkan fitur Project Titan AI Bot?",
+        }),
+      },
+    )
+
+    expect(res.status).toBe(200)
+    const text = await res.text()
+    // Must NOT reveal private post ID or title in similar_post
+    expect(text).not.toContain("p_secret_feature")
+    expect(text).not.toContain('"type":"similar_post"')
+    // Should fall back to create_feedback on public board
+    expect(text).toContain('"type":"create_feedback"')
+  })
 })

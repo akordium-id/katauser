@@ -240,6 +240,9 @@
 
       if (res.ok) {
         msg.actionResolved = true
+        if (msg.action && msg.action.type === "similar_post") {
+          msg.action.post.votesCount += 1
+        }
         messages.push({
           id: "juno_conf_" + Date.now(),
           sender: "juno",
