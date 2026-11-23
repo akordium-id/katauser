@@ -41,3 +41,33 @@ export interface WebhookEvent {
     initialMessage?: string
   }
 }
+
+// Linear Integration Schemas
+export const saveLinearIntegrationSchema = z.object({
+  apiKey: z.string().min(1, "API Key Linear wajib diisi"),
+  webhookSecret: z.string().min(1, "Webhook Secret wajib diisi"),
+  defaultTeamId: z.string().optional(),
+})
+
+export type SaveLinearIntegrationInput = z.infer<
+  typeof saveLinearIntegrationSchema
+>
+
+export const createLinearIssueSchema = z.object({
+  postId: z.string().min(1, "Post ID wajib diisi"),
+  teamId: z.string().min(1, "Pilih tim Linear"),
+  title: z.string().min(1, "Judul issue wajib diisi"),
+  description: z.string().optional(),
+  priority: z.number().int().min(0).max(4).default(0),
+})
+
+export type CreateLinearIssueInput = z.infer<typeof createLinearIssueSchema>
+
+export const linkLinearIssueSchema = z.object({
+  postId: z.string().min(1, "Post ID wajib diisi"),
+  issueIdOrKey: z
+    .string()
+    .min(1, "Masukkan ID atau identifier issue (misal ENG-142)"),
+})
+
+export type LinkLinearIssueInput = z.infer<typeof linkLinearIssueSchema>
