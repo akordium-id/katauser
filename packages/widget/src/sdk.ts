@@ -81,24 +81,26 @@ export function createWidgetState() {
       isPopoverDismissed = true
       notify()
     },
-    markChangelogAsRead(workspace: string, publishedAt: string) {
+    markChangelogAsRead(workspace: string, publishedAt?: string) {
       unreadCount = 0
       isPopoverDismissed = true
-      storeLastSeenDate(workspace, publishedAt)
+      if (publishedAt) {
+        storeLastSeenDate(workspace, publishedAt)
+      }
       notify()
     },
     async syncChangelogStatus(workspace: string, baseApiUrl?: string) {
-      const url = baseApiUrl || apiUrl
+      const url = (baseApiUrl || apiUrl).replace(/\/+$/, "")
       const lastSeen = getStoredLastSeenDate(workspace)
       try {
-        const endpoint = `${url}/api/v1/workspaces/${workspace}/changelogs/latest${
+        const endpoint = `${url}/api/v1/workspaces/${encodeURIComponent(workspace)}/changelogs/latest${
           lastSeen ? `?since=${encodeURIComponent(lastSeen)}` : ""
         }`
         const res = await fetch(endpoint)
         if (res.ok) {
           const data = await res.json()
-          if (data.success && data.latest) {
-            latestChangelog = data.latest
+          if (data.success) {
+            latestChangelog = data.latest ?? null
             unreadCount = data.unreadCount ?? 0
             notify()
           }

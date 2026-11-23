@@ -12,7 +12,15 @@
     onOpen?: () => void
     onDismiss?: () => void
   } = $props()
+
+  function handleKeyDown(e: KeyboardEvent) {
+    if (e.key === "Escape" && onDismiss) {
+      onDismiss()
+    }
+  }
 </script>
+
+<svelte:window onkeydown={handleKeyDown} />
 
 <div
   class="popover-card {position}"
@@ -21,7 +29,7 @@
 >
   <div class="popover-header">
     <div class="badge-tag">
-      <span class="sparkle">✨</span>
+      <span class="sparkle" aria-hidden="true">✨</span>
       <span>Pembaruan Baru</span>
     </div>
     <button
@@ -42,7 +50,7 @@
   <div class="popover-footer">
     <button type="button" class="btn-action" onclick={onOpen}>
       <span>Lihat Rilis Baru</span>
-      <span class="arrow">→</span>
+      <span class="arrow" aria-hidden="true">→</span>
     </button>
   </div>
 </div>
@@ -99,6 +107,7 @@
   }
 
   .btn-dismiss {
+    font-family: inherit;
     background: transparent;
     border: none;
     color: #94a3b8;
@@ -151,6 +160,7 @@
   }
 
   .btn-action {
+    font-family: inherit;
     display: inline-flex;
     align-items: center;
     gap: 4px;

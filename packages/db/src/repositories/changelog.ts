@@ -1,4 +1,4 @@
-import { eq, and, desc, inArray, isNotNull } from "drizzle-orm"
+import { eq, and, desc, inArray, isNotNull, lte } from "drizzle-orm"
 import { changelogs, changelogPosts } from "../schema/changelog"
 import { posts, votes } from "../schema/feedback"
 import { endUsers } from "../schema/workspaces"
@@ -44,7 +44,7 @@ export class ChangelogRepository {
     })
   }
 
-  async getPublishedChangelogs(workspaceId: string) {
+  async getPublishedChangelogs(workspaceId: string, now: Date = new Date()) {
     return this.db
       .select()
       .from(changelogs)
@@ -52,12 +52,16 @@ export class ChangelogRepository {
         and(
           eq(changelogs.workspaceId, workspaceId),
           isNotNull(changelogs.publishedAt),
+          lte(changelogs.publishedAt, now),
         ),
       )
       .orderBy(desc(changelogs.publishedAt))
   }
 
-  async getLatestPublishedChangelog(workspaceId: string) {
+  async getLatestPublishedChangelog(
+    workspaceId: string,
+    now: Date = new Date(),
+  ) {
     const [latest] = await this.db
       .select()
       .from(changelogs)
@@ -65,6 +69,7 @@ export class ChangelogRepository {
         and(
           eq(changelogs.workspaceId, workspaceId),
           isNotNull(changelogs.publishedAt),
+          lte(changelogs.publishedAt, now),
         ),
       )
       .orderBy(desc(changelogs.publishedAt))
@@ -75,8 +80,9 @@ export class ChangelogRepository {
   async getUnreadChangelogsCount(
     workspaceId: string,
     sinceDate?: Date | string | null,
+    now: Date = new Date(),
   ) {
-    const published = await this.getPublishedChangelogs(workspaceId)
+    const published = await this.getPublishedChangelogs(workspaceId, now)
     if (!sinceDate) return Math.min(published.length, 5)
     const since = new Date(sinceDate)
     if (isNaN(since.getTime())) return Math.min(published.length, 5)

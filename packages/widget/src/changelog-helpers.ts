@@ -8,7 +8,11 @@ export function getStoredLastSeenDate(
     const s =
       storage ?? (typeof window !== "undefined" ? window.localStorage : null)
     if (!s) return null
-    return s.getItem(STORAGE_PREFIX + workspace)
+    const val = s.getItem(STORAGE_PREFIX + workspace)
+    if (!val || val === "undefined" || val === "null") return null
+    const parsed = new Date(val)
+    if (isNaN(parsed.getTime())) return null
+    return val
   } catch {
     return null
   }
@@ -20,9 +24,23 @@ export function storeLastSeenDate(
   storage?: Storage,
 ): void {
   try {
+    if (!dateIso || dateIso === "undefined" || dateIso === "null") return
+    const newTime = new Date(dateIso).getTime()
+    if (isNaN(newTime)) return
+
     const s =
       storage ?? (typeof window !== "undefined" ? window.localStorage : null)
     if (!s) return
+
+    // Prevent backward overwrite ([I3])
+    const existing = getStoredLastSeenDate(workspace, s)
+    if (existing) {
+      const existingTime = new Date(existing).getTime()
+      if (!isNaN(existingTime) && existingTime >= newTime) {
+        return
+      }
+    }
+
     s.setItem(STORAGE_PREFIX + workspace, dateIso)
   } catch {}
 }
@@ -48,10 +66,15 @@ export function shouldDisplayPopover(params: {
   isOpen: boolean
   unreadCount: number
   isDismissed: boolean
-  showPopover?: boolean
+  showPopover?: boolean | string
 }): boolean {
   if (params.isOpen) return false
-  if (params.showPopover === false) return false
+  if (
+    params.showPopover === false ||
+    (params.showPopover as unknown) === "false"
+  ) {
+    return false
+  }
   if (params.isDismissed) return false
   if (params.unreadCount <= 0) return false
   return true

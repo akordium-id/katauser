@@ -19,9 +19,13 @@
   }: {
     workspace?: string
     apiUrl?: string
-    showPopover?: boolean
+    showPopover?: boolean | string
     position?: "bottom-right" | "bottom-left"
   } = $props()
+
+  const isPopoverConfigured = $derived(
+    showPopover !== false && (showPopover as unknown) !== "false",
+  )
 
   let isOpen = $state(globalWidgetState.isOpen)
   let activeTab = $state<WidgetTab>(globalWidgetState.activeTab)
@@ -53,11 +57,12 @@
 
   const isPopoverVisible = $derived(
     latestChangelog !== null &&
+      isPopoverConfigured &&
       shouldDisplayPopover({
         isOpen,
         unreadCount,
         isDismissed: isPopoverDismissed,
-        showPopover: showPopover && globalWidgetState.showPopover,
+        showPopover: globalWidgetState.showPopover,
       }),
   )
 

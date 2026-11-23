@@ -74,4 +74,37 @@ describe("Changelog Latest & Unread API", () => {
     expect(data.unreadCount).toBe(0)
     expect(data.hasUnread).toBe(false)
   })
+
+  it("does not leak future scheduled changelogs and handles invalid since params safely", async () => {
+    // 1. Create a release scheduled for next year
+    const futureDate = new Date(Date.now() + 1000 * 60 * 60 * 24 * 365).toISOString()
+    await app.request("/workspaces/scheduled_ws/changelogs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Future Release v2.0.0",
+        slug: "v2-0-0",
+        content: "Top secret unreleased feature",
+        publishedAt: futureDate,
+      }),
+    })
+
+    // Query latest - should be null because it's not yet published
+    const res = await app.request("/workspaces/scheduled_ws/changelogs/latest")
+    expect(res.status).toBe(200)
+    const data = await res.json()
+    expect(data.success).toBe(true)
+    expect(data.latest).toBeNull()
+    expect(data.unreadCount).toBe(0)
+
+    // 2. Query with since=undefined or since=null query param should not crash or return NaN
+    const resUndefined = await app.request(
+      "/workspaces/acme/changelogs/latest?since=undefined",
+    )
+    expect(resUndefined.status).toBe(200)
+    const dataUndefined = await resUndefined.json()
+    expect(dataUndefined.success).toBe(true)
+    expect(typeof dataUndefined.unreadCount).toBe("number")
+    expect(isNaN(dataUndefined.unreadCount)).toBe(false)
+  })
 })

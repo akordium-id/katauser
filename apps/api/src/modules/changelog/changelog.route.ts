@@ -17,9 +17,10 @@ export const changelogRoute = new Hono()
   .get("/workspaces/:slug/changelogs/latest", (c) => {
     const slug = c.req.param("slug")
     const sinceParam = c.req.query("since")
+    const now = new Date().toISOString()
 
     const filtered = changelogsStore
-      .filter((ch) => ch.workspaceId === slug && ch.publishedAt)
+      .filter((ch) => ch.workspaceId === slug && ch.publishedAt && ch.publishedAt <= now)
       .sort(
         (a, b) =>
           new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
@@ -37,7 +38,7 @@ export const changelogRoute = new Hono()
     const latest = filtered[0]
     let unreadCount = 0
 
-    if (sinceParam) {
+    if (sinceParam && sinceParam !== "undefined" && sinceParam !== "null") {
       const sinceDate = new Date(sinceParam)
       if (!isNaN(sinceDate.getTime())) {
         unreadCount = filtered.filter(
@@ -59,7 +60,10 @@ export const changelogRoute = new Hono()
   })
   .get("/workspaces/:slug/changelogs", (c) => {
     const slug = c.req.param("slug")
-    const filtered = changelogsStore.filter((ch) => ch.workspaceId === slug)
+    const now = new Date().toISOString()
+    const filtered = changelogsStore.filter(
+      (ch) => ch.workspaceId === slug && (!ch.publishedAt || ch.publishedAt <= now),
+    )
     return c.json({
       success: true,
       changelogs: filtered,

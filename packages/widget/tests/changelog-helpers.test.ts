@@ -37,6 +37,29 @@ describe("Widget Changelog Helpers", () => {
     expect(getStoredLastSeenDate("acme", storage)).toBe(nowIso)
   })
 
+  it("handles undefined, null, and prevents backward overwrite in storage", () => {
+    // 1. Ignores undefined or null literals
+    mockStorage["katauser_changelog_seen_acme"] = "undefined"
+    expect(getStoredLastSeenDate("acme", storage)).toBeNull()
+
+    mockStorage["katauser_changelog_seen_acme"] = "null"
+    expect(getStoredLastSeenDate("acme", storage)).toBeNull()
+
+    // 2. Ignores invalid date strings
+    mockStorage["katauser_changelog_seen_acme"] = "invalid_date_abc"
+    expect(getStoredLastSeenDate("acme", storage)).toBeNull()
+
+    // 3. Store valid newer date
+    const dateNew = "2026-11-23T12:00:00.000Z"
+    storeLastSeenDate("acme", dateNew, storage)
+    expect(getStoredLastSeenDate("acme", storage)).toBe(dateNew)
+
+    // 4. Backward date should not overwrite newer date
+    const dateOld = "2026-11-20T10:00:00.000Z"
+    storeLastSeenDate("acme", dateOld, storage)
+    expect(getStoredLastSeenDate("acme", storage)).toBe(dateNew)
+  })
+
   it("calculateUnreadCount filters releases published after sinceDate", () => {
     const releases = [
       { publishedAt: "2026-11-20T10:00:00.000Z" },
@@ -89,13 +112,22 @@ describe("Widget Changelog Helpers", () => {
       }),
     ).toBe(false)
 
-    // Hidden if showPopover is false
+    // Hidden if showPopover is false (boolean or string)
     expect(
       shouldDisplayPopover({
         isOpen: false,
         unreadCount: 2,
         isDismissed: false,
         showPopover: false,
+      }),
+    ).toBe(false)
+
+    expect(
+      shouldDisplayPopover({
+        isOpen: false,
+        unreadCount: 2,
+        isDismissed: false,
+        showPopover: "false",
       }),
     ).toBe(false)
   })

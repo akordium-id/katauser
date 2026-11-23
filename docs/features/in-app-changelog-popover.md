@@ -37,22 +37,26 @@ Endpoint disediakan oleh backend Hono API untuk mengambil rilis terbaru yang tel
 #### Response (Saat ada rilis baru):
 ```json
 {
-  "changelog": {
+  "success": true,
+  "latest": {
     "id": "cl_12345",
     "version": "v1.4.0",
     "title": "Post Merging & Vote on Behalf",
     "content": "Kami baru saja meluncurkan deduplikasi feedback otomatis...",
     "publishedAt": "2026-11-23T04:00:00.000Z"
   },
-  "unreadCount": 1
+  "unreadCount": 1,
+  "hasUnread": true
 }
 ```
 
 #### Response (Saat belum ada changelog yang dipublikasikan):
 ```json
 {
-  "changelog": null,
-  "unreadCount": 0
+  "success": true,
+  "latest": null,
+  "unreadCount": 0,
+  "hasUnread": false
 }
 ```
 
