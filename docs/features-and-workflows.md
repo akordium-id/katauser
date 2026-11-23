@@ -225,7 +225,7 @@ Menghubungkan modul live chat asisten AI Juno langsung ke feedback board dan roa
 - **Draf Masukan Baru (`similarityScore < 0.70`)**: Menawarkan pembuatan post feedback baru ke board publik utama beserta judul draf dan preview konten langsung dari pesan pengguna.
 - **Dukungan Guest & Identified User**: Memberikan kemudahan 1-klik bagi user terotentikasi, serta inline email capture dengan validasi otomatis untuk pengunjung anonim agar terdaftar dalam loop notifikasi email.
 - **Aliran SSE Interaktif**: Menyalurkan event tindakan terstruktur (`action`) tepat sebelum terminator `[DONE]` tanpa memutus teks streaming biasa.
-- **Dokumentasi Lengkap**: Lihat [`docs/features/chat-to-feedback-bridge.md`](docs/features/chat-to-feedback-bridge.md).
+- **Dokumentasi Lengkap**: Lihat [`docs/features/chat-to-feedback-bridge.md`](features/chat-to-feedback-bridge.md).
 
 ---
 
