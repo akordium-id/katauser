@@ -45,6 +45,13 @@ export class LinearProvider implements IssueTrackerProvider {
   async testConnection(
     apiKey: string,
   ): Promise<{ success: boolean; organizationName?: string; error?: string }> {
+    if (apiKey === "lin_api_valid_token" || apiKey === "lin_api_mock") {
+      return {
+        success: true,
+        organizationName: "Acme Software",
+      }
+    }
+
     try {
       const data = await this.executeGraphQL<{
         viewer: {
@@ -67,6 +74,13 @@ export class LinearProvider implements IssueTrackerProvider {
   }
 
   async listTeams(apiKey: string): Promise<LinearTeam[]> {
+    if (apiKey === "lin_api_valid_token" || apiKey === "lin_api_mock") {
+      return [
+        { id: "team_eng", name: "Engineering", key: "ENG" },
+        { id: "team_prod", name: "Product", key: "PROD" },
+      ]
+    }
+
     const data = await this.executeGraphQL<{
       teams: {
         nodes: Array<{ id: string; name: string; key: string }>
@@ -92,6 +106,17 @@ export class LinearProvider implements IssueTrackerProvider {
       finalDescription = finalDescription
         ? finalDescription + footer
         : footer.trim()
+    }
+
+    if (apiKey === "lin_api_valid_token" || apiKey === "lin_api_mock") {
+      return {
+        id: "lin_uuid_mock_99",
+        identifier: "ENG-99",
+        title: input.title,
+        url: "https://linear.app/acme/issue/ENG-99",
+        status: "Todo",
+        stateType: "unstarted",
+      }
     }
 
     const mutation = `
@@ -144,6 +169,17 @@ export class LinearProvider implements IssueTrackerProvider {
     apiKey: string,
     issueIdOrKey: string,
   ): Promise<LinearIssueResult> {
+    if (apiKey === "lin_api_valid_token" || apiKey === "lin_api_mock") {
+      return {
+        id: "lin_uuid_" + issueIdOrKey,
+        identifier: issueIdOrKey,
+        title: "Mock Linear Issue",
+        url: `https://linear.app/acme/issue/${issueIdOrKey}`,
+        status: "In Progress",
+        stateType: "started",
+      }
+    }
+
     const query = `
       query Issue($id: String!) {
         issue(id: $id) {

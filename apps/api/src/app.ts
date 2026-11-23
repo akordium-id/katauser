@@ -10,6 +10,7 @@ import { widgetRoute } from "./modules/widget/widget.route"
 import { chatRoute } from "./modules/chat/chat.route"
 import { domainsRoute } from "./modules/domains/domains.route"
 import { integrationsRoute } from "./modules/integrations/integrations.route"
+import { linearRoute } from "./modules/integrations/linear.route"
 import { knowledgeRoute } from "./modules/ai/knowledge.route"
 import { authRoute } from "./modules/auth/auth.route"
 
@@ -39,6 +40,7 @@ export const app = new Hono()
   .route("/", chatRoute)
   .route("/", domainsRoute)
   .route("/", integrationsRoute)
+  .route("/", linearRoute)
   .route("/", knowledgeRoute)
   .route("/", authRoute)
 
