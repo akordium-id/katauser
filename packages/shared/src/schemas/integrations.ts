@@ -67,7 +67,11 @@ export const linkLinearIssueSchema = z.object({
   postId: z.string().min(1, "Post ID wajib diisi"),
   issueIdOrKey: z
     .string()
-    .min(1, "Masukkan ID atau identifier issue (misal ENG-142)"),
+    .trim()
+    .regex(
+      /^([A-Za-z0-9]+-\d+|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$/,
+      "Format identifier harus berupa kode tim (misal ENG-142) atau UUID Linear",
+    ),
 })
 
 export type LinkLinearIssueInput = z.infer<typeof linkLinearIssueSchema>

@@ -55,6 +55,26 @@ function calculatePostMrr(postId: string): number {
     .reduce((sum, v) => sum + (v.traits?.mrr ?? 0), 0)
 }
 
+export function getPostRecord(id: string): PostRecord | undefined {
+  return postsStore.find((p) => p.id === id)
+}
+
+export function updatePostRecordStatus(
+  id: string,
+  status: string,
+): PostRecord | null {
+  const post = postsStore.find((p) => p.id === id)
+  if (post) {
+    post.status = status
+    return post
+  }
+  return null
+}
+
+export function getVotersForPost(postId: string): VoteRecord[] {
+  return votesStore.filter((v) => v.postId === postId && v.userEmail)
+}
+
 export const postsRoute = new Hono()
   .get(
     "/boards/:boardId/posts",

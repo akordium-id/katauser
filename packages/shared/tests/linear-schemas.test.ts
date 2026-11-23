@@ -35,17 +35,29 @@ describe("Linear Schemas", () => {
     expect(invalid.success).toBe(false)
   })
 
-  it("should validate linkLinearIssueSchema", () => {
-    const valid = linkLinearIssueSchema.safeParse({
+  it("should validate linkLinearIssueSchema and reject non-identifier formats", () => {
+    const validKey = linkLinearIssueSchema.safeParse({
       postId: "p_1",
       issueIdOrKey: "ENG-142",
     })
-    expect(valid.success).toBe(true)
+    expect(validKey.success).toBe(true)
 
-    const invalid = linkLinearIssueSchema.safeParse({
+    const validUuid = linkLinearIssueSchema.safeParse({
+      postId: "p_1",
+      issueIdOrKey: "e067c295-8120-410a-8d1b-10f81d1e4c73",
+    })
+    expect(validUuid.success).toBe(true)
+
+    const invalidEmpty = linkLinearIssueSchema.safeParse({
       postId: "p_1",
       issueIdOrKey: "",
     })
-    expect(invalid.success).toBe(false)
+    expect(invalidEmpty.success).toBe(false)
+
+    const invalidFormat = linkLinearIssueSchema.safeParse({
+      postId: "p_1",
+      issueIdOrKey: "invalid format with spaces",
+    })
+    expect(invalidFormat.success).toBe(false)
   })
 })

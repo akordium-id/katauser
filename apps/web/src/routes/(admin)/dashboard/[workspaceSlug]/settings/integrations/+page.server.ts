@@ -2,10 +2,33 @@ import type { PageServerLoad, Actions } from "./$types"
 import { fail } from "@sveltejs/kit"
 import { validateWebhookUrl } from "$lib/integrations-helpers"
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, fetch }) => {
   const workspaceSlug = params.workspaceSlug
 
-  // Default integrations config
+  let linearState = {
+    connected: false,
+    organizationName: undefined as string | undefined,
+    defaultTeamId: undefined as string | undefined,
+  }
+
+  try {
+    const res = await fetch(
+      `/api/v1/workspaces/${workspaceSlug}/integrations/linear`,
+    )
+    if (res.ok) {
+      const json = await res.json()
+      if (json.success && json.connected) {
+        linearState = {
+          connected: true,
+          organizationName: json.organizationName,
+          defaultTeamId: json.defaultTeamId,
+        }
+      }
+    }
+  } catch {
+    // fallback if mock or offline
+  }
+
   return {
     workspaceSlug,
     webhook: {
@@ -13,11 +36,7 @@ export const load: PageServerLoad = async ({ params }) => {
       discordWebhookUrl: "",
       enabledEvents: ["post.created", "post.voted", "chat.escalated"],
     },
-    linear: {
-      connected: false,
-      organizationName: undefined,
-      defaultTeamId: undefined,
-    },
+    linear: linearState,
   }
 }
 

@@ -1,11 +1,14 @@
 <script lang="ts">
   import { createApiClient } from "$lib/api"
   import type { BoardItem } from "./+page.server"
+  import { Layers } from "lucide-svelte"
+  import LinearIssueModal from "$lib/components/dashboard/LinearIssueModal.svelte"
 
   let { data } = $props()
 
   let boards = $state<BoardItem[]>([])
   let isCreateBoardOpen = $state(false)
+  let isLinearModalOpen = $state(false)
   let newBoardName = $state("")
   let newBoardSlug = $state("")
   let newBoardDesc = $state("")
@@ -77,6 +80,15 @@
     </div>
 
     <div class="flex items-center gap-2">
+      <button
+        type="button"
+        onclick={() => (isLinearModalOpen = true)}
+        class="btn btn-outline btn-sm font-semibold gap-1.5 shadow-xs"
+      >
+        <Layers class="w-4 h-4 text-indigo-600" />
+        <span>Tautkan Linear Issue</span>
+      </button>
+
       <button
         type="button"
         onclick={() => (isCreateBoardOpen = true)}
@@ -291,3 +303,13 @@
     </div>
   </div>
 {/if}
+
+<!-- Linear Issue Tracker Modal -->
+<LinearIssueModal
+  workspaceSlug={data.workspaceSlug}
+  postId="demo_post"
+  postTitle="Feedback Baru"
+  postContent=""
+  isOpen={isLinearModalOpen}
+  onClose={() => (isLinearModalOpen = false)}
+/>

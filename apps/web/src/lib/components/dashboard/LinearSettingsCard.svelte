@@ -8,6 +8,7 @@
     ExternalLink,
     Zap,
     Unlink,
+    Send,
   } from "lucide-svelte"
   import { validateLinearApiKey } from "$lib/integrations-helpers"
 
@@ -25,12 +26,21 @@
 
   let apiKey = $state("")
   let webhookSecret = $state("")
+  let defaultTeamId = $state("")
+  let availableTeams = $state<Array<{ id: string; name: string; key: string }>>([])
   let isSubmitting = $state(false)
+  let isTesting = $state(false)
   let copied = $state(false)
   let statusMessage = $state<{
     type: "success" | "error" | "warning"
     text: string
   } | null>(null)
+
+  $effect(() => {
+    if (integration?.defaultTeamId) {
+      defaultTeamId = integration.defaultTeamId
+    }
+  })
 
   const defaultWebhookUrl = $derived(
     webhookUrl || `https://katauser.com/api/v1/integrations/linear/webhook/${workspaceSlug}`
@@ -45,6 +55,49 @@
       }, 2000)
     } catch {
       copied = false
+    }
+  }
+
+  async function handleTestConnection() {
+    const check = validateLinearApiKey(apiKey)
+    if (!check.valid) {
+      statusMessage = { type: "error", text: check.error || "API Key tidak valid" }
+      return
+    }
+
+    isTesting = true
+    statusMessage = null
+
+    try {
+      const res = await fetch(`/api/v1/workspaces/${workspaceSlug}/integrations/linear/test`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ apiKey: apiKey.trim() }),
+      })
+
+      const data = await res.json()
+      if (res.ok && data.success) {
+        availableTeams = data.teams || []
+        if (availableTeams.length > 0 && !defaultTeamId) {
+          defaultTeamId = availableTeams[0].id
+        }
+        statusMessage = {
+          type: "success",
+          text: `Koneksi berhasil! Terhubung ke ${data.organizationName || "Linear"} dengan ${availableTeams.length} tim ditemukan.`,
+        }
+      } else {
+        statusMessage = {
+          type: "error",
+          text: data.message || "Gagal menguji koneksi Linear",
+        }
+      }
+    } catch {
+      statusMessage = {
+        type: "error",
+        text: "Terjadi kesalahan saat menguji koneksi",
+      }
+    } finally {
+      isTesting = false
     }
   }
 
@@ -73,6 +126,7 @@
         body: JSON.stringify({
           apiKey: apiKey.trim(),
           webhookSecret: webhookSecret.trim(),
+          defaultTeamId: defaultTeamId || undefined,
         }),
       })
 
@@ -192,14 +246,48 @@
               Buat API Key di Linear <ExternalLink class="w-3 h-3" />
             </a>
           </label>
-          <input
-            id="linear-api-key"
-            type="password"
-            bind:value={apiKey}
-            placeholder="lin_api_..."
-            class="input input-sm input-bordered w-full font-mono text-xs rounded-lg"
-          />
+          <div class="flex gap-2">
+            <input
+              id="linear-api-key"
+              type="password"
+              bind:value={apiKey}
+              placeholder="lin_api_..."
+              class="input input-sm input-bordered flex-1 font-mono text-xs rounded-lg"
+            />
+            <button
+              type="button"
+              onclick={handleTestConnection}
+              disabled={isTesting}
+              class="btn btn-outline btn-sm text-xs gap-1"
+            >
+              {#if isTesting}
+                <span class="loading loading-spinner loading-xs"></span>
+              {:else}
+                <Send class="w-3 h-3" />
+              {/if}
+              <span>Uji Koneksi</span>
+            </button>
+          </div>
         </div>
+
+        {#if availableTeams.length > 0}
+          <div class="form-control">
+            <label for="linear-default-team" class="label py-1">
+              <span class="label-text text-xs font-semibold text-slate-700">
+                Default Team Tujuan
+              </span>
+            </label>
+            <select
+              id="linear-default-team"
+              bind:value={defaultTeamId}
+              class="select select-sm select-bordered w-full rounded-lg text-xs"
+            >
+              {#each availableTeams as team (team.id)}
+                <option value={team.id}>{team.name} ({team.key})</option>
+              {/each}
+            </select>
+          </div>
+        {/if}
 
         <div class="form-control">
           <label for="linear-webhook-secret" class="label py-1">

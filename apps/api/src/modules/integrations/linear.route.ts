@@ -6,10 +6,19 @@ import {
   createLinearIssueSchema,
   linkLinearIssueSchema,
   type LinearTeam,
+  type LinearIssueResult,
+  type WebhookEvent,
 } from "@katauser/shared"
 import { LinearProvider } from "./providers/linear.provider"
 import { handleLinearWebhook } from "./linear-webhook"
 import { sendVoterNotificationEmail } from "../../services/email-notifier"
+import {
+  getPostRecord,
+  updatePostRecordStatus,
+  getVotersForPost,
+} from "../feedback/posts.route"
+import { getWorkspaceWebhookConfig } from "./integrations.route"
+import { dispatchWebhookEvent } from "./webhook-dispatcher"
 
 interface StoredLinearIntegration {
   apiKey: string
@@ -19,7 +28,7 @@ interface StoredLinearIntegration {
   isActive: boolean
 }
 
-interface StoredPostIssue {
+export interface StoredPostIssue {
   id: string
   postId: string
   workspaceSlug: string
@@ -34,9 +43,8 @@ interface StoredPostIssue {
 
 // In-memory fallback stores for testing & isolated run
 const integrationsStore: Record<string, StoredLinearIntegration> = {}
-const postIssuesStore: StoredPostIssue[] = []
+export const postIssuesStore: StoredPostIssue[] = []
 
-// Mock helper to add initial sample data if empty for demo
 export function setLinearIntegrationForWorkspace(
   workspaceSlug: string,
   integration: StoredLinearIntegration,
@@ -132,6 +140,16 @@ export const linearRoute = new Hono()
 
       // Verify API key before saving
       const testResult = await linearProvider.testConnection(data.apiKey)
+      if (!testResult.success) {
+        return c.json(
+          {
+            success: false,
+            message: testResult.error || "API Key Linear tidak valid",
+          },
+          400,
+        )
+      }
+
       const organizationName = testResult.organizationName || "Linear Workspace"
 
       integrationsStore[slug] = {
@@ -166,8 +184,11 @@ export const linearRoute = new Hono()
 
   // 5. Get issues linked to a post
   .get("/workspaces/:slug/posts/:postId/issues", (c) => {
+    const slug = c.req.param("slug")
     const postId = c.req.param("postId")
-    const issues = postIssuesStore.filter((item) => item.postId === postId)
+    const issues = postIssuesStore.filter(
+      (item) => item.workspaceSlug === slug && item.postId === postId,
+    )
     return c.json({ success: true, issues })
   })
 
@@ -184,20 +205,21 @@ export const linearRoute = new Hono()
       const postId = c.req.param("postId")
       const data = c.req.valid("json")
 
-      let integration = integrationsStore[slug]
-      if (!integration) {
-        // Fallback for tests/mock environment
-        integration = {
-          apiKey: "lin_api_mock",
-          webhookSecret: "whsec_mock",
-          isActive: true,
-        }
+      const integration = integrationsStore[slug]
+      if (!integration || !integration.isActive) {
+        return c.json(
+          {
+            success: false,
+            message: "Integrasi Linear belum dihubungkan pada workspace ini",
+          },
+          400,
+        )
       }
 
       const baseUrl = process.env.PUBLIC_APP_URL || "https://katauser.com"
       const postUrl = `${baseUrl}/dashboard/${slug}/posts/${postId}`
 
-      let issueResult
+      let issueResult: LinearIssueResult
       try {
         issueResult = await linearProvider.createIssue(integration.apiKey, {
           teamId: data.teamId,
@@ -207,15 +229,13 @@ export const linearRoute = new Hono()
           postUrl,
         })
       } catch (err: any) {
-        // If external API call fails in test mock mode, generate standard result
-        issueResult = {
-          id: "lin_issue_" + Math.random().toString(36).substring(2, 10),
-          identifier: "LIN-101",
-          title: data.title,
-          url: `https://linear.app/issue/LIN-101`,
-          status: "Todo",
-          stateType: "unstarted",
-        }
+        return c.json(
+          {
+            success: false,
+            message: err.message || "Gagal membuat issue di Linear",
+          },
+          400,
+        )
       }
 
       const newPostIssue: StoredPostIssue = {
@@ -250,30 +270,33 @@ export const linearRoute = new Hono()
       const postId = c.req.param("postId")
       const data = c.req.valid("json")
 
-      let integration = integrationsStore[slug]
-      if (!integration) {
-        integration = {
-          apiKey: "lin_api_mock",
-          webhookSecret: "whsec_mock",
-          isActive: true,
-        }
+      const integration = integrationsStore[slug]
+      if (!integration || !integration.isActive) {
+        return c.json(
+          {
+            success: false,
+            message: "Integrasi Linear belum dihubungkan pada workspace ini",
+          },
+          400,
+        )
       }
 
-      let issueResult
+      let issueResult: LinearIssueResult
       try {
         issueResult = await linearProvider.getIssue(
           integration.apiKey,
           data.issueIdOrKey,
         )
-      } catch {
-        issueResult = {
-          id: "lin_uuid_" + data.issueIdOrKey,
-          identifier: data.issueIdOrKey,
-          title: "Linked Issue: " + data.issueIdOrKey,
-          url: `https://linear.app/issue/${data.issueIdOrKey}`,
-          status: "In Progress",
-          stateType: "started",
-        }
+      } catch (err: any) {
+        return c.json(
+          {
+            success: false,
+            message:
+              err.message ||
+              `Issue ${data.issueIdOrKey} tidak ditemukan di Linear`,
+          },
+          400,
+        )
       }
 
       const newPostIssue: StoredPostIssue = {
@@ -295,13 +318,27 @@ export const linearRoute = new Hono()
     },
   )
 
-  // 8. Unlink issue from post
+  // 8. Unlink issue from post with workspace and post ownership validation
   .delete("/workspaces/:slug/posts/:postId/issues/:issueId", (c) => {
+    const slug = c.req.param("slug")
+    const postId = c.req.param("postId")
     const issueId = c.req.param("issueId")
-    const index = postIssuesStore.findIndex((item) => item.id === issueId)
-    if (index !== -1) {
-      postIssuesStore.splice(index, 1)
+
+    const index = postIssuesStore.findIndex(
+      (item) =>
+        item.id === issueId &&
+        item.workspaceSlug === slug &&
+        item.postId === postId,
+    )
+
+    if (index === -1) {
+      return c.json(
+        { success: false, message: "Issue tidak ditemukan pada post ini" },
+        404,
+      )
     }
+
+    postIssuesStore.splice(index, 1)
     return c.json({ success: true, message: "Issue berhasil di-unlink" })
   })
 
@@ -313,15 +350,31 @@ export const linearRoute = new Hono()
     const rawBody = await c.req.text()
 
     const integration = integrationsStore[workspaceSlug]
-    const secret = integration?.webhookSecret || "whsec_default_fallback"
+    // Critical 1.1: Do NOT use hardcoded fallback secret!
+    if (!integration || !integration.isActive || !integration.webhookSecret) {
+      return c.json(
+        {
+          success: false,
+          error: "Integrasi Linear belum dikonfigurasi untuk workspace ini",
+        },
+        401,
+      )
+    }
+
+    const secret = integration.webhookSecret
 
     const repo = {
       getPostIssueByExternalId: async (
-        _provider: string,
+        provider: string,
         externalId: string,
       ) => {
         return (
-          postIssuesStore.find((i) => i.externalIssueId === externalId) || null
+          postIssuesStore.find(
+            (i) =>
+              i.workspaceSlug === workspaceSlug &&
+              i.provider === provider &&
+              i.externalIssueId === externalId,
+          ) || null
         )
       },
       updatePostIssueStatus: async (id: string, status: string) => {
@@ -333,23 +386,66 @@ export const linearRoute = new Hono()
     }
 
     const feedbackRepo = {
-      getPostById: async (_id: string) => ({
-        id: _id,
-        title: "Feature Request",
-        status: "in_progress",
-      }),
-      updatePostStatus: async (_id: string, _status: string) => true,
+      getPostById: async (id: string) => {
+        const post = getPostRecord(id)
+        if (post) return post
+        return {
+          id,
+          title: "Feature Request",
+          status: "in_progress",
+        }
+      },
+      updatePostStatus: async (id: string, status: string) => {
+        updatePostRecordStatus(id, status)
+        return true
+      },
     }
 
     const notifyVoters = async (postId: string) => {
-      await sendVoterNotificationEmail({
-        recipientEmail: "voter@example.com",
-        recipientName: "Demo Voter",
-        workspaceName: workspaceSlug,
-        postTitle: "Feature Request",
-        newStatus: "shipped",
-        postUrl: `https://katauser.com/b/${workspaceSlug}/posts/${postId}`,
-      })
+      const post = getPostRecord(postId)
+      const postTitle = post?.title || "Feature Request"
+      const voters = getVotersForPost(postId)
+
+      if (voters.length > 0) {
+        for (const voter of voters) {
+          if (voter.userEmail) {
+            await sendVoterNotificationEmail({
+              recipientEmail: voter.userEmail,
+              recipientName: "Voter",
+              workspaceName: workspaceSlug,
+              postTitle,
+              newStatus: "shipped",
+              postUrl: `https://katauser.com/b/${workspaceSlug}/posts/${postId}`,
+            }).catch(() => {})
+          }
+        }
+      } else {
+        // Fallback for notifications if no direct voters registered
+        await sendVoterNotificationEmail({
+          recipientEmail: "demo@katauser.com",
+          recipientName: "Demo Subscriber",
+          workspaceName: workspaceSlug,
+          postTitle,
+          newStatus: "shipped",
+          postUrl: `https://katauser.com/b/${workspaceSlug}/posts/${postId}`,
+        }).catch(() => {})
+      }
+
+      // Dispatch outbound webhook to Slack/Discord if configured
+      const whConfig = getWorkspaceWebhookConfig(workspaceSlug)
+      if (whConfig) {
+        const outboundEvent: WebhookEvent = {
+          event: "post.created",
+          workspaceSlug,
+          timestamp: new Date().toISOString(),
+          data: {
+            title: `[Completed via Linear] ${postTitle}`,
+            content: `Fitur "${postTitle}" telah selesai dikerjakan di Linear dan statusnya berganti menjadi Completed.`,
+            url: `https://katauser.com/b/${workspaceSlug}/posts/${postId}`,
+          },
+        }
+        await dispatchWebhookEvent(whConfig, outboundEvent).catch(() => {})
+      }
     }
 
     const result = await handleLinearWebhook({
@@ -362,7 +458,10 @@ export const linearRoute = new Hono()
     })
 
     if (!result.success && result.status) {
-      return c.json({ success: false, error: result.error }, result.status as any)
+      return c.json(
+        { success: false, error: result.error },
+        result.status as any,
+      )
     }
 
     return c.json(result)
