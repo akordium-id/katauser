@@ -57,6 +57,34 @@ export class ChangelogRepository {
       .orderBy(desc(changelogs.publishedAt))
   }
 
+  async getLatestPublishedChangelog(workspaceId: string) {
+    const [latest] = await this.db
+      .select()
+      .from(changelogs)
+      .where(
+        and(
+          eq(changelogs.workspaceId, workspaceId),
+          isNotNull(changelogs.publishedAt),
+        ),
+      )
+      .orderBy(desc(changelogs.publishedAt))
+      .limit(1)
+    return latest ?? null
+  }
+
+  async getUnreadChangelogsCount(
+    workspaceId: string,
+    sinceDate?: Date | string | null,
+  ) {
+    const published = await this.getPublishedChangelogs(workspaceId)
+    if (!sinceDate) return Math.min(published.length, 5)
+    const since = new Date(sinceDate)
+    if (isNaN(since.getTime())) return Math.min(published.length, 5)
+    return published.filter(
+      (ch: any) => new Date(ch.publishedAt).getTime() > since.getTime(),
+    ).length
+  }
+
   async getRoadmapGroupedPosts(workspaceId: string) {
     const allPosts = await this.db
       .select()
