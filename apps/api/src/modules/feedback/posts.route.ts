@@ -6,6 +6,8 @@ import {
   updatePostStatusSchema,
   createCommentSchema,
   similarPostsQuerySchema,
+  mergePostsSchema,
+  voteOnBehalfSchema,
   type UserTraits,
 } from "@katauser/shared"
 import { createRateLimiter } from "../../middleware/rate-limiter"
@@ -24,6 +26,7 @@ interface PostRecord {
   title: string
   content: string
   status: string
+  mergedIntoPostId?: string
   votesCount: number
   totalMrr: number
   commentsCount: number
@@ -36,6 +39,8 @@ interface VoteRecord {
   userId: string
   userEmail?: string
   traits?: UserTraits
+  votedByTeamUserId?: string
+  internalNote?: string
 }
 
 const postsStore: PostRecord[] = []
@@ -361,5 +366,180 @@ export const postsRoute = new Hono()
       }
 
       return c.json({ success: true, post, notificationsSent })
+    },
+  )
+  .get("/posts/:postId", (c) => {
+    const postId = c.req.param("postId")
+    const post = postsStore.find((p) => p.id === postId)
+    if (!post) {
+      return c.json({ success: false, error: "Post not found" }, 404)
+    }
+    let mergedInto: { id: string; title: string } | undefined
+    if (post.mergedIntoPostId) {
+      const target = postsStore.find((p) => p.id === post.mergedIntoPostId)
+      if (target) {
+        mergedInto = { id: target.id, title: target.title }
+      }
+    }
+    return c.json({ success: true, post, mergedInto })
+  })
+  .post(
+    "/posts/:postId/merge",
+    zValidator("json", mergePostsSchema, (result, c) => {
+      if (!result.success) {
+        return c.json({ success: false, errors: result.error.errors }, 400)
+      }
+    }),
+    async (c) => {
+      const postId = c.req.param("postId")
+      const { targetPostId } = c.req.valid("json")
+
+      if (postId === targetPostId) {
+        return c.json(
+          { success: false, error: "Cannot merge post into itself" },
+          400,
+        )
+      }
+
+      const sourcePost = postsStore.find((p) => p.id === postId)
+      if (!sourcePost) {
+        return c.json({ success: false, error: "Source post not found" }, 404)
+      }
+
+      const targetPost = postsStore.find((p) => p.id === targetPostId)
+      if (!targetPost) {
+        return c.json({ success: false, error: "Target post not found" }, 404)
+      }
+
+      if (targetPost.status === "merged" || targetPost.mergedIntoPostId) {
+        return c.json(
+          { success: false, error: "Target post is already merged" },
+          400,
+        )
+      }
+
+      if (sourcePost.status === "merged" || sourcePost.mergedIntoPostId) {
+        return c.json(
+          { success: false, error: "Source post is already merged" },
+          400,
+        )
+      }
+
+      // Transfer votes with deduplication
+      const sourceVotes = votesStore.filter((v) => v.postId === postId)
+      const targetVotes = votesStore.filter((v) => v.postId === targetPostId)
+
+      const targetUserKeys = new Set(
+        targetVotes.map((v) => v.userEmail || v.userId),
+      )
+
+      let transferredVotesCount = 0
+      let transferredMrr = 0
+
+      for (const sVote of sourceVotes) {
+        const key = sVote.userEmail || sVote.userId
+        if (targetUserKeys.has(key)) {
+          // Duplicate on target: remove duplicate from votesStore
+          const idx = votesStore.indexOf(sVote)
+          if (idx > -1) votesStore.splice(idx, 1)
+        } else {
+          // Reassign to target
+          sVote.postId = targetPostId
+          targetUserKeys.add(key)
+          transferredVotesCount++
+          transferredMrr += sVote.traits?.mrr ?? 0
+        }
+      }
+
+      // Update target post counters
+      targetPost.votesCount = votesStore.filter(
+        (v) => v.postId === targetPostId,
+      ).length
+      targetPost.totalMrr = calculatePostMrr(targetPostId)
+
+      // Update source post
+      sourcePost.status = "merged"
+      sourcePost.mergedIntoPostId = targetPostId
+      sourcePost.votesCount = 0
+      sourcePost.totalMrr = 0
+
+      // Add internal comment on target post
+      commentsStore.push({
+        id: "comment_" + Math.random().toString(36).substring(2, 10),
+        postId: targetPostId,
+        content: `Post "${sourcePost.title}" was merged into this post with ${transferredVotesCount} voters.`,
+        isInternal: true,
+        createdAt: new Date().toISOString(),
+      })
+      targetPost.commentsCount += 1
+
+      return c.json({
+        success: true,
+        message: "Post successfully merged",
+        targetPost,
+        transferredVotesCount,
+        transferredMrr,
+      })
+    },
+  )
+  .post(
+    "/posts/:postId/vote-on-behalf",
+    zValidator("json", voteOnBehalfSchema, (result, c) => {
+      if (!result.success) {
+        return c.json({ success: false, errors: result.error.errors }, 400)
+      }
+    }),
+    async (c) => {
+      const postId = c.req.param("postId")
+      const post = postsStore.find((p) => p.id === postId)
+      if (!post) {
+        return c.json({ success: false, error: "Post not found" }, 404)
+      }
+
+      const data = c.req.valid("json")
+      const teamUserId = c.req.header("x-team-user-id") || "staff"
+
+      // Check if voter with this email already voted on this post
+      const existingVote = votesStore.find(
+        (v) => v.postId === postId && v.userEmail === data.customerEmail,
+      )
+      if (existingVote) {
+        return c.json(
+          {
+            success: false,
+            error: `Customer ${data.customerEmail} has already voted on this post`,
+          },
+          409,
+        )
+      }
+
+      const newVote: VoteRecord = {
+        postId,
+        userId: "enduser_" + Math.random().toString(36).substring(2, 10),
+        userEmail: data.customerEmail,
+        traits: {
+          mrr: data.mrr,
+          company: data.company,
+        },
+        votedByTeamUserId: teamUserId,
+        internalNote: data.internalNote,
+      }
+
+      votesStore.push(newVote)
+      post.votesCount += 1
+      post.totalMrr = calculatePostMrr(postId)
+
+      return c.json(
+        {
+          success: true,
+          message: "Vote on behalf recorded",
+          post,
+          vote: {
+            ...newVote,
+            customerEmail: newVote.userEmail,
+          },
+        },
+        201,
+      )
     },
   )
