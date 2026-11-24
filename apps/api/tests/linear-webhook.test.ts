@@ -19,9 +19,15 @@ describe("Linear Webhook Verification & Handler", () => {
   })
 
   it("should return true for valid HMAC signature and false for tampered signature", () => {
-    const validSignature = createHmac("sha256", secret).update(rawBody).digest("hex")
-    expect(verifyLinearWebhookSignature(rawBody, validSignature, secret)).toBe(true)
-    expect(verifyLinearWebhookSignature(rawBody, "invalid_signature", secret)).toBe(false)
+    const validSignature = createHmac("sha256", secret)
+      .update(rawBody)
+      .digest("hex")
+    expect(verifyLinearWebhookSignature(rawBody, validSignature, secret)).toBe(
+      true,
+    )
+    expect(
+      verifyLinearWebhookSignature(rawBody, "invalid_signature", secret),
+    ).toBe(false)
     expect(verifyLinearWebhookSignature(rawBody, "", secret)).toBe(false)
   })
 
@@ -73,8 +79,14 @@ describe("Linear Webhook Verification & Handler", () => {
     })
 
     expect(result.success).toBe(true)
-    expect(mockRepo.updatePostIssueStatus).toHaveBeenCalledWith("piss_1", "Done")
-    expect(mockFeedbackRepo.updatePostStatus).toHaveBeenCalledWith("post_42", "completed")
+    expect(mockRepo.updatePostIssueStatus).toHaveBeenCalledWith(
+      "piss_1",
+      "Done",
+    )
+    expect(mockFeedbackRepo.updatePostStatus).toHaveBeenCalledWith(
+      "post_42",
+      "completed",
+    )
     expect(mockVoterNotifier).toHaveBeenCalledWith("post_42")
   })
 

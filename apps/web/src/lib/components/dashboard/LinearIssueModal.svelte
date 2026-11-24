@@ -1,12 +1,6 @@
 <script lang="ts">
-  import {
-    X,
-    Layers,
-    Plus,
-    Link2,
-    CheckCircle2,
-    AlertTriangle,
-  } from "lucide-svelte"
+  import { X, Layers, Plus, Link2, AlertTriangle } from "lucide-svelte"
+  import type { LinearIssueResult } from "@katauser/shared"
 
   interface Props {
     workspaceSlug: string
@@ -15,7 +9,7 @@
     postContent: string
     isOpen: boolean
     onClose: () => void
-    onSuccess?: (issue: any) => void
+    onSuccess?: (issue: LinearIssueResult) => void
   }
 
   let {
@@ -104,7 +98,9 @@
   <div class="modal modal-open">
     <div class="modal-box max-w-lg p-6 rounded-2xl border border-slate-200">
       <!-- Modal Header -->
-      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+      <div
+        class="flex items-center justify-between pb-4 border-b border-slate-100"
+      >
         <div class="flex items-center gap-2 text-slate-900 font-bold text-base">
           <Layers class="w-5 h-5 text-indigo-600" />
           <span>Linear Issue Tracker</span>
@@ -147,7 +143,9 @@
         {#if mode === "create"}
           <div class="form-control">
             <label for="linear-issue-title" class="label py-1">
-              <span class="label-text text-xs font-medium text-slate-700">Judul Issue</span>
+              <span class="label-text text-xs font-medium text-slate-700"
+                >Judul Issue</span
+              >
             </label>
             <input
               id="linear-issue-title"
@@ -160,7 +158,9 @@
 
           <div class="form-control">
             <label for="linear-issue-desc" class="label py-1">
-              <span class="label-text text-xs font-medium text-slate-700">Deskripsi</span>
+              <span class="label-text text-xs font-medium text-slate-700"
+                >Deskripsi</span
+              >
             </label>
             <textarea
               id="linear-issue-desc"
@@ -173,7 +173,9 @@
 
           <div class="form-control">
             <label for="linear-issue-priority" class="label py-1">
-              <span class="label-text text-xs font-medium text-slate-700">Prioritas</span>
+              <span class="label-text text-xs font-medium text-slate-700"
+                >Prioritas</span
+              >
             </label>
             <select
               id="linear-issue-priority"
@@ -190,8 +192,12 @@
         {:else}
           <div class="form-control">
             <label for="linear-issue-id" class="label py-1">
-              <span class="label-text text-xs font-medium text-slate-700">Identifier Issue</span>
-              <span class="label-text-alt text-xs text-slate-400">Contoh: ENG-142</span>
+              <span class="label-text text-xs font-medium text-slate-700"
+                >Identifier Issue</span
+              >
+              <span class="label-text-alt text-xs text-slate-400"
+                >Contoh: ENG-142</span
+              >
             </label>
             <input
               id="linear-issue-id"
@@ -204,7 +210,9 @@
         {/if}
 
         {#if errorMessage}
-          <div class="alert alert-error text-xs py-2 rounded-lg flex items-center gap-2">
+          <div
+            class="alert alert-error text-xs py-2 rounded-lg flex items-center gap-2"
+          >
             <AlertTriangle class="w-4 h-4 shrink-0" />
             <span>{errorMessage}</span>
           </div>
@@ -212,7 +220,9 @@
       </div>
 
       <!-- Modal Actions -->
-      <div class="modal-action pt-4 border-t border-slate-100 flex justify-end gap-2">
+      <div
+        class="modal-action pt-4 border-t border-slate-100 flex justify-end gap-2"
+      >
         <button
           type="button"
           onclick={onClose}

@@ -47,7 +47,9 @@ export function isFeedbackIntent(prompt: string): boolean {
   // If user is asking "bagaimana cara" (how to) or "how do I" / "how to", it is a support/knowledge inquiry,
   // NOT a feedback/feature request (unless they explicitly say "buatkan", "tambahkan", "usul", "request").
   if (
-    /(?:bagaimana|jelaskan|tanya)\s+cara|how\s+(?:do\s+i|to|can\s+i)/i.test(p) &&
+    /(?:bagaimana|jelaskan|tanya)\s+cara|how\s+(?:do\s+i|to|can\s+i)/i.test(
+      p,
+    ) &&
     !/(?:buatkan|tambahkan|usul|ide|request|feature\s*request)/i.test(p)
   ) {
     return false
@@ -297,7 +299,10 @@ export const chatRoute = new Hono()
           }
           const titleEmbedding = await generateEmbedding(post.title)
           const scoreWithFull = cosineSimilarity(queryEmbedding, post.embedding)
-          const scoreWithTitle = cosineSimilarity(queryEmbedding, titleEmbedding)
+          const scoreWithTitle = cosineSimilarity(
+            queryEmbedding,
+            titleEmbedding,
+          )
           let score = Math.max(scoreWithFull, scoreWithTitle)
 
           const targetTokens: string[] = `${post.title} ${post.content}`

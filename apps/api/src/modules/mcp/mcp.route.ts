@@ -26,7 +26,14 @@ export const mcpToolsMetadata = [
       properties: {
         status: {
           type: "string",
-          enum: ["all", "open", "planned", "in_progress", "completed", "closed"],
+          enum: [
+            "all",
+            "open",
+            "planned",
+            "in_progress",
+            "completed",
+            "closed",
+          ],
           default: "all",
           description: "Status filter masukan",
         },
@@ -81,7 +88,10 @@ export const mcpToolsMetadata = [
           description: "Email pelanggan jika diinput atas nama customer",
         },
         customerName: { type: "string", description: "Nama pelanggan" },
-        customerCompany: { type: "string", description: "Perusahaan pelanggan" },
+        customerCompany: {
+          type: "string",
+          description: "Perusahaan pelanggan",
+        },
         customerMrr: {
           type: "number",
           description: "Estimasi MRR pelanggan (USD/IDR)",
@@ -179,8 +189,10 @@ export const mcpRoute = new Hono<{
   .post("/tools/:toolName", async (c) => {
     const toolName = c.req.param("toolName")
     const workspaceId = c.get("workspaceId") as string
-    const permissions =
-      (c.get("apiKeyPermissions") as string[]) || ["read", "write"]
+    const permissions = (c.get("apiKeyPermissions") as string[]) || [
+      "read",
+      "write",
+    ]
 
     if (WRITE_TOOLS.includes(toolName) && !permissions.includes("write")) {
       return c.json(

@@ -59,7 +59,10 @@ export type GetRoadmapKanbanMcpInput = z.infer<typeof getRoadmapKanbanMcpSchema>
 export const createChangelogReleaseMcpSchema = z.object({
   version: z.string().min(1).describe("Nomor versi rilis, misal 'v1.4.0'"),
   title: z.string().min(3),
-  content: z.string().min(5).describe("Isi catatan rilis dalam format Markdown"),
+  content: z
+    .string()
+    .min(5)
+    .describe("Isi catatan rilis dalam format Markdown"),
   postIds: z
     .array(z.string())
     .optional()

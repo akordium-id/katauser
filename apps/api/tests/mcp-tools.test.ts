@@ -302,14 +302,17 @@ describe("MCP Tools Execution API", () => {
     })
 
     // Found for Acme
-    const resFound = await app.request("/api/v1/mcp/tools/get_feedback_details", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${acmeKey}`,
-        "Content-Type": "application/json",
+    const resFound = await app.request(
+      "/api/v1/mcp/tools/get_feedback_details",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${acmeKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ postId: "p_detail_1" }),
       },
-      body: JSON.stringify({ postId: "p_detail_1" }),
-    })
+    )
     expect(resFound.status).toBe(200)
     const dataFound = await resFound.json()
     expect(dataFound.success).toBe(true)
@@ -317,14 +320,17 @@ describe("MCP Tools Execution API", () => {
     expect(dataFound.post.totalMrr).toBe(600)
 
     // Not found / isolated for Beta
-    const resNotFound = await app.request("/api/v1/mcp/tools/get_feedback_details", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${betaKey}`,
-        "Content-Type": "application/json",
+    const resNotFound = await app.request(
+      "/api/v1/mcp/tools/get_feedback_details",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${betaKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ postId: "p_detail_1" }),
       },
-      body: JSON.stringify({ postId: "p_detail_1" }),
-    })
+    )
     expect(resNotFound.status).toBe(404)
   })
 
@@ -360,19 +366,22 @@ describe("MCP Tools Execution API", () => {
       createdAt: new Date().toISOString(),
     })
 
-    const res = await app.request("/api/v1/mcp/tools/create_changelog_release", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${acmeKey}`,
-        "Content-Type": "application/json",
+    const res = await app.request(
+      "/api/v1/mcp/tools/create_changelog_release",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${acmeKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          version: "v1.9.0",
+          title: "Hacked Release",
+          content: "Trying to link beta post",
+          postIds: ["p_beta_secret"],
+        }),
       },
-      body: JSON.stringify({
-        version: "v1.9.0",
-        title: "Hacked Release",
-        content: "Trying to link beta post",
-        postIds: ["p_beta_secret"],
-      }),
-    })
+    )
     expect(res.status).toBe(400)
     const data = await res.json()
     expect(data.success).toBe(false)

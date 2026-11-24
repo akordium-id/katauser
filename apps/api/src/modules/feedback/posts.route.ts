@@ -525,8 +525,7 @@ export const postsRoute = new Hono()
       // Check if voter with this email already voted on this post
       const existingVote = votesStore.find(
         (v) =>
-          v.postId === postId &&
-          v.userEmail?.toLowerCase() === normalizedEmail,
+          v.postId === postId && v.userEmail?.toLowerCase() === normalizedEmail,
       )
       if (existingVote) {
         return c.json(

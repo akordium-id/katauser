@@ -157,13 +157,15 @@ Portal publik digunakan oleh end-user untuk berpartisipasi menyampaikan feedback
 ## 5. Post Merging & Vote on Behalf
 
 ### Post Merging (Deduplikasi Feedback)
-- Menggabungkan post duplikat (*source*) ke post utama (*target*) dengan soft-merge (`status = 'merged'`, `mergedIntoPostId = targetId`).
+
+- Menggabungkan post duplikat (_source_) ke post utama (_target_) dengan soft-merge (`status = 'merged'`, `mergedIntoPostId = targetId`).
 - Voter unik dipindahkan tanpa duplikasi suara, total MRR dan skor bobot dikalkulasi ulang secara otomatis.
 - Catatan audit disematkan secara otomatis di thread komentar post target.
 - Proteksi terhadap circular merge dan self-merge.
 - Endpoint: `POST /api/v1/posts/:postId/merge`.
 
 ### Vote on Behalf (Atas Nama Klien B2B)
+
 - Memungkinkan tim Sales/CS mencatatkan suara atas nama customer dengan MRR traits langsung dari dashboard admin.
 - Upsert otomatis profil customer di tabel `end_users`.
 - Endpoint: `POST /api/v1/posts/:postId/vote-on-behalf`.
@@ -175,6 +177,7 @@ Portal publik digunakan oleh end-user untuk berpartisipasi menyampaikan feedback
 Menghubungkan post masukan pengguna dengan tiket kerja engineering di Linear secara bilateral.
 
 ### Fitur Utama
+
 - **Link Linear Issue**: Menghubungkan ID post dengan identifier issue Linear (misal `KAT-42`).
 - **Webhook Sync Handler**: Menerima event update status dari Linear (misal tiket bergeser ke `Done` / `Completed` di Linear) lalu otomatis memperbarui status post Katauser ke `completed` dan memberi tahu voter.
 - **Detached Isolation**: Perubahan di Linear tidak akan merusak integritas post lokal Katauser jika webhook terputus.
@@ -186,6 +189,7 @@ Menghubungkan post masukan pengguna dengan tiket kerja engineering di Linear sec
 Komponen widget interaktif untuk mengumumkan rilis produk baru langsung di aplikasi induk.
 
 ### Fitur Utama
+
 - **Floating Popover Teaser**: Muncul secara non-intrusif di atas launcher widget saat ada rilis baru yang belum pernah dilihat oleh user.
 - **Unread Badge Dinamis**: Indikator unread count di launcher button dan tab navigasi changelog widget.
 - **Hybrid Local Storage State**: Menyimpan timestamp pembacaan terakhir (`katauser_changelog_seen_<workspaceId>`) di browser untuk performa instan tanpa delay DB.
@@ -199,6 +203,7 @@ Komponen widget interaktif untuk mengumumkan rilis produk baru langsung di aplik
 Menghubungkan AI coding agent (Cursor, Claude Code, Antigravity, Windsurf) langsung dengan Katauser melalui arsitektur hybrid.
 
 ### Arsitektur
+
 - **Remote Hono API (`apps/api`)**: Endpoint `/api/v1/mcp/tools` dengan autentikasi API Key bertoken `ku_live_...` (di-hash SHA-256 pada database).
 - **Executable CLI STDIO Bridge (`packages/mcp`)**: Package `@katauser/mcp` yang dapat dieksekusi instan via `npx -y @katauser/mcp`.
 - **Daftar Tools V1**:
@@ -220,6 +225,7 @@ Menghubungkan AI coding agent (Cursor, Claude Code, Antigravity, Windsurf) langs
 Menghubungkan modul live chat asisten AI Juno langsung ke feedback board dan roadmap produk (fitur pembeda utama ala UserJot).
 
 ### Fitur Utama
+
 - **Deteksi Intent Otomatis**: Membedakan saran fitur dari pertanyaan dokumentasi/how-to biasa secara real-time.
 - **Rekomendasi Post Serupa (`similarityScore >= 0.70`)**: Menyajikan kartu interaktif dengan status badge, persentase kecocokan, dan tombol **1-Click Upvote** untuk postingan aktif yang sudah ada di roadmap.
 - **Draf Masukan Baru (`similarityScore < 0.70`)**: Menawarkan pembuatan post feedback baru ke board publik utama beserta judul draf dan preview konten langsung dari pesan pengguna.

@@ -20,7 +20,10 @@ export const changelogRoute = new Hono()
     const now = new Date().toISOString()
 
     const filtered = changelogsStore
-      .filter((ch) => ch.workspaceId === slug && ch.publishedAt && ch.publishedAt <= now)
+      .filter(
+        (ch) =>
+          ch.workspaceId === slug && ch.publishedAt && ch.publishedAt <= now,
+      )
       .sort(
         (a, b) =>
           new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
@@ -62,7 +65,8 @@ export const changelogRoute = new Hono()
     const slug = c.req.param("slug")
     const now = new Date().toISOString()
     const filtered = changelogsStore.filter(
-      (ch) => ch.workspaceId === slug && (!ch.publishedAt || ch.publishedAt <= now),
+      (ch) =>
+        ch.workspaceId === slug && (!ch.publishedAt || ch.publishedAt <= now),
     )
     return c.json({
       success: true,

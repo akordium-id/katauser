@@ -59,7 +59,9 @@ describe("Linear Hono API Routes", () => {
     expect(res.status).toBe(200)
     const json = await res.json()
     expect(json.success).toBe(true)
-    expect(json.webhookUrl).toContain("/api/v1/integrations/linear/webhook/acme")
+    expect(json.webhookUrl).toContain(
+      "/api/v1/integrations/linear/webhook/acme",
+    )
   })
 
   it("POST /integrations/linear/webhook/:workspaceSlug rejects unconfigured workspace with 401", async () => {

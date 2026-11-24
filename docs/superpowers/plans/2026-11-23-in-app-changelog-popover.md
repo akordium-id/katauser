@@ -5,6 +5,7 @@
 **Goal:** Implement floating in-app changelog teaser popover and unread badge on `<katauser-widget>` with client-side read persistence and API sync.
 
 **Architecture:**
+
 1. API & DB: Add `GET /workspaces/:slug/changelogs/latest?since=<isoDate>` endpoint in Hono to return latest release and compute unread count.
 2. Widget Helpers: Pure helper functions in `packages/widget/src/changelog-helpers.ts` for storage persistence (`localStorage`), unread release calculation, and popover display logic.
 3. Widget SDK: Extend `createWidgetState()` in `packages/widget/src/sdk.ts` to manage `latestChangelog`, `isPopoverDismissed`, and auto-fetch/mark-as-read workflows.
@@ -15,12 +16,14 @@
 **Spec:** `docs/superpowers/specs/2026-11-23-in-app-changelog-popover-design.md`
 
 ## Global Constraints
+
 - Framework: Svelte 5 with Runes (`$state`, `$derived`, `$props`, `$effect`).
 - Web Component: Encapsulated styles within Shadow DOM; no leak of styles to host document.
 - Zero-dependency client: Pure fetch without external HTTP client libraries.
 - Error Handling: Graceful fallback if API fails (badge remains 0, popover suppressed).
 
 ## Review Focus
+
 1. Storage safety: Safe fallback if `window.localStorage` is unavailable (e.g., incognito security restrictions or SSR context).
 2. Date parsing robustness: Handling invalid or future `since` query parameters safely without NaN or server crash.
 3. Shadow DOM styling: Ensure popover does not collide with host application z-index or overflow boundaries.
@@ -32,16 +35,19 @@
 ### Task 1: API Endpoint & Database Repository
 
 **Files:**
+
 - Modify: `packages/db/src/repositories/changelog.ts`
 - Modify: `apps/api/src/modules/changelog/changelog.route.ts`
 - Test: `apps/api/tests/changelog-unread.test.ts`
 
 **Interfaces:**
+
 - Consumes: Existing `changelogs` schema.
 - Produces: `GET /api/v1/workspaces/:slug/changelogs/latest` returning `{ success: boolean, latest: Changelog | null, unreadCount: number, hasUnread: boolean }`.
 
 - [ ] **Step 1: Write the failing test**
-Create `apps/api/tests/changelog-unread.test.ts`:
+      Create `apps/api/tests/changelog-unread.test.ts`:
+
 ```ts
 import { describe, it, expect, beforeEach } from "vitest"
 import { Hono } from "hono"
@@ -109,7 +115,9 @@ describe("Changelog Latest & Unread API", () => {
   })
 
   it("returns latest null and unreadCount 0 when workspace has no changelogs", async () => {
-    const res = await app.request("/workspaces/empty_workspace/changelogs/latest")
+    const res = await app.request(
+      "/workspaces/empty_workspace/changelogs/latest",
+    )
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data.success).toBe(true)
@@ -121,11 +129,11 @@ describe("Changelog Latest & Unread API", () => {
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
-Run: `pnpm --filter @katauser/api test -- tests/changelog-unread.test.ts`
-Expected: FAIL (endpoint `/workspaces/:slug/changelogs/latest` returns 404).
+      Run: `pnpm --filter @katauser/api test -- tests/changelog-unread.test.ts`
+      Expected: FAIL (endpoint `/workspaces/:slug/changelogs/latest` returns 404).
 
 - [ ] **Step 3: Implement endpoint in `apps/api/src/modules/changelog/changelog.route.ts`**
-Add route `GET /workspaces/:slug/changelogs/latest`:
+      Add route `GET /workspaces/:slug/changelogs/latest`:
 - Extract `slug` and optional `since` query param.
 - Filter releases matching `workspaceId === slug` and sort descending by `publishedAt`.
 - Pick latest published release.
@@ -134,10 +142,11 @@ Add route `GET /workspaces/:slug/changelogs/latest`:
 - Return `{ success: true, latest, unreadCount, hasUnread: unreadCount > 0 }`.
 
 - [ ] **Step 4: Run test to verify it passes**
-Run: `pnpm --filter @katauser/api test -- tests/changelog-unread.test.ts`
-Expected: PASS.
+      Run: `pnpm --filter @katauser/api test -- tests/changelog-unread.test.ts`
+      Expected: PASS.
 
 - [ ] **Step 5: Commit**
+
 ```bash
 git add apps/api/src/modules/changelog/changelog.route.ts apps/api/tests/changelog-unread.test.ts
 git commit -m "feat(api): add latest and unread changelog endpoint"
@@ -148,14 +157,17 @@ git commit -m "feat(api): add latest and unread changelog endpoint"
 ### Task 2: Widget Changelog Helpers
 
 **Files:**
+
 - Create: `packages/widget/src/changelog-helpers.ts`
 - Test: `packages/widget/tests/changelog-helpers.test.ts`
 
 **Interfaces:**
+
 - Produces: `getStoredLastSeenDate`, `storeLastSeenDate`, `calculateUnreadCount`, `shouldDisplayPopover`.
 
 - [ ] **Step 1: Write the failing test**
-Create `packages/widget/tests/changelog-helpers.test.ts`:
+      Create `packages/widget/tests/changelog-helpers.test.ts`:
+
 ```ts
 import { describe, it, expect, beforeEach } from "vitest"
 import {
@@ -262,17 +274,18 @@ describe("Widget Changelog Helpers", () => {
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
-Run: `pnpm --filter @katauser/widget test -- tests/changelog-helpers.test.ts`
-Expected: FAIL (file not found).
+      Run: `pnpm --filter @katauser/widget test -- tests/changelog-helpers.test.ts`
+      Expected: FAIL (file not found).
 
 - [ ] **Step 3: Implement `packages/widget/src/changelog-helpers.ts`**
-Implement the 4 helper functions with safe handling for missing storage or exceptions (try-catch around `storage.getItem` and `storage.setItem`).
+      Implement the 4 helper functions with safe handling for missing storage or exceptions (try-catch around `storage.getItem` and `storage.setItem`).
 
 - [ ] **Step 4: Run test to verify it passes**
-Run: `pnpm --filter @katauser/widget test -- tests/changelog-helpers.test.ts`
-Expected: PASS.
+      Run: `pnpm --filter @katauser/widget test -- tests/changelog-helpers.test.ts`
+      Expected: PASS.
 
 - [ ] **Step 5: Commit**
+
 ```bash
 git add packages/widget/src/changelog-helpers.ts packages/widget/tests/changelog-helpers.test.ts
 git commit -m "feat(widget): add changelog storage and unread calculation helpers"
@@ -283,15 +296,18 @@ git commit -m "feat(widget): add changelog storage and unread calculation helper
 ### Task 3: Widget State Manager & SDK Methods
 
 **Files:**
+
 - Modify: `packages/widget/src/sdk.ts`
 - Test: `packages/widget/tests/sdk-changelog.test.ts`
 
 **Interfaces:**
+
 - Consumes: `changelog-helpers.ts`.
 - Produces: `globalWidgetState.latestChangelog`, `globalWidgetState.isPopoverDismissed`, `globalWidgetState.showPopover`, `globalWidgetState.markChangelogAsRead()`, `globalWidgetState.dismissPopover()`.
 
 - [ ] **Step 1: Write the failing test**
-Create `packages/widget/tests/sdk-changelog.test.ts`:
+      Create `packages/widget/tests/sdk-changelog.test.ts`:
+
 ```ts
 import { describe, it, expect, beforeEach, vi } from "vitest"
 import { createWidgetState } from "../src/sdk"
@@ -344,17 +360,18 @@ describe("Widget State - Changelog & Popover", () => {
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
-Run: `pnpm --filter @katauser/widget test -- tests/sdk-changelog.test.ts`
-Expected: FAIL (methods and fields not yet on `createWidgetState`).
+      Run: `pnpm --filter @katauser/widget test -- tests/sdk-changelog.test.ts`
+      Expected: FAIL (methods and fields not yet on `createWidgetState`).
 
 - [ ] **Step 3: Implement changelog properties and methods in `packages/widget/src/sdk.ts`**
-Update `createWidgetState()` to manage `latestChangelog`, `isPopoverDismissed`, `showPopover`, `setLatestChangelog()`, `dismissPopover()`, `markChangelogAsRead()`, and `syncChangelogStatus()`.
+      Update `createWidgetState()` to manage `latestChangelog`, `isPopoverDismissed`, `showPopover`, `setLatestChangelog()`, `dismissPopover()`, `markChangelogAsRead()`, and `syncChangelogStatus()`.
 
 - [ ] **Step 4: Run test to verify it passes**
-Run: `pnpm --filter @katauser/widget test -- tests/sdk-changelog.test.ts`
-Expected: PASS.
+      Run: `pnpm --filter @katauser/widget test -- tests/sdk-changelog.test.ts`
+      Expected: PASS.
 
 - [ ] **Step 5: Commit**
+
 ```bash
 git add packages/widget/src/sdk.ts packages/widget/tests/sdk-changelog.test.ts
 git commit -m "feat(widget): extend SDK state with changelog popover management"
@@ -365,17 +382,20 @@ git commit -m "feat(widget): extend SDK state with changelog popover management"
 ### Task 4: Svelte 5 Popover Component & Widget Integration
 
 **Files:**
+
 - Create: `packages/widget/src/components/ChangelogPopover.svelte`
 - Modify: `packages/widget/src/KatauserWidget.svelte`
 - Modify: `packages/widget/src/components/WidgetPanel.svelte`
 - Test: `packages/widget/tests/changelog-popover.test.ts`
 
 **Interfaces:**
+
 - Consumes: `shouldDisplayPopover` and `globalWidgetState`.
 - Produces: Visual floating card in `<katauser-widget>` Shadow DOM.
 
 - [ ] **Step 1: Write test for popover display logic and props**
-Create `packages/widget/tests/changelog-popover.test.ts`:
+      Create `packages/widget/tests/changelog-popover.test.ts`:
+
 ```ts
 import { describe, it, expect } from "vitest"
 import { shouldDisplayPopover } from "../src/changelog-helpers"
@@ -394,7 +414,7 @@ describe("ChangelogPopover Component Logic", () => {
 ```
 
 - [ ] **Step 2: Implement `packages/widget/src/components/ChangelogPopover.svelte`**
-Svelte 5 runes component:
+      Svelte 5 runes component:
 - Props: `latest`, `onOpen`, `onDismiss`.
 - Styled floating card at `bottom: 92px`, `right: 24px` with smooth CSS animation.
 - Title, truncated description preview, badge "Pembaruan Baru", dismiss button `✕`, and action button "Lihat Rilis Baru →".
@@ -406,10 +426,11 @@ Svelte 5 runes component:
 - When user clicks `tab-btn` changelog in `WidgetPanel.svelte`, also mark changelog as read.
 
 - [ ] **Step 4: Run widget tests and verify**
-Run: `pnpm --filter @katauser/widget test`
-Expected: All tests PASS.
+      Run: `pnpm --filter @katauser/widget test`
+      Expected: All tests PASS.
 
 - [ ] **Step 5: Commit**
+
 ```bash
 git add packages/widget/src/components/ChangelogPopover.svelte packages/widget/src/KatauserWidget.svelte packages/widget/src/components/WidgetPanel.svelte packages/widget/tests/changelog-popover.test.ts
 git commit -m "feat(widget): add ChangelogPopover component and mount to KatauserWidget"
@@ -420,21 +441,23 @@ git commit -m "feat(widget): add ChangelogPopover component and mount to Katause
 ### Task 5: Feature Documentation & Monorepo Verification
 
 **Files:**
+
 - Create: `docs/features/in-app-changelog-popover.md`
 - Modify: `README.md`
 
 - [ ] **Step 1: Write user and developer guide**
-Create `docs/features/in-app-changelog-popover.md` documenting:
+      Create `docs/features/in-app-changelog-popover.md` documenting:
 - How to embed `<katauser-widget>` with changelog teaser enabled.
 - How read-state tracking works in `localStorage` and server sync.
 - Configuration attributes (`show-popover="false"`).
-Update `README.md` to list the feature.
+  Update `README.md` to list the feature.
 
 - [ ] **Step 2: Run full monorepo typecheck and test verification**
-Run: `pnpm check && pnpm test`
-Expected: 0 errors, 0 warnings across all packages.
+      Run: `pnpm check && pnpm test`
+      Expected: 0 errors, 0 warnings across all packages.
 
 - [ ] **Step 3: Commit**
+
 ```bash
 git add docs/features/in-app-changelog-popover.md README.md
 git commit -m "docs: add in-app changelog popover guide and update README"

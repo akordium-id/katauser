@@ -13,6 +13,7 @@
 Fitur ini membangun **Native Model Context Protocol (MCP) Server** untuk Katauser. Dengan MCP Server, pengembang software dan product manager dapat menghubungkan berbagai AI coding assistant modern (**Cursor**, **Claude Code**, **Antigravity**, **Windsurf**, serta remote autonomous agents) secara langsung ke workspace Katauser mereka.
 
 ### Kemampuan Utama:
+
 1. **Developer-First Backlog Access**: Agen AI dapat membaca feedback post terpopuler atau berbobot MRR tertinggi saat sedang merencanakan sprint di IDE.
 2. **Autonomous Status Transition**: Ketika agen AI selesai mengimplementasikan fitur atau memperbaiki bug di kode, agen dapat memanggil tool `update_post_status` untuk memindahkan post ke `completed` di Katauser.
 3. **Automated Changelog Drafting**: Agen AI dapat merilis catatan rilis (changelog) dengan mengaitkan ID postingan yang telah diselesaikan.
@@ -56,7 +57,14 @@ Sistem menggunakan pendekatan **Hybrid** untuk kompatibilitas maksimal:
 ### 3.1. Skema Tabel `workspace_api_keys` (`packages/db/src/schema/api-keys.ts`)
 
 ```typescript
-import { pgTable, text, timestamp, jsonb, uniqueIndex, index } from "drizzle-orm/pg-core"
+import {
+  pgTable,
+  text,
+  timestamp,
+  jsonb,
+  uniqueIndex,
+  index,
+} from "drizzle-orm/pg-core"
 import { workspaces } from "./workspaces"
 
 export const workspaceApiKeys = pgTable(
@@ -77,11 +85,12 @@ export const workspaceApiKeys = pgTable(
   (table) => [
     uniqueIndex("api_key_hash_unique").on(table.keyHash),
     index("api_key_workspace_idx").on(table.workspaceId),
-  ]
+  ],
 )
 ```
 
 ### 3.2. Format & Hashing Token
+
 - Token yang dibagikan ke pengguna: `ku_live_<random_32_bytes_hex>`.
 - Token mentah hanya ditampilkan **satu kali** saat dibuat di dashboard admin.
 - Database hanya menyimpan SHA-256 hash dari token tersebut.
@@ -94,21 +103,28 @@ export const workspaceApiKeys = pgTable(
 Seluruh input schema didefinisikan dengan Zod di `@katauser/shared`:
 
 ### 4.1. `list_feedback`
+
 Mengambil daftar feedback post dengan filter fleksibel.
-* **Input Schema**:
+
+- **Input Schema**:
   ```typescript
   z.object({
-    status: z.enum(["all", "open", "planned", "in_progress", "completed", "closed"]).optional().default("all"),
+    status: z
+      .enum(["all", "open", "planned", "in_progress", "completed", "closed"])
+      .optional()
+      .default("all"),
     boardSlug: z.string().optional(),
     sortBy: z.enum(["popular", "recent", "mrr"]).optional().default("popular"),
     limit: z.number().min(1).max(50).optional().default(10),
   })
   ```
-* **Output**: Daftar ringkas post beserta vote count, total MRR, dan status.
+- **Output**: Daftar ringkas post beserta vote count, total MRR, dan status.
 
 ### 4.2. `get_feedback_details`
+
 Mengambil informasi lengkap satu post, termasuk deskripsi, komentar, voter, dan issue Linear tertaut.
-* **Input Schema**:
+
+- **Input Schema**:
   ```typescript
   z.object({
     postId: z.string().describe("ID post feedback (format 'post_...')"),
@@ -116,14 +132,23 @@ Mengambil informasi lengkap satu post, termasuk deskripsi, komentar, voter, dan 
   ```
 
 ### 4.3. `create_feedback`
+
 Membuat post masukan baru langsung dari AI agent.
-* **Input Schema**:
+
+- **Input Schema**:
   ```typescript
   z.object({
     title: z.string().min(3),
     content: z.string().min(5),
-    boardSlug: z.string().optional().describe("Slug board tujuan, default ke board pertama"),
-    customerEmail: z.string().email().optional().describe("Email customer jika diinput atas nama customer"),
+    boardSlug: z
+      .string()
+      .optional()
+      .describe("Slug board tujuan, default ke board pertama"),
+    customerEmail: z
+      .string()
+      .email()
+      .optional()
+      .describe("Email customer jika diinput atas nama customer"),
     customerName: z.string().optional(),
     customerCompany: z.string().optional(),
     customerMrr: z.number().optional(),
@@ -131,30 +156,43 @@ Membuat post masukan baru langsung dari AI agent.
   ```
 
 ### 4.4. `update_post_status`
+
 Memperbarui status pengerjaan fitur (misal selesai dikoding oleh AI).
-* **Input Schema**:
+
+- **Input Schema**:
   ```typescript
   z.object({
     postId: z.string(),
     status: z.enum(["planned", "in_progress", "completed", "closed"]),
-    notifyVoters: z.boolean().optional().default(true).describe("Kirim notifikasi email ke voters jika status completed"),
+    notifyVoters: z
+      .boolean()
+      .optional()
+      .default(true)
+      .describe("Kirim notifikasi email ke voters jika status completed"),
   })
   ```
 
 ### 4.5. `get_roadmap_kanban`
+
 Mengambil ringkasan post yang berada di roadmap.
-* **Input Schema**: `z.object({})`
-* **Output**: Objek `{ planned: [...], inProgress: [...], completed: [...] }`.
+
+- **Input Schema**: `z.object({})`
+- **Output**: Objek `{ planned: [...], inProgress: [...], completed: [...] }`.
 
 ### 4.6. `create_changelog_release`
+
 Mempublikasikan catatan rilis baru dan mengaitkannya dengan daftar post.
-* **Input Schema**:
+
+- **Input Schema**:
   ```typescript
   z.object({
     version: z.string().describe("Nomor versi rilis, misal 'v1.4.0'"),
     title: z.string(),
     content: z.string().describe("Isi catatan rilis dalam Markdown"),
-    postIds: z.array(z.string()).optional().describe("Daftar post ID yang dirilis pada versi ini"),
+    postIds: z
+      .array(z.string())
+      .optional()
+      .describe("Daftar post ID yang dirilis pada versi ini"),
   })
   ```
 
@@ -163,6 +201,7 @@ Mempublikasikan catatan rilis baru dan mengaitkannya dengan daftar post.
 ## 5. Konfigurasi Client AI
 
 ### Claude Code & Desktop (`~/.claude.json` / `claude_desktop_config.json`)
+
 ```json
 {
   "mcpServers": {
@@ -179,6 +218,7 @@ Mempublikasikan catatan rilis baru dan mengaitkannya dengan daftar post.
 ```
 
 ### Cursor (`.cursor/mcp.json`)
+
 ```json
 {
   "mcpServers": {

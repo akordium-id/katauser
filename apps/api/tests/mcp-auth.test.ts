@@ -1,6 +1,10 @@
 import { describe, it, expect, beforeEach } from "vitest"
 import { Hono } from "hono"
-import { mcpRoute, registerApiKeyForWorkspace, clearApiKeysStore } from "../src/modules/mcp/mcp.route"
+import {
+  mcpRoute,
+  registerApiKeyForWorkspace,
+  clearApiKeysStore,
+} from "../src/modules/mcp/mcp.route"
 
 describe("MCP API Key Authentication", () => {
   let app: Hono
@@ -26,7 +30,10 @@ describe("MCP API Key Authentication", () => {
   })
 
   it("returns 200 and lists tools when valid Bearer token is provided", async () => {
-    registerApiKeyForWorkspace("ku_live_valid1234567890abcdef1234567890abcdef", "acme")
+    registerApiKeyForWorkspace(
+      "ku_live_valid1234567890abcdef1234567890abcdef",
+      "acme",
+    )
 
     const res = await app.request("/api/v1/mcp/tools", {
       headers: {

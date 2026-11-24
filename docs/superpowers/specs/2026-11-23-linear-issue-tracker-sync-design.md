@@ -8,7 +8,8 @@
 
 ## 1. Ringkasan Eksekutif & Tujuan
 
-Fitur ini mengintegrasikan Katauser dengan **Linear** (issue tracking tool untuk tim modern software engineering). Tujuannya adalah menutup siklus umpan balik pelanggan (*customer feedback loop*) secara otomatis:
+Fitur ini mengintegrasikan Katauser dengan **Linear** (issue tracking tool untuk tim modern software engineering). Tujuannya adalah menutup siklus umpan balik pelanggan (_customer feedback loop_) secara otomatis:
+
 1. **Push & Link**: Admin/pengelola produk dapat membuat issue baru di Linear langsung dari post Katauser atau menautkan issue Linear yang sudah ada.
 2. **Execution Source of Truth**: Developer bekerja normal di Linear. Ketika issue di Linear dipindahkan ke status selesai (`state.type === 'completed'`), Linear mengirim webhook ke Katauser.
 3. **Automated Closing & Voter Notification**: Katauser secara otomatis memperbarui status post menjadi `completed`, memicu notifikasi email pembaruan ke seluruh voters via Resend, dan meneruskan notifikasi ke channel Slack/Discord.
@@ -51,8 +52,11 @@ export const workspaceIntegrations = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [
-    uniqueIndex("workspace_provider_unique").on(table.workspaceId, table.provider),
-  ]
+    uniqueIndex("workspace_provider_unique").on(
+      table.workspaceId,
+      table.provider,
+    ),
+  ],
 )
 
 // 2. Relasi antara Feedback Post dengan External Issue Tracker
@@ -79,10 +83,13 @@ export const postIssues = pgTable(
     uniqueIndex("post_provider_issue_unique").on(
       table.postId,
       table.provider,
-      table.externalIssueId
+      table.externalIssueId,
     ),
-    index("post_issues_external_id_idx").on(table.provider, table.externalIssueId),
-  ]
+    index("post_issues_external_id_idx").on(
+      table.provider,
+      table.externalIssueId,
+    ),
+  ],
 )
 ```
 
@@ -109,11 +116,18 @@ export interface LinearIssueResult {
 }
 
 export interface IssueTrackerProvider {
-  testConnection(apiKey: string): Promise<{ success: boolean; organizationName?: string }>
+  testConnection(
+    apiKey: string,
+  ): Promise<{ success: boolean; organizationName?: string }>
   listTeams(apiKey: string): Promise<LinearTeam[]>
   createIssue(
     apiKey: string,
-    input: { teamId: string; title: string; description?: string; priority?: number }
+    input: {
+      teamId: string
+      title: string
+      description?: string
+      priority?: number
+    },
   ): Promise<LinearIssueResult>
   getIssue(apiKey: string, issueIdOrKey: string): Promise<LinearIssueResult>
 }
@@ -140,7 +154,9 @@ export interface IssueTrackerProvider {
 ## 4. Backend & Linear GraphQL Engine (`apps/api`)
 
 ### GraphQL Operations
+
 Komunikasi ke Linear menggunakan native `fetch` langsung ke endpoint `https://api.linear.app/graphql`:
+
 - **Header**: `Authorization: <apiKey>`, `Content-Type: application/json`.
 - **Query Viewer**: `query { viewer { id name organization { name } } }`
 - **Query Teams**: `query { teams { nodes { id name key } } }`
@@ -154,7 +170,10 @@ Komunikasi ke Linear menggunakan native `fetch` langsung ke endpoint `https://ap
         identifier
         title
         url
-        state { name type }
+        state {
+          name
+          type
+        }
       }
     }
   }
@@ -183,10 +202,12 @@ Komunikasi ke Linear menggunakan native `fetch` langsung ke endpoint `https://ap
 ## 5. Inbound Webhook & Otomasi Voter (`apps/api`)
 
 ### Endpoint Webhook
+
 - **URL**: `POST /api/v1/integrations/linear/webhook/:workspaceSlug`
 - **Autentikasi**: Memverifikasi header `Linear-Signature` menggunakan HMAC SHA-256 dan `crypto.timingSafeEqual` terhadap raw request body.
 
 ### Logika Eksekusi Webhook
+
 1. Verifikasi tanda tangan digital. Jika gagal, kembalikan `401 Unauthorized`.
 2. Parse payload event. Filter hanya event `type === "Issue"` dan `action === "update"`.
 3. Cari entri di tabel `post_issues` dengan `provider = 'linear'` dan `externalIssueId = data.id`.
@@ -203,27 +224,31 @@ Komunikasi ke Linear menggunakan native `fetch` langsung ke endpoint `https://ap
 ## 6. Antarmuka Pengguna Frontend (`apps/web`)
 
 ### Halaman Pengaturan (`/settings/integrations`)
+
 - Menambahkan kartu **Linear Issue Tracker**:
   - Form input API Key dan Webhook Secret.
-  - Tampilan URL Webhook instan dengan tombol *1-Click Copy*: `https://<domain>/api/v1/integrations/linear/webhook/<workspaceSlug>`.
-  - Dropdown pemilihan *Default Team* yang terisi otomatis setelah API Key divalidasi.
-  - Tombol aksi: *Uji Koneksi*, *Simpan*, dan *Putuskan Koneksi*.
+  - Tampilan URL Webhook instan dengan tombol _1-Click Copy_: `https://<domain>/api/v1/integrations/linear/webhook/<workspaceSlug>`.
+  - Dropdown pemilihan _Default Team_ yang terisi otomatis setelah API Key divalidasi.
+  - Tombol aksi: _Uji Koneksi_, _Simpan_, dan _Putuskan Koneksi_.
 
 ### Drawer / Detail Post Admin
+
 - Kartu **Issue Tracker**:
-  - Jika belum tertaut: Tombol *+ Buat Issue Linear* (modal dengan prefilled title/content dan pilihan team/prioritas) dan tombol *Tautkan Issue Existing* (input ID/identifier).
-  - Jika sudah tertaut: Menampilkan badge Linear `ENG-142` (klik membuka tab baru ke Linear), badge status (misal `Done` warna hijau, `In Progress` warna biru), dan tombol *Unlink*.
+  - Jika belum tertaut: Tombol _+ Buat Issue Linear_ (modal dengan prefilled title/content dan pilihan team/prioritas) dan tombol _Tautkan Issue Existing_ (input ID/identifier).
+  - Jika sudah tertaut: Menampilkan badge Linear `ENG-142` (klik membuka tab baru ke Linear), badge status (misal `Done` warna hijau, `In Progress` warna biru), dan tombol _Unlink_.
 
 ---
 
 ## 7. Penanganan Error & Pengujian Otomatis
 
 ### Edge Cases
+
 - **Linear API Down / Rate Limited**: Error ditangani secara terstruktur dan pesan ramah pengguna ditampilkan di UI.
 - **Issue Dihapus di Linear**: Tampilan antarmuka menandai issue sebagai tidak ditemukan dengan opsi unlink manual.
 - **Post Dihapus di Katauser**: Relasi di `post_issues` otomatis terhapus berkat `onDelete: 'cascade'`, tanpa menghapus issue di Linear.
 
 ### Test Suites (Vitest)
+
 1. `tests/integrations-repo.test.ts`: Uji operasi CRUD dan unique constraints pada skema database.
 2. `tests/linear-schemas.test.ts`: Uji validasi Zod input API Key, pembuatan issue, dan linking.
 3. `tests/linear-provider.test.ts`: Uji mock GraphQL Linear untuk test koneksi, list teams, create issue, dan get issue.

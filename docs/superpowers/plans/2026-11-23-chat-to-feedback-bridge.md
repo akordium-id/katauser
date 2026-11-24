@@ -4,7 +4,7 @@
 
 **Goal:** Menghubungkan modul live chat AI Juno dengan feedback boards dan roadmap di Katauser, memungkinkan asisten AI mendeteksi ide fitur di pesan chat, merekomendasikan post serupa untuk 1-click upvote (`similarityScore >= 0.70`), atau menawarkan pendaftaran post feedback baru (`similarityScore < 0.70`) secara langsung di dalam gelembung obrolan widget.
 
-**Architecture:** Menggunakan format *Single Stream Response with Structured SSE Action Card*. Backend Hono API melakukan deteksi intent feedback dan kalkulasi cosine similarity terhadap post aktif di workspace. Sebelum mengirim terminator `[DONE]`, backend mengalirkan chunk kartu aksi terstruktur (`action: { type, ... }`) yang ditangkap oleh frontend Svelte widget (`MessagesTab.svelte`) untuk merender kartu interaktif (inline email capture untuk guest, atau 1-klik untuk identified user) yang mengeksekusi upvote atau pembuatan post baru tanpa berpindah tab.
+**Architecture:** Menggunakan format _Single Stream Response with Structured SSE Action Card_. Backend Hono API melakukan deteksi intent feedback dan kalkulasi cosine similarity terhadap post aktif di workspace. Sebelum mengirim terminator `[DONE]`, backend mengalirkan chunk kartu aksi terstruktur (`action: { type, ... }`) yang ditangkap oleh frontend Svelte widget (`MessagesTab.svelte`) untuk merender kartu interaktif (inline email capture untuk guest, atau 1-klik untuk identified user) yang mengeksekusi upvote atau pembuatan post baru tanpa berpindah tab.
 
 **Tech Stack:** Hono v4 (SSE streaming), Svelte 5 (Widget Web Component), `@katauser/shared` (Zod & TypeScript contracts), `ai-embeddings` (1536-dim deterministic & OpenAI/pgvector embeddings), Vitest.
 
@@ -31,17 +31,20 @@
 ### Task 1: Shared Data Contracts & Schemas (`@katauser/shared`)
 
 **Files:**
+
 - Modify: `packages/shared/src/schemas/chat.ts`
 - Modify: `packages/shared/src/index.ts`
 - Test: `packages/shared/tests/chat-schemas.test.ts`
 
 **Interfaces:**
+
 - Consumes: Existing chat schemas (`createConversationSchema`, `sendMessageSchema`).
 - Produces: `JunoActionType`, `JunoSimilarPostAction`, `JunoCreateFeedbackAction`, `JunoActionPayload`, `JunoStreamChunk`, `junoActionPayloadSchema`.
 
 - [ ] **Step 1: Write the failing test**
 
 Create `packages/shared/tests/chat-schemas.test.ts`:
+
 ```typescript
 import { describe, it, expect } from "vitest"
 import {
@@ -103,6 +106,7 @@ Expected: FAIL with "junoActionPayloadSchema is not defined"
 - [ ] **Step 3: Implement schemas in `packages/shared/src/schemas/chat.ts` & export in `src/index.ts`**
 
 Tambahkan Zod schemas dan TypeScript interfaces:
+
 ```typescript
 import { z } from "zod"
 
@@ -142,7 +146,9 @@ export const junoActionPayloadSchema = z.discriminatedUnion("type", [
 ])
 
 export type JunoSimilarPostAction = z.infer<typeof junoSimilarPostActionSchema>
-export type JunoCreateFeedbackAction = z.infer<typeof junoCreateFeedbackActionSchema>
+export type JunoCreateFeedbackAction = z.infer<
+  typeof junoCreateFeedbackActionSchema
+>
 export type JunoActionPayload = z.infer<typeof junoActionPayloadSchema>
 export type JunoActionType = JunoActionPayload["type"]
 
@@ -169,19 +175,26 @@ git commit -m "feat(shared): add Zod schemas and types for Juno action cards"
 ### Task 2: Backend Hono Pipeline & Intent/Similarity Routing (`apps/api`)
 
 **Files:**
+
 - Modify: `apps/api/src/modules/chat/chat.route.ts`
 - Test: `apps/api/tests/chat-feedback-bridge.test.ts`
 
 **Interfaces:**
+
 - Consumes: `junoActionPayloadSchema`, `generateEmbedding`, `cosineSimilarity`, `postsStore`, `boardsStore`.
 - Produces: Enhanced `POST /chat/conversations/:id/juno-stream` that emits action chunk for feedback prompts.
 
 - [ ] **Step 1: Write the failing test**
 
 Create `apps/api/tests/chat-feedback-bridge.test.ts`:
+
 ```typescript
 import { describe, it, expect, beforeEach } from "vitest"
-import { chatRoute, conversationsStore, messagesStore } from "../src/modules/chat/chat.route"
+import {
+  chatRoute,
+  conversationsStore,
+  messagesStore,
+} from "../src/modules/chat/chat.route"
 import { postsStore } from "../src/modules/feedback/posts.route"
 import { boardsStore } from "../src/modules/feedback/boards.route"
 
@@ -228,11 +241,16 @@ describe("Chat to Feedback Bridge (Hono API)", () => {
       updatedAt: new Date().toISOString(),
     })
 
-    const res = await chatRoute.request("/chat/conversations/conv_test_1/juno-stream", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: "Bisa tambahkan fitur dark mode malam hari?" }),
-    })
+    const res = await chatRoute.request(
+      "/chat/conversations/conv_test_1/juno-stream",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: "Bisa tambahkan fitur dark mode malam hari?",
+        }),
+      },
+    )
 
     expect(res.status).toBe(200)
     const text = await res.text()
@@ -242,11 +260,16 @@ describe("Chat to Feedback Bridge (Hono API)", () => {
   })
 
   it("suggests create_feedback action card when prompt has feedback intent but no similar post exists", async () => {
-    const res = await chatRoute.request("/chat/conversations/conv_test_1/juno-stream", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: "Tolong buatkan fitur ekspor data ke format Apache Parquet" }),
-    })
+    const res = await chatRoute.request(
+      "/chat/conversations/conv_test_1/juno-stream",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: "Tolong buatkan fitur ekspor data ke format Apache Parquet",
+        }),
+      },
+    )
 
     expect(res.status).toBe(200)
     const text = await res.text()
@@ -256,11 +279,16 @@ describe("Chat to Feedback Bridge (Hono API)", () => {
   })
 
   it("does not attach action card for normal question without feedback intent", async () => {
-    const res = await chatRoute.request("/chat/conversations/conv_test_1/juno-stream", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: "Bagaimana cara mengganti kata sandi saya?" }),
-    })
+    const res = await chatRoute.request(
+      "/chat/conversations/conv_test_1/juno-stream",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: "Bagaimana cara mengganti kata sandi saya?",
+        }),
+      },
+    )
 
     expect(res.status).toBe(200)
     const text = await res.text()
@@ -280,11 +308,16 @@ describe("Chat to Feedback Bridge (Hono API)", () => {
       updatedAt: new Date().toISOString(),
     })
 
-    const res = await chatRoute.request("/chat/conversations/conv_test_1/juno-stream", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: "Bisa buatkan integrasi notifikasi ke Slack?" }),
-    })
+    const res = await chatRoute.request(
+      "/chat/conversations/conv_test_1/juno-stream",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: "Bisa buatkan integrasi notifikasi ke Slack?",
+        }),
+      },
+    )
 
     expect(res.status).toBe(200)
     const text = await res.text()
@@ -339,17 +372,20 @@ git commit -m "feat(api): implement chat-to-feedback similarity detection and SS
 ### Task 3: Widget UI & Interactive Action Cards (`packages/widget`)
 
 **Files:**
+
 - Modify: `packages/widget/src/chat-helpers.ts`
 - Modify: `packages/widget/src/components/tabs/MessagesTab.svelte`
 - Test: `packages/widget/tests/chat-feedback-bridge.test.ts`
 
 **Interfaces:**
+
 - Consumes: `JunoActionPayload`, `JunoSimilarPostAction`, `JunoCreateFeedbackAction`, `POST /posts/:id/vote`, `POST /boards/:id/posts`.
 - Produces: Interactive action cards in `MessagesTab.svelte`, guest inline email validation, optimistic resolution.
 
 - [ ] **Step 1: Write the failing test**
 
 Create `packages/widget/tests/chat-feedback-bridge.test.ts`:
+
 ```typescript
 import { describe, it, expect } from "vitest"
 import { parseSSEChunk, type ChatMessage } from "../src/chat-helpers"
@@ -413,6 +449,7 @@ Expected: FAIL if types or parse helper don't handle action
 - [ ] **Step 3: Update `packages/widget/src/chat-helpers.ts`**
 
 Update `ChatMessage` interface dan `parseSSEChunk`:
+
 ```typescript
 import type { JunoActionPayload } from "@katauser/shared"
 
@@ -425,7 +462,9 @@ export interface ChatMessage {
   actionResolved?: boolean
 }
 
-export function parseSSEChunk(chunkStr: string): { text?: string; action?: JunoActionPayload } | null {
+export function parseSSEChunk(
+  chunkStr: string,
+): { text?: string; action?: JunoActionPayload } | null {
   try {
     const parsed = JSON.parse(chunkStr)
     return parsed
@@ -479,6 +518,7 @@ git commit -m "feat(widget): render interactive feedback action cards in Juno ch
 ### Task 4: Dokumentasi Fitur & Verifikasi Menyeluruh
 
 **Files:**
+
 - Create: `docs/features/chat-to-feedback-bridge.md`
 - Modify: `docs/features-and-workflows.md`
 - Modify: `README.md`
@@ -489,7 +529,7 @@ Create `docs/features/chat-to-feedback-bridge.md` yang merangkum arsitektur, par
 
 - [ ] **Step 2: Update `docs/features-and-workflows.md` & `README.md`**
 
-Tambahkan modul *Chat-to-Feedback Bridge di Juno AI* ke daftar fitur utama di `docs/features-and-workflows.md` dan `README.md`.
+Tambahkan modul _Chat-to-Feedback Bridge di Juno AI_ ke daftar fitur utama di `docs/features-and-workflows.md` dan `README.md`.
 
 - [ ] **Step 3: Run full monorepo check and tests**
 

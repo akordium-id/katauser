@@ -9,9 +9,10 @@ Dokumen ini menjelaskan implementasi fitur **In-App Changelog Popover** dan **Un
 Fitur ini memungkinkan pemilik aplikasi/produk SaaS untuk mengumumkan rilis baru langsung ke pengunjung atau pengguna aktif di aplikasi induk tanpa mengganggu alur kerja mereka.
 
 ### Karakteristik & Aturan Bisnis
+
 - **Non-intrusif & Contextual**:
   - Popover teaser muncul melayang di atas tombol peluncur (`<TriggerButton>`) widget saat ada rilis changelog baru yang belum pernah dilihat oleh pengguna.
-  - Kartu popover menampilkan nomor versi/tag (misal `v1.4.0`), judul changelog, kutipan ringkasan singkat, dan tombol ajakan bertindak (CTA *"Read changelog"*).
+  - Kartu popover menampilkan nomor versi/tag (misal `v1.4.0`), judul changelog, kutipan ringkasan singkat, dan tombol ajakan bertindak (CTA _"Read changelog"_).
 - **Unread Badge Dinamis**:
   - Badge angka merah (atau dot indikator) tampil pada tombol floating launcher `<TriggerButton>` dan tab navigasi **Changelog** di dalam widget modal.
 - **Client-Side Read State (Hybrid Opsi A)**:
@@ -32,9 +33,10 @@ Endpoint disediakan oleh backend Hono API untuk mengambil rilis terbaru yang tel
 - **URL**: `/api/v1/workspaces/:slug/changelogs/latest`
 - **Method**: `GET`
 - **Query Parameters**:
-  - `since` *(opsional)*: String tanggal ISO 8601 (misal `2026-11-20T10:00:00.000Z`). Menghitung berapa banyak changelog yang dipublikasikan setelah tanggal ini.
+  - `since` _(opsional)_: String tanggal ISO 8601 (misal `2026-11-20T10:00:00.000Z`). Menghitung berapa banyak changelog yang dipublikasikan setelah tanggal ini.
 
 #### Response (Saat ada rilis baru):
+
 ```json
 {
   "success": true,
@@ -51,6 +53,7 @@ Endpoint disediakan oleh backend Hono API untuk mengambil rilis terbaru yang tel
 ```
 
 #### Response (Saat belum ada changelog yang dipublikasikan):
+
 ```json
 {
   "success": true,
@@ -67,14 +70,18 @@ Endpoint disediakan oleh backend Hono API untuk mengambil rilis terbaru yang tel
 Semua komponen berjalan di dalam **Shadow DOM Web Component** (`<katauser-widget>`) untuk isolasi style penuh dari aplikasi host.
 
 ### A. Helper Logic (`packages/widget/src/changelog-helpers.ts`)
+
 Fungsi murni zero-dependency untuk interaksi storage dan kalkulasi:
+
 - `getStoredLastSeenDate(workspaceId)`: Membaca timestamp dari `localStorage`.
 - `storeLastSeenDate(workspaceId, date)`: Menyimpan tanggalISO ke `localStorage`.
 - `calculateUnreadCount(lastSeen, publishedAt, serverUnreadCount)`: Mengkalkulasi unread secara reaktif.
 - `shouldDisplayPopover(hasChangelog, isDismissed, isOpen, isRead)`: Logika penentu apakah kartu popover harus dirender.
 
 ### B. State Management (`packages/widget/src/sdk.ts`)
+
 Ekstensi `globalWidgetState`:
+
 - `latestChangelog`: Objek changelog terbaru dari server.
 - `isPopoverDismissed`: Flag status apakah user menutup popover secara manual.
 - `syncChangelogStatus(apiUrl, workspaceSlug, workspaceId)`: Memanggil endpoint server dan menginisialisasi unread count.
@@ -82,6 +89,7 @@ Ekstensi `globalWidgetState`:
 - `dismissPopover()`: Menutup popover sementara.
 
 ### C. Komponen UI (`packages/widget/src/components/ChangelogPopover.svelte`)
+
 - Kartu mengambang dengan elevasi bayangan halus (`box-shadow`), animasi transisi fade/slide-up.
 - Tombol close interaktif dan link action menuju tab changelog widget.
 - Style murni terenkapsulasi dalam `:host` Shadow DOM pada koordinat `bottom: 92px`, `right: 24px`.
@@ -93,15 +101,13 @@ Ekstensi `globalWidgetState`:
 Cukup sematkan script widget Katauser seperti biasa. Widget secara otomatis melakukan polling status changelog saat mounted:
 
 ```html
-<script 
-  src="https://cdn.katauser.com/widget.js" 
+<script
+  src="https://cdn.katauser.com/widget.js"
   data-workspace="my-saas"
-  defer>
-</script>
+  defer
+></script>
 
-<katauser-widget 
-  workspace="my-saas" 
-  api-url="https://api.katauser.com">
+<katauser-widget workspace="my-saas" api-url="https://api.katauser.com">
 </katauser-widget>
 ```
 

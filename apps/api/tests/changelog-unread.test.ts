@@ -77,7 +77,9 @@ describe("Changelog Latest & Unread API", () => {
 
   it("does not leak future scheduled changelogs and handles invalid since params safely", async () => {
     // 1. Create a release scheduled for next year
-    const futureDate = new Date(Date.now() + 1000 * 60 * 60 * 24 * 365).toISOString()
+    const futureDate = new Date(
+      Date.now() + 1000 * 60 * 60 * 24 * 365,
+    ).toISOString()
     await app.request("/workspaces/scheduled_ws/changelogs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

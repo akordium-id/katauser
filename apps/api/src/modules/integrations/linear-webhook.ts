@@ -62,7 +62,8 @@ export async function handleLinearWebhook(params: {
   ignored?: boolean
   postUpdated?: boolean
 }> {
-  const { rawBody, signature, secret, repo, feedbackRepo, notifyVoters } = params
+  const { rawBody, signature, secret, repo, feedbackRepo, notifyVoters } =
+    params
 
   if (!verifyLinearWebhookSignature(rawBody, signature, secret)) {
     return {

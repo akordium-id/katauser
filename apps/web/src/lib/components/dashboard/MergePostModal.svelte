@@ -13,17 +13,24 @@
     status?: string
   }
 
+  export interface MergeResult {
+    success: boolean
+    message?: string
+    targetPost?: PostItem
+    transferredVotesCount?: number
+    transferredMrr?: number
+  }
+
   interface Props {
     workspaceSlug?: string
     sourcePost: PostItem
     availablePosts?: PostItem[]
     isOpen: boolean
     onClose: () => void
-    onSuccess?: (result: any) => void
+    onSuccess?: (result: MergeResult) => void
   }
 
   let {
-    workspaceSlug = "default",
     sourcePost,
     availablePosts = [],
     isOpen,
@@ -111,9 +118,7 @@
   }
 </script>
 
-<svelte:window
-  onkeydown={(e) => e.key === "Escape" && isOpen && onClose()}
-/>
+<svelte:window onkeydown={(e) => e.key === "Escape" && isOpen && onClose()} />
 
 {#if isOpen}
   <div
@@ -157,8 +162,11 @@
         {/if}
 
         <!-- Source Post Info -->
-        <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
-          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider"
+        <div
+          class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1"
+        >
+          <span
+            class="text-xs font-semibold text-slate-500 uppercase tracking-wider"
             >Post Asal (Akan Digabung)</span
           >
           <p class="text-sm font-medium text-slate-900 line-clamp-2">
@@ -230,16 +238,23 @@
               <span>Pratinjau Hasil Penggabungan</span>
               <ArrowRight class="w-3.5 h-3.5" />
             </span>
-            <div class="flex items-center justify-between text-xs text-indigo-900">
+            <div
+              class="flex items-center justify-between text-xs text-indigo-900"
+            >
               <span>Total Votes Baru:</span>
               <span class="font-bold">{summary.combinedVotes} Votes</span>
             </div>
-            <div class="flex items-center justify-between text-xs text-indigo-900">
+            <div
+              class="flex items-center justify-between text-xs text-indigo-900"
+            >
               <span>Total Dampak MRR:</span>
               <span class="font-bold">{summary.formattedMrr}</span>
             </div>
-            <p class="text-[11px] text-indigo-600/80 pt-1 border-t border-indigo-200/50">
-              Voter dari post asal akan dipindahkan ke post target secara otomatis tanpa duplikasi.
+            <p
+              class="text-[11px] text-indigo-600/80 pt-1 border-t border-indigo-200/50"
+            >
+              Voter dari post asal akan dipindahkan ke post target secara
+              otomatis tanpa duplikasi.
             </p>
           </div>
         {/if}

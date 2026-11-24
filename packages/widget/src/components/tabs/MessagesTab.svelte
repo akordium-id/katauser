@@ -369,7 +369,11 @@
                 {#if msg.action.type === "similar_post"}
                   {@const action = msg.action}
                   <div class="action-card-header">
-                    <span class="status-badge {getStatusBadgeClass(action.post.status)}">
+                    <span
+                      class="status-badge {getStatusBadgeClass(
+                        action.post.status,
+                      )}"
+                    >
                       {getStatusLabel(action.post.status)}
                     </span>
                     <span class="similarity-pill">
@@ -406,7 +410,8 @@
                         type="button"
                         class="btn-card-action"
                         disabled={isActionSubmitting}
-                        onclick={() => handleVoteSimilarPost(msg, action.post.id)}
+                        onclick={() =>
+                          handleVoteSimilarPost(msg, action.post.id)}
                       >
                         {isActionSubmitting ? "Memproses..." : "+1 Upvote"}
                       </button>
@@ -449,9 +454,16 @@
                         type="button"
                         class="btn-card-action"
                         disabled={isActionSubmitting}
-                        onclick={() => handleCreateFeedbackFromChat(msg, action.boardId, action.draft)}
+                        onclick={() =>
+                          handleCreateFeedbackFromChat(
+                            msg,
+                            action.boardId,
+                            action.draft,
+                          )}
                       >
-                        {isActionSubmitting ? "Mengirim..." : "Kirim ke Feedback Board"}
+                        {isActionSubmitting
+                          ? "Mengirim..."
+                          : "Kirim ke Feedback Board"}
                       </button>
                     {/if}
                   </div>

@@ -27,7 +27,9 @@
   let apiKey = $state("")
   let webhookSecret = $state("")
   let defaultTeamId = $state("")
-  let availableTeams = $state<Array<{ id: string; name: string; key: string }>>([])
+  let availableTeams = $state<Array<{ id: string; name: string; key: string }>>(
+    [],
+  )
   let isSubmitting = $state(false)
   let isTesting = $state(false)
   let copied = $state(false)
@@ -43,7 +45,8 @@
   })
 
   const defaultWebhookUrl = $derived(
-    webhookUrl || `https://katauser.com/api/v1/integrations/linear/webhook/${workspaceSlug}`
+    webhookUrl ||
+      `https://katauser.com/api/v1/integrations/linear/webhook/${workspaceSlug}`,
   )
 
   async function handleCopyWebhook() {
@@ -61,7 +64,10 @@
   async function handleTestConnection() {
     const check = validateLinearApiKey(apiKey)
     if (!check.valid) {
-      statusMessage = { type: "error", text: check.error || "API Key tidak valid" }
+      statusMessage = {
+        type: "error",
+        text: check.error || "API Key tidak valid",
+      }
       return
     }
 
@@ -69,11 +75,14 @@
     statusMessage = null
 
     try {
-      const res = await fetch(`/api/v1/workspaces/${workspaceSlug}/integrations/linear/test`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ apiKey: apiKey.trim() }),
-      })
+      const res = await fetch(
+        `/api/v1/workspaces/${workspaceSlug}/integrations/linear/test`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ apiKey: apiKey.trim() }),
+        },
+      )
 
       const data = await res.json()
       if (res.ok && data.success) {
@@ -104,7 +113,10 @@
   async function handleConnectLinear() {
     const check = validateLinearApiKey(apiKey)
     if (!check.valid) {
-      statusMessage = { type: "error", text: check.error || "API Key tidak valid" }
+      statusMessage = {
+        type: "error",
+        text: check.error || "API Key tidak valid",
+      }
       return
     }
 
@@ -120,15 +132,18 @@
     statusMessage = null
 
     try {
-      const res = await fetch(`/api/v1/workspaces/${workspaceSlug}/integrations/linear`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          apiKey: apiKey.trim(),
-          webhookSecret: webhookSecret.trim(),
-          defaultTeamId: defaultTeamId || undefined,
-        }),
-      })
+      const res = await fetch(
+        `/api/v1/workspaces/${workspaceSlug}/integrations/linear`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            apiKey: apiKey.trim(),
+            webhookSecret: webhookSecret.trim(),
+            defaultTeamId: defaultTeamId || undefined,
+          }),
+        },
+      )
 
       const data = await res.json()
       if (res.ok && data.success) {
@@ -140,7 +155,9 @@
       } else {
         statusMessage = {
           type: "error",
-          text: data.message || "Gagal menghubungkan Linear. Periksa kembali API Key.",
+          text:
+            data.message ||
+            "Gagal menghubungkan Linear. Periksa kembali API Key.",
         }
       }
     } catch {
@@ -159,9 +176,12 @@
     }
 
     try {
-      const res = await fetch(`/api/v1/workspaces/${workspaceSlug}/integrations/linear`, {
-        method: "DELETE",
-      })
+      const res = await fetch(
+        `/api/v1/workspaces/${workspaceSlug}/integrations/linear`,
+        {
+          method: "DELETE",
+        },
+      )
 
       if (res.ok) {
         window.location.reload()
@@ -175,27 +195,36 @@
   }
 </script>
 
-<div class="card bg-base-100 border border-slate-200 shadow-sm rounded-2xl overflow-hidden">
+<div
+  class="card bg-base-100 border border-slate-200 shadow-sm rounded-2xl overflow-hidden"
+>
   <div class="card-body p-6 space-y-6">
     <!-- Header -->
     <div class="flex items-start justify-between gap-4">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
+        <div
+          class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600"
+        >
           <Layers class="w-5 h-5" />
         </div>
         <div>
-          <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+          <h3
+            class="text-base font-bold text-slate-900 flex items-center gap-2"
+          >
             Linear Issue Tracker
             {#if integration?.connected}
               <span class="badge badge-sm badge-success gap-1 text-xs">
                 <CheckCircle2 class="w-3 h-3" /> Terhubung
               </span>
             {:else}
-              <span class="badge badge-sm badge-ghost text-xs">Belum Terhubung</span>
+              <span class="badge badge-sm badge-ghost text-xs"
+                >Belum Terhubung</span
+              >
             {/if}
           </h3>
           <p class="text-xs text-slate-500">
-            Sinkronisasi 2-arah: buat issue dari post feedback, dan saat issue Done di Linear, status post otomatis selesai.
+            Sinkronisasi 2-arah: buat issue dari post feedback, dan saat issue
+            Done di Linear, status post otomatis selesai.
           </p>
         </div>
       </div>
@@ -213,11 +242,15 @@
 
     <!-- Connected Info Banner -->
     {#if integration?.connected}
-      <div class="rounded-xl bg-emerald-50 border border-emerald-200 p-4 flex items-center justify-between text-xs text-emerald-900">
+      <div
+        class="rounded-xl bg-emerald-50 border border-emerald-200 p-4 flex items-center justify-between text-xs text-emerald-900"
+      >
         <div class="flex items-center gap-2">
           <CheckCircle2 class="w-4 h-4 text-emerald-600 shrink-0" />
           <span>
-            Terhubung ke organisasi: <strong>{integration.organizationName || "Linear Organization"}</strong>
+            Terhubung ke organisasi: <strong
+              >{integration.organizationName || "Linear Organization"}</strong
+            >
           </span>
         </div>
         <a
@@ -312,7 +345,9 @@
     <!-- Inbound Webhook Instructions -->
     <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 space-y-3">
       <div class="flex items-center justify-between">
-        <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+        <span
+          class="text-xs font-bold text-slate-700 flex items-center gap-1.5"
+        >
           <Zap class="w-3.5 h-3.5 text-amber-500" /> URL Inbound Webhook Katauser
         </span>
         <button
@@ -330,12 +365,17 @@
         </button>
       </div>
 
-      <div class="p-2.5 bg-white border border-slate-200 rounded-lg font-mono text-xs text-slate-700 select-all overflow-x-auto">
+      <div
+        class="p-2.5 bg-white border border-slate-200 rounded-lg font-mono text-xs text-slate-700 select-all overflow-x-auto"
+      >
         {defaultWebhookUrl}
       </div>
 
       <p class="text-[11px] text-slate-500 leading-relaxed">
-        Buka <em>Linear Settings → API → Webhooks</em>, klik <strong>New Webhook</strong>, tempel URL di atas, dan centang event <strong>Issues</strong>. Salin <em>Signing Secret</em> yang digenerate oleh Linear ke input di atas.
+        Buka <em>Linear Settings → API → Webhooks</em>, klik
+        <strong>New Webhook</strong>, tempel URL di atas, dan centang event
+        <strong>Issues</strong>. Salin <em>Signing Secret</em> yang digenerate oleh
+        Linear ke input di atas.
       </p>
     </div>
 

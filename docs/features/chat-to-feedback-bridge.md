@@ -6,9 +6,10 @@ Dokumen ini menjelaskan arsitektur, spesifikasi teknis, dan alur kerja fitur **C
 
 ## 1. Ikhtisar & Nilai Pembeda ala UserJot
 
-Pada platform feedback konvensional (seperti Canny atau Featurebase), modul *live chat support* dan *feedback board/roadmap* beroperasi secara terpisah (silo). Ketika customer menyampaikan ide atau kendala di dalam chat, percakapan tersebut sering kali mengendap di inbox CS tanpa pernah tercatat di backlog produk, atau memaksa agen CS menyalinnya secara manual.
+Pada platform feedback konvensional (seperti Canny atau Featurebase), modul _live chat support_ dan _feedback board/roadmap_ beroperasi secara terpisah (silo). Ketika customer menyampaikan ide atau kendala di dalam chat, percakapan tersebut sering kali mengendap di inbox CS tanpa pernah tercatat di backlog produk, atau memaksa agen CS menyalinnya secara manual.
 
-Katauser menghadirkan **Chat-to-Feedback Bridge**—fitur pembeda utama (*killer differentiator*) yang terinspirasi oleh inovasi modern seperti **UserJot**:
+Katauser menghadirkan **Chat-to-Feedback Bridge**—fitur pembeda utama (_killer differentiator_) yang terinspirasi oleh inovasi modern seperti **UserJot**:
+
 1. **Deduplikasi & Rekomendasi Roadmap Otomatis**: Saat customer mengutarakan kebutuhan fitur di live chat, Juno secara cerdas mendeteksi apakah ide serupa sudah ada di roadmap (`similarityScore >= 0.70`). Jika ada, Juno langsung menyajikan kartu interaktif **1-Click Upvote** di dalam obrolan.
 2. **Auto-Create Feedback Post**: Jika ide tersebut belum pernah diajukan (`similarityScore < 0.70`), Juno menawarkan pembuatan draf masukan baru secara otomatis ke papan feedback publik yang sesuai, tanpa memaksa pengguna meninggalkan tab obrolan.
 3. **Konversi Pengunjung Anonim (Closed-Loop Feedback)**: Pengunjung guest dapat langsung memasukkan email mereka secara inline pada kartu aksi. Dengan demikian, mereka otomatis terdaftar sebagai voter dan menerima notifikasi email saat fitur tersebut mulai dikerjakan atau dirilis.
@@ -17,7 +18,7 @@ Katauser menghadirkan **Chat-to-Feedback Bridge**—fitur pembeda utama (*killer
 
 ## 2. Arsitektur Sistem & Alur SSE Streaming
 
-Sistem ini mengadopsi pola *Single Stream Response with Structured SSE Action Card*:
+Sistem ini mengadopsi pola _Single Stream Response with Structured SSE Action Card_:
 
 ```text
 [ Pengguna di Widget (<katauser-widget>) ]
@@ -84,17 +85,20 @@ export function isFeedbackIntent(prompt: string): boolean {
   }
 
   // Deteksi kata kunci fitur, ide, saran, usul, dan keluhan
-  return /fitur|tolong buatkan|bisa tambahkan|usul|ide|saran|request|masukan|bug|kendala|error|tambah|update|bisa gak|bisa nggak|fitur baru|feature/i.test(prompt)
+  return /fitur|tolong buatkan|bisa tambahkan|usul|ide|saran|request|masukan|bug|kendala|error|tambah|update|bisa gak|bisa nggak|fitur baru|feature/i.test(
+    prompt,
+  )
 }
 ```
 
 ### 3.2 Filtering Postingan Aktif
 
 Pencarian kemiripan kosinus hanya mengevaluasi postingan dalam status aktif di workspace yang sama:
+
 - **Diikutsertakan**: `open`, `under_review`, `planned`, `in_progress`, `completed`.
 - **Dikecualikan**: Postingan yang telah berstatus `closed` atau telah digabungkan (`merged` / memiliki `mergedIntoPostId`). Hal ini mencegah pengguna meng-upvote ide yang sudah ditolak atau duplikat usang.
 
-### 3.3 Ambang Batas Kemiripan (*Threshold*)
+### 3.3 Ambang Batas Kemiripan (_Threshold_)
 
 1. **`similarityScore >= 0.70` (Ide Serupa Ditemukan)**:
    - Juno memilih postingan aktif dengan skor kemiripan tertinggi.
@@ -156,28 +160,33 @@ export const junoActionPayloadSchema = z.discriminatedUnion("type", [
 
 Widget Katauser secara otomatis merender kartu aksi interaktif di bawah gelembung obrolan Juno ketika chunk bertipe `action` diterima.
 
-### 5.1 Alur Pengguna Terotentikasi (*Identified User*)
+### 5.1 Alur Pengguna Terotentikasi (_Identified User_)
+
 Jika aplikasi induk telah memanggil `Katauser.identify({ userId, email, ... })`:
+
 - Pengguna **tidak perlu** menginput email lagi.
 - Tombol aksi menampilkan aksi instan: `[ +1 Upvote ]` atau `[ Kirim ke Feedback Board ]`.
 - Sekali klik langsung memicu request ke backend dengan identitas pengguna terverifikasi.
 
-### 5.2 Alur Pengunjung Anonim (*Guest User*)
+### 5.2 Alur Pengunjung Anonim (_Guest User_)
+
 Jika pengguna belum teridentifikasi:
+
 - Kartu menampilkan input email inline: `[ Masukkan email Anda... ]`.
 - Validasi regex sisi klien memastikan format email valid sebelum request dikirim.
 - Jika email kosong atau salah ketik, peringatan merah muncul secara instan (`"Email wajib diisi untuk notifikasi"`).
 
 ### 5.3 Transisi State & Konfirmasi Percakapan
+
 - Saat proses pengiriman berjalan, tombol masuk ke status `isActionSubmitting` (disabled & menampilkan spinner indikator).
 - Proteksi idempotensi: setelah aksi berhasil dieksekusi, properti `message.actionResolved` diubah menjadi `true`.
 - Kartu berganti tampilan menjadi badge hijau:
   - Untuk upvote: `✓ Upvote Anda telah ditambahkan`
   - Untuk create: `✓ Ide telah dikirim ke board`
 - Juno secara otomatis mengirimkan pesan konfirmasi balasan ke dalam obrolan:
-  - *Upvote*: *"Terima kasih! Suara Anda telah berhasil ditambahkan. Kami akan mengabari Anda jika ada pembaruan status pada fitur ini."*
-  - *Create*: *"Saran Anda telah berhasil dikirim ke board masukan. Tim produk kami akan segera meninjaunya!"*
-- Obrolan bergulir halus ke bawah (*auto-scroll*).
+  - _Upvote_: _"Terima kasih! Suara Anda telah berhasil ditambahkan. Kami akan mengabari Anda jika ada pembaruan status pada fitur ini."_
+  - _Create_: _"Saran Anda telah berhasil dikirim ke board masukan. Tim produk kami akan segera meninjaunya!"_
+- Obrolan bergulir halus ke bawah (_auto-scroll_).
 
 ---
 

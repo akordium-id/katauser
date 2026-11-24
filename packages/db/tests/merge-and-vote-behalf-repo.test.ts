@@ -185,7 +185,9 @@ describe("FeedbackRepository - Merge Posts & Vote on Behalf", () => {
     const mockTx: any = {
       query: {
         posts: {
-          findFirst: vi.fn().mockResolvedValue({ id: "post_1", status: "planned" }),
+          findFirst: vi
+            .fn()
+            .mockResolvedValue({ id: "post_1", status: "planned" }),
         },
         endUsers: {
           findFirst: vi.fn().mockResolvedValue({ id: "user_cust_1" }),
@@ -214,7 +216,9 @@ describe("FeedbackRepository - Merge Posts & Vote on Behalf", () => {
     const mockTx: any = {
       query: {
         posts: {
-          findFirst: vi.fn().mockResolvedValue({ id: "post_1", status: "planned" }),
+          findFirst: vi
+            .fn()
+            .mockResolvedValue({ id: "post_1", status: "planned" }),
         },
         endUsers: {
           findFirst: vi.fn().mockResolvedValue(null),

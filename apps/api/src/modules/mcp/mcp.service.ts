@@ -1,11 +1,5 @@
-import {
-  boardsStore,
-} from "../feedback/boards.route"
-import {
-  postsStore,
-  votesStore,
-  commentsStore,
-} from "../feedback/posts.route"
+import { boardsStore } from "../feedback/boards.route"
+import { postsStore, votesStore, commentsStore } from "../feedback/posts.route"
 import { changelogsStore } from "../changelog/changelog.route"
 import { postIssuesStore } from "../integrations/linear.route"
 import { sendVoterNotificationEmail } from "../../services/email-notifier"
@@ -84,7 +78,11 @@ export class McpService {
     )
 
     if (!post) {
-      return { success: false, message: "Post not found or unauthorized", post: null }
+      return {
+        success: false,
+        message: "Post not found or unauthorized",
+        post: null,
+      }
     }
 
     const board = boardsStore.find((b) => b.id === post.boardId)
@@ -125,7 +123,9 @@ export class McpService {
         status: post.status,
         votesCount: post.votesCount,
         totalMrr: post.totalMrr || 0,
-        board: board ? { id: board.id, name: board.name, slug: board.slug } : null,
+        board: board
+          ? { id: board.id, name: board.name, slug: board.slug }
+          : null,
         voters,
         comments,
         linkedIssues,
@@ -218,14 +218,22 @@ export class McpService {
     )
 
     if (!post) {
-      return { success: false, message: "Post not found or unauthorized", post: null }
+      return {
+        success: false,
+        message: "Post not found or unauthorized",
+        post: null,
+      }
     }
 
     const oldStatus = post.status
     post.status = input.status
 
     let notifiedCount = 0
-    if (input.status === "completed" && oldStatus !== "completed" && input.notifyVoters) {
+    if (
+      input.status === "completed" &&
+      oldStatus !== "completed" &&
+      input.notifyVoters
+    ) {
       const voters = votesStore
         .filter((v) => v.postId === post.id)
         .map((v) => v.userEmail)

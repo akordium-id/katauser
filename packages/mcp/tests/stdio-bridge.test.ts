@@ -28,9 +28,7 @@ describe("Katauser MCP Server Instance", () => {
   it("handles tool call and proxies to backend API", async () => {
     const mockApiResponse = {
       success: true,
-      posts: [
-        { id: "p_1", title: "Dark mode", votesCount: 10, totalMrr: 500 },
-      ],
+      posts: [{ id: "p_1", title: "Dark mode", votesCount: 10, totalMrr: 500 }],
     }
 
     globalThis.fetch = vi.fn().mockResolvedValue({
@@ -94,7 +92,12 @@ describe("Katauser MCP Server Instance", () => {
       json: async () => ({
         success: false,
         message: "title: String must contain at least 3 character(s)",
-        errors: [{ path: ["title"], message: "String must contain at least 3 character(s)" }],
+        errors: [
+          {
+            path: ["title"],
+            message: "String must contain at least 3 character(s)",
+          },
+        ],
       }),
     }) as any
 
@@ -106,7 +109,9 @@ describe("Katauser MCP Server Instance", () => {
 
       const response = await executeTool("create_feedback", { title: "ab" })
       expect(response.isError).toBe(true)
-      expect(response.content[0].text).toContain("title: String must contain at least 3 character(s)")
+      expect(response.content[0].text).toContain(
+        "title: String must contain at least 3 character(s)",
+      )
     } finally {
       globalThis.fetch = originalFetch
     }

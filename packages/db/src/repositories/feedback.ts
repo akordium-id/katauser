@@ -261,9 +261,7 @@ export class FeedbackRepository {
         where: eq(votes.postId, params.targetPostId),
       })
 
-      const targetEndUserIds = new Set(
-        targetVotes.map((v: any) => v.endUserId),
-      )
+      const targetEndUserIds = new Set(targetVotes.map((v: any) => v.endUserId))
       let transferredVotesCount = 0
 
       for (const sVote of sourceVotes) {
@@ -312,8 +310,7 @@ export class FeedbackRepository {
         .where(eq(posts.mergedIntoPostId, params.sourcePostId))
 
       // 7. Insert internal audit comment on target post
-      const commentId =
-        "comment_" + Math.random().toString(36).substring(2, 10)
+      const commentId = "comment_" + Math.random().toString(36).substring(2, 10)
       await tx.insert(comments).values({
         id: commentId,
         workspaceId: params.workspaceId,

@@ -6,7 +6,9 @@
   import MergePostModal, {
     type PostItem,
   } from "$lib/components/dashboard/MergePostModal.svelte"
-  import VoteOnBehalfModal from "$lib/components/dashboard/VoteOnBehalfModal.svelte"
+  import VoteOnBehalfModal, {
+    type VoteOnBehalfResult,
+  } from "$lib/components/dashboard/VoteOnBehalfModal.svelte"
 
   let { data } = $props()
 
@@ -384,7 +386,7 @@
   post={selectedPost}
   isOpen={isVoteBehalfModalOpen}
   onClose={() => (isVoteBehalfModalOpen = false)}
-  onSuccess={(res: any) => {
+  onSuccess={(res: VoteOnBehalfResult) => {
     selectedPost.votesCount =
       res.post?.votesCount ?? (selectedPost.votesCount ?? 0) + 1
     selectedPost.totalMrr = res.post?.totalMrr ?? selectedPost.totalMrr

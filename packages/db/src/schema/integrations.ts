@@ -27,7 +27,10 @@ export const workspaceIntegrations = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [
-    uniqueIndex("workspace_provider_unique").on(table.workspaceId, table.provider),
+    uniqueIndex("workspace_provider_unique").on(
+      table.workspaceId,
+      table.provider,
+    ),
   ],
 )
 
@@ -57,6 +60,9 @@ export const postIssues = pgTable(
       table.provider,
       table.externalIssueId,
     ),
-    index("post_issues_external_id_idx").on(table.provider, table.externalIssueId),
+    index("post_issues_external_id_idx").on(
+      table.provider,
+      table.externalIssueId,
+    ),
   ],
 )

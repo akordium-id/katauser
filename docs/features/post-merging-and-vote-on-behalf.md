@@ -6,21 +6,23 @@ Dokumen ini menjelaskan implementasi fitur **Post Merging (Deduplikasi Feedback)
 
 ## 1. Post Merging (Deduplikasi Feedback)
 
-Saat pengguna mengirimkan feedback dengan topik yang serupa (misal: *"Dark mode please"* dan *"Fitur mode malam"*), admin dapat menggabungkan postingan duplikat (*source post*) ke postingan utama (*target post*).
+Saat pengguna mengirimkan feedback dengan topik yang serupa (misal: _"Dark mode please"_ dan _"Fitur mode malam"_), admin dapat menggabungkan postingan duplikat (_source post_) ke postingan utama (_target post_).
 
 ### Karakteristik & Aturan Bisnis
+
 - **Soft Merge Preservation**: Post asal tidak dihapus; statusnya diubah menjadi `'merged'` dengan kolom `mergedIntoPostId` yang mereferensikan post target.
 - **Deduplikasi Pemilih (Voter Transfer)**:
   - Seluruh voter unik dari post asal dipindahkan ke post target.
   - Jika seorang user sudah pernah memberikan suara di post target, suara dari post asal tidak diduplikasi (menghindari double vote).
 - **Konsolidasi Metrik**:
   - `votesCount` dan `totalMrr` pada post target dikalkulasikan ulang secara otomatis.
-  - Komentar internal audit otomatis disematkan pada post target: *"Post '[Judul Asal]' was merged into this post with [N] voters."*
+  - Komentar internal audit otomatis disematkan pada post target: _"Post '[Judul Asal]' was merged into this post with [N] voters."_
 - **Guard Validasi**:
   - Self-merge dicegah (`sourceId !== targetId` -> HTTP 400).
   - Chained / circular merge dicegah (tidak dapat menggabungkan post ke target yang sudah berstatus `'merged'` -> HTTP 400).
 
 ### Endpoint API
+
 - **URL**: `POST /api/v1/posts/:postId/merge`
 - **Request Body**:
   ```json
@@ -46,8 +48,9 @@ Saat pengguna mengirimkan feedback dengan topik yang serupa (misal: *"Dark mode 
 Fitur ini diperuntukkan bagi tim Sales, Customer Success (CS), dan Support untuk mencatatkan masukan pelanggan yang diterima langsung melalui meeting, panggilan telepon, atau chat tanpa memaksa klien membuka portal feedback.
 
 ### Karakteristik & Aturan Bisnis
+
 - **Atribusi Customer (`end_users`)**:
-  - Sistem melakukan *upsert* pada tabel `end_users` sesuai `workspaceId` dan `customerEmail`.
+  - Sistem melakukan _upsert_ pada tabel `end_users` sesuai `workspaceId` dan `customerEmail`.
   - Profil customer diperkaya dengan atribut `mrr` dan `company`.
 - **Atribusi Staf Tim**:
   - Tabel `votes` mencatat `votedByTeamUserId` (siapa anggota tim internal yang mencatatkan).
@@ -58,6 +61,7 @@ Fitur ini diperuntukkan bagi tim Sales, Customer Success (CS), dan Support untuk
   - Jika pelanggan dengan email yang sama sudah pernah memilih post tersebut, API mengembalikan HTTP 409 Conflict.
 
 ### Endpoint API
+
 - **URL**: `POST /api/v1/posts/:postId/vote-on-behalf`
 - **Headers**:
   - `x-team-user-id`: ID anggota tim penginput

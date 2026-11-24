@@ -32,12 +32,14 @@
 ### Task 1: Drizzle Schemas & Repositories (`@katauser/db`)
 
 **Files:**
+
 - Create: `packages/db/src/schema/integrations.ts`
 - Modify: `packages/db/src/schema/index.ts`
 - Create: `packages/db/src/repositories/integrations.ts`
 - Test: `packages/db/tests/integrations-repo.test.ts`
 
 **Interfaces:**
+
 - Consumes: `workspaces` dari `packages/db/src/schema/workspaces.ts`, `posts` dari `packages/db/src/schema/feedback.ts`
 - Produces: `workspaceIntegrations`, `postIssues`, `IntegrationRepository` (`upsertWorkspaceIntegration`, `getWorkspaceIntegration`, `createPostIssue`, `getPostIssues`, `getPostIssueByExternalId`, `updatePostIssueStatus`, `deletePostIssue`)
 
@@ -63,7 +65,10 @@ describe("IntegrationRepository", () => {
     expect(integration.apiKey).toBe("lin_api_test_123")
 
     const fetched = await repo.getWorkspaceIntegration("ws_demo", "linear")
-    expect(fetched?.config).toEqual({ organizationName: "Acme Corp", defaultTeamId: "team_eng" })
+    expect(fetched?.config).toEqual({
+      organizationName: "Acme Corp",
+      defaultTeamId: "team_eng",
+    })
   })
 
   it("should create, list, and delete post issue links", async () => {
@@ -86,7 +91,10 @@ describe("IntegrationRepository", () => {
     expect(links[0].externalIssueId).toBe("lin_issue_uuid_1")
 
     await repo.updatePostIssueStatus(link.id, "Done")
-    const updated = await repo.getPostIssueByExternalId("linear", "lin_issue_uuid_1")
+    const updated = await repo.getPostIssueByExternalId(
+      "linear",
+      "lin_issue_uuid_1",
+    )
     expect(updated?.issueStatus).toBe("Done")
 
     await repo.deletePostIssue(link.id)
@@ -122,12 +130,14 @@ git commit -m "feat(db): add workspaceIntegrations and postIssues schema with re
 ### Task 2: Zod Validation Schemas, Contract Types, & Provider Interfaces (`@katauser/shared`)
 
 **Files:**
+
 - Create: `packages/shared/src/schemas/integrations.ts`
 - Create: `packages/shared/src/types/integrations.ts`
 - Modify: `packages/shared/src/index.ts`
 - Test: `packages/shared/tests/linear-schemas.test.ts`
 
 **Interfaces:**
+
 - Consumes: none
 - Produces: `IssueTrackerProvider`, `LinearTeam`, `LinearIssueResult`, `saveLinearIntegrationSchema`, `createLinearIssueSchema`, `linkLinearIssueSchema`
 
@@ -201,10 +211,12 @@ git commit -m "feat(shared): add linear integration zod schemas and provider con
 ### Task 3: Linear GraphQL Provider Implementation & Tests (`apps/api`)
 
 **Files:**
+
 - Create: `apps/api/src/modules/integrations/providers/linear.provider.ts`
 - Test: `apps/api/tests/linear-provider.test.ts`
 
 **Interfaces:**
+
 - Consumes: `IssueTrackerProvider`, `LinearTeam`, `LinearIssueResult` dari `@katauser/shared`
 - Produces: `LinearProvider` class dengan `testConnection`, `listTeams`, `createIssue`, `getIssue`
 
@@ -322,10 +334,12 @@ git commit -m "feat(api): implement LinearProvider with native GraphQL client an
 ### Task 4: Inbound Webhook Signature Verification & Handler (`apps/api`)
 
 **Files:**
+
 - Create: `apps/api/src/modules/integrations/linear-webhook.ts`
 - Test: `apps/api/tests/linear-webhook.test.ts`
 
 **Interfaces:**
+
 - Consumes: `IntegrationRepository` (`@katauser/db`), `crypto` native
 - Produces: `verifyLinearWebhookSignature`, `handleLinearWebhook`
 
@@ -354,9 +368,15 @@ describe("Linear Webhook Verification & Handler", () => {
   })
 
   it("should return true for valid HMAC signature and false for tampered signature", () => {
-    const validSignature = createHmac("sha256", secret).update(rawBody).digest("hex")
-    expect(verifyLinearWebhookSignature(rawBody, validSignature, secret)).toBe(true)
-    expect(verifyLinearWebhookSignature(rawBody, "invalid_signature", secret)).toBe(false)
+    const validSignature = createHmac("sha256", secret)
+      .update(rawBody)
+      .digest("hex")
+    expect(verifyLinearWebhookSignature(rawBody, validSignature, secret)).toBe(
+      true,
+    )
+    expect(
+      verifyLinearWebhookSignature(rawBody, "invalid_signature", secret),
+    ).toBe(false)
   })
 
   it("should update post status to completed and trigger voter notifier on completed state", async () => {
@@ -391,7 +411,10 @@ describe("Linear Webhook Verification & Handler", () => {
     })
 
     expect(result.success).toBe(true)
-    expect(mockFeedbackRepo.updatePostStatus).toHaveBeenCalledWith("post_42", "completed")
+    expect(mockFeedbackRepo.updatePostStatus).toHaveBeenCalledWith(
+      "post_42",
+      "completed",
+    )
     expect(mockVoterNotifier).toHaveBeenCalledWith("post_42")
   })
 
@@ -453,11 +476,13 @@ git commit -m "feat(api): implement linear webhook signature verification and st
 ### Task 5: Hono API Routes (`apps/api`)
 
 **Files:**
+
 - Create: `apps/api/src/modules/integrations/linear.route.ts`
 - Modify: `apps/api/src/index.ts`
 - Test: `apps/api/tests/linear-routes.test.ts`
 
 **Interfaces:**
+
 - Consumes: `LinearProvider`, `handleLinearWebhook`, `IntegrationRepository`, Zod schemas
 - Produces: `linearRoute` mounted at `/api/v1/workspaces/:slug/integrations/linear` and `/api/v1/integrations/linear/webhook/:workspaceSlug`
 
@@ -525,6 +550,7 @@ git commit -m "feat(api): mount linear integration and webhook routes in Hono"
 ### Task 6: Frontend Settings UI & Linear Issue Management (`apps/web`)
 
 **Files:**
+
 - Modify: `apps/web/src/routes/(admin)/dashboard/[workspaceSlug]/settings/integrations/+page.svelte`
 - Modify: `apps/web/src/routes/(admin)/dashboard/[workspaceSlug]/settings/integrations/+page.server.ts`
 - Create: `apps/web/src/lib/components/dashboard/LinearIssueModal.svelte`
@@ -532,6 +558,7 @@ git commit -m "feat(api): mount linear integration and webhook routes in Hono"
 - Test: `apps/web/tests/linear-settings.test.ts`
 
 **Interfaces:**
+
 - Consumes: `/api/v1/workspaces/:slug/integrations/linear` endpoints
 - Produces: Kartu pengaturan Linear di halaman Settings dan badge/modal pembuatan Linear Issue di board/post view.
 
@@ -583,11 +610,13 @@ git commit -m "feat(web): add Linear settings UI card and post issue modal"
 ### Task 7: End-to-End System Verification & Documentation (`@docs/`)
 
 **Files:**
+
 - Create: `@docs/integrations-linear.md`
 - Modify: `README.md`
 - Verify: Full test suites and build
 
 **Interfaces:**
+
 - Consumes: Seluruh komponen monorepo
 - Produces: Dokumentasi lengkap dan verifikasi lolos CI
 
@@ -597,7 +626,7 @@ Tulis dokumentasi teknis panduan menghubungkan Linear ke Katauser untuk pengguna
 
 - [ ] **Step 2: Update `README.md` features overview**
 
-Tambahkan highlight fitur *"Linear 2-Way Issue Sync"* pada daftar fitur utama di `README.md`.
+Tambahkan highlight fitur _"Linear 2-Way Issue Sync"_ pada daftar fitur utama di `README.md`.
 
 - [ ] **Step 3: Run full monorepo checks and tests**
 

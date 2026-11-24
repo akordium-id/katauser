@@ -64,9 +64,12 @@ export const votes = pgTable(
     endUserId: text("end_user_id")
       .notNull()
       .references(() => endUsers.id, { onDelete: "cascade" }),
-    votedByTeamUserId: text("voted_by_team_user_id").references(() => users.id, {
-      onDelete: "set null",
-    }),
+    votedByTeamUserId: text("voted_by_team_user_id").references(
+      () => users.id,
+      {
+        onDelete: "set null",
+      },
+    ),
     internalNote: text("internal_note"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },

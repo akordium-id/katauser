@@ -75,8 +75,7 @@ describe("Chat to Feedback Bridge (Hono API)", () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          prompt:
-            "Tolong buatkan fitur ekspor data ke format Apache Parquet",
+          prompt: "Tolong buatkan fitur ekspor data ke format Apache Parquet",
         }),
       },
     )

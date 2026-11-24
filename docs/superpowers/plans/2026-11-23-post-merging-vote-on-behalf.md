@@ -4,7 +4,8 @@
 
 **Goal:** Implement feedback deduplication via Post Merging (soft merge with voter deduplication & MRR preservation) and B2B customer vote attribution via Vote on Behalf in Katauser.
 
-**Architecture:** 
+**Architecture:**
+
 1. DB & Shared: Extend `posts` table with `mergedIntoPostId` and `votes` table with `votedByTeamUserId` & `internalNote`. Add Zod input validation schemas and include `'merged'` in `POST_STATUSES`.
 2. Repository: Implement atomic `mergePosts` (deduplicating voters, updating vote counters & MRR, marking source post as `'merged'`) and `voteOnBehalf` (upserting `endUsers` and recording admin-attributed votes).
 3. API: Hono endpoints `POST /posts/:postId/merge` and `POST /posts/:postId/vote-on-behalf` with proper HTTP status codes (200, 201, 400, 404, 409).
@@ -15,12 +16,14 @@
 **Spec:** `docs/superpowers/specs/2026-11-23-post-merging-vote-on-behalf-design.md`
 
 ## Global Constraints
+
 - Database: Drizzle ORM with PostgreSQL.
 - Framework: Svelte 5 with Runes (`$state`, `$derived`, `$props`).
 - Error Handling: Return 400 for self-merge/circular merge, 404 for missing post, 409 for duplicate voter on behalf.
 - Coding Style: Strict TypeScript, no any, adhere to monorepo package boundaries (`packages/db`, `packages/shared`, `apps/api`, `apps/web`).
 
 ## Review Focus
+
 1. Self-merging condition: A post cannot be merged into itself (`sourcePostId === targetPostId` -> HTTP 400).
 2. Circular/Chained merge condition: Merging into a post that is already merged must be rejected (`targetPost.mergedIntoPostId != null` -> HTTP 400).
 3. Voter deduplication: If a voter has voted on both source and target posts, merging does not produce duplicate votes on the target post or violate unique constraints.
@@ -32,16 +35,19 @@
 ### Task 1: Database Schema & Shared Schemas
 
 **Files:**
+
 - Modify: `packages/db/src/schema/feedback.ts`
 - Modify: `packages/shared/src/schemas/feedback.ts`
 - Test: `packages/shared/tests/merge-behalf-schemas.test.ts`
 
 **Interfaces:**
+
 - Consumes: Existing `posts` and `votes` tables in `packages/db/src/schema/feedback.ts`.
 - Produces: `mergePostsSchema`, `voteOnBehalfSchema`, and updated `POST_STATUSES` with `'merged'`.
 
 - [ ] **Step 1: Write the failing test**
-Create `packages/shared/tests/merge-behalf-schemas.test.ts`:
+      Create `packages/shared/tests/merge-behalf-schemas.test.ts`:
+
 ```ts
 import { describe, it, expect } from "vitest"
 import {
@@ -56,7 +62,9 @@ describe("Post Merging and Vote on Behalf Schemas", () => {
   })
 
   it("validates mergePostsSchema", () => {
-    expect(mergePostsSchema.safeParse({ targetPostId: "post_123" }).success).toBe(true)
+    expect(
+      mergePostsSchema.safeParse({ targetPostId: "post_123" }).success,
+    ).toBe(true)
     expect(mergePostsSchema.safeParse({ targetPostId: "" }).success).toBe(false)
     expect(mergePostsSchema.safeParse({}).success).toBe(false)
   })
@@ -73,7 +81,8 @@ describe("Post Merging and Vote on Behalf Schemas", () => {
 
     // Optional fields omitted
     expect(
-      voteOnBehalfSchema.safeParse({ customerEmail: "user@example.com" }).success,
+      voteOnBehalfSchema.safeParse({ customerEmail: "user@example.com" })
+        .success,
     ).toBe(true)
 
     // Invalid email
@@ -93,10 +102,11 @@ describe("Post Merging and Vote on Behalf Schemas", () => {
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
-Run: `pnpm --filter @katauser/shared test packages/shared/tests/merge-behalf-schemas.test.ts`
-Expected: FAIL (modules/properties not yet defined).
+      Run: `pnpm --filter @katauser/shared test packages/shared/tests/merge-behalf-schemas.test.ts`
+      Expected: FAIL (modules/properties not yet defined).
 
 - [ ] **Step 3: Implement database schema changes and shared schemas**
+
 1. In `packages/db/src/schema/feedback.ts`:
    - Add `mergedIntoPostId: text("merged_into_post_id")` to `posts`.
    - Add `votedByTeamUserId: text("voted_by_team_user_id").references(() => users.id, { onDelete: "set null" })` and `internalNote: text("internal_note")` to `votes`.
@@ -106,10 +116,11 @@ Expected: FAIL (modules/properties not yet defined).
    - Export types `MergePostsInput` and `VoteOnBehalfInput`.
 
 - [ ] **Step 4: Run test to verify it passes**
-Run: `pnpm --filter @katauser/shared test packages/shared/tests/merge-behalf-schemas.test.ts`
-Expected: PASS.
+      Run: `pnpm --filter @katauser/shared test packages/shared/tests/merge-behalf-schemas.test.ts`
+      Expected: PASS.
 
 - [ ] **Step 5: Commit**
+
 ```bash
 git add packages/db/src/schema/feedback.ts packages/shared/src/schemas/feedback.ts packages/shared/tests/merge-behalf-schemas.test.ts
 git commit -m "feat(db,shared): add mergedIntoPostId, vote on behalf attributes, and validation schemas"
@@ -120,15 +131,18 @@ git commit -m "feat(db,shared): add mergedIntoPostId, vote on behalf attributes,
 ### Task 2: Repository Operations in `packages/db`
 
 **Files:**
+
 - Modify: `packages/db/src/repositories/feedback.ts`
 - Test: `packages/db/tests/merge-and-vote-behalf-repo.test.ts`
 
 **Interfaces:**
+
 - Consumes: `mergePostsSchema`, `voteOnBehalfSchema` from `@katauser/shared`.
 - Produces: `FeedbackRepository.mergePosts` and `FeedbackRepository.voteOnBehalf`.
 
 - [ ] **Step 1: Write the failing test**
-Create `packages/db/tests/merge-and-vote-behalf-repo.test.ts`:
+      Create `packages/db/tests/merge-and-vote-behalf-repo.test.ts`:
+
 ```ts
 import { describe, it, expect, beforeEach } from "vitest"
 import { FeedbackRepository } from "../src/repositories/feedback"
@@ -173,16 +187,53 @@ describe("FeedbackRepository - Merge Posts & Vote on Behalf", () => {
     ]
 
     const votesTable: any[] = [
-      { id: "v1", workspaceId: "ws_1", postId: "post_source", endUserId: "user_a" },
-      { id: "v2", workspaceId: "ws_1", postId: "post_source", endUserId: "user_common" },
-      { id: "v3", workspaceId: "ws_1", postId: "post_target", endUserId: "user_common" },
-      { id: "v4", workspaceId: "ws_1", postId: "post_target", endUserId: "user_b" },
-      { id: "v5", workspaceId: "ws_1", postId: "post_target", endUserId: "user_c" },
+      {
+        id: "v1",
+        workspaceId: "ws_1",
+        postId: "post_source",
+        endUserId: "user_a",
+      },
+      {
+        id: "v2",
+        workspaceId: "ws_1",
+        postId: "post_source",
+        endUserId: "user_common",
+      },
+      {
+        id: "v3",
+        workspaceId: "ws_1",
+        postId: "post_target",
+        endUserId: "user_common",
+      },
+      {
+        id: "v4",
+        workspaceId: "ws_1",
+        postId: "post_target",
+        endUserId: "user_b",
+      },
+      {
+        id: "v5",
+        workspaceId: "ws_1",
+        postId: "post_target",
+        endUserId: "user_c",
+      },
     ]
 
     const endUsersTable: any[] = [
-      { id: "user_a", workspaceId: "ws_1", email: "a@test.com", name: "User A", metadata: {} },
-      { id: "user_common", workspaceId: "ws_1", email: "common@test.com", name: "User Common", metadata: {} },
+      {
+        id: "user_a",
+        workspaceId: "ws_1",
+        email: "a@test.com",
+        name: "User A",
+        metadata: {},
+      },
+      {
+        id: "user_common",
+        workspaceId: "ws_1",
+        email: "common@test.com",
+        name: "User Common",
+        metadata: {},
+      },
     ]
 
     mockDb = {
@@ -190,20 +241,27 @@ describe("FeedbackRepository - Merge Posts & Vote on Behalf", () => {
       _votes: votesTable,
       _endUsers: endUsersTable,
       // Minimal mock methods matching repository implementation
-      transaction: async (cb: any) => cb({
-        query: {
-          posts: {
-            findFirst: async ({ where }: any) => {
-              // mock find
-              return postsTable.find((p) => p.id === where?.id)
+      transaction: async (cb: any) =>
+        cb({
+          query: {
+            posts: {
+              findFirst: async ({ where }: any) => {
+                // mock find
+                return postsTable.find((p) => p.id === where?.id)
+              },
+            },
+            votes: {
+              findMany: async ({ where }: any) =>
+                votesTable.filter((v) => v.postId === where?.postId),
+              findFirst: async ({ where }: any) =>
+                votesTable.find(
+                  (v) =>
+                    v.postId === where?.postId &&
+                    v.endUserId === where?.endUserId,
+                ),
             },
           },
-          votes: {
-            findMany: async ({ where }: any) => votesTable.filter((v) => v.postId === where?.postId),
-            findFirst: async ({ where }: any) => votesTable.find((v) => v.postId === where?.postId && v.endUserId === where?.endUserId),
-          },
-        },
-      }),
+        }),
     }
     repo = new FeedbackRepository(mockDb)
   })
@@ -242,11 +300,12 @@ describe("FeedbackRepository - Merge Posts & Vote on Behalf", () => {
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
-Run: `pnpm --filter @katauser/db test packages/db/tests/merge-and-vote-behalf-repo.test.ts`
-Expected: FAIL (`mergePosts` / `voteOnBehalf` not implemented).
+      Run: `pnpm --filter @katauser/db test packages/db/tests/merge-and-vote-behalf-repo.test.ts`
+      Expected: FAIL (`mergePosts` / `voteOnBehalf` not implemented).
 
 - [ ] **Step 3: Implement `mergePosts` and `voteOnBehalf` in `FeedbackRepository`**
-In `packages/db/src/repositories/feedback.ts`:
+      In `packages/db/src/repositories/feedback.ts`:
+
 1. Implement `mergePosts(params: { workspaceId: string, sourcePostId: string, targetPostId: string })`:
    - Validate `sourcePostId !== targetPostId`
    - Fetch source and target posts; verify workspace match and target post is not merged
@@ -261,10 +320,11 @@ In `packages/db/src/repositories/feedback.ts`:
    - Update `votesCount` on post.
 
 - [ ] **Step 4: Run test to verify it passes**
-Run: `pnpm --filter @katauser/db test packages/db/tests/merge-and-vote-behalf-repo.test.ts`
-Expected: PASS.
+      Run: `pnpm --filter @katauser/db test packages/db/tests/merge-and-vote-behalf-repo.test.ts`
+      Expected: PASS.
 
 - [ ] **Step 5: Commit**
+
 ```bash
 git add packages/db/src/repositories/feedback.ts packages/db/tests/merge-and-vote-behalf-repo.test.ts
 git commit -m "feat(db): implement mergePosts and voteOnBehalf repository operations"
@@ -275,15 +335,18 @@ git commit -m "feat(db): implement mergePosts and voteOnBehalf repository operat
 ### Task 3: API Endpoints in `apps/api`
 
 **Files:**
+
 - Modify: `apps/api/src/modules/feedback/posts.route.ts`
 - Test: `apps/api/tests/merge-and-vote-behalf.test.ts`
 
 **Interfaces:**
+
 - Consumes: `mergePostsSchema`, `voteOnBehalfSchema` from `@katauser/shared`.
 - Produces: `POST /posts/:postId/merge`, `POST /posts/:postId/vote-on-behalf`, and enhanced `GET /posts/:postId` (supporting `mergedInto`).
 
 - [ ] **Step 1: Write the failing test**
-Create `apps/api/tests/merge-and-vote-behalf.test.ts`:
+      Create `apps/api/tests/merge-and-vote-behalf.test.ts`:
+
 ```ts
 import { describe, it, expect, beforeEach } from "vitest"
 import { Hono } from "hono"
@@ -415,10 +478,11 @@ describe("Posts Merging & Vote on Behalf API Routes", () => {
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
-Run: `pnpm --filter @katauser/api test apps/api/tests/merge-and-vote-behalf.test.ts`
-Expected: FAIL (routes not defined).
+      Run: `pnpm --filter @katauser/api test apps/api/tests/merge-and-vote-behalf.test.ts`
+      Expected: FAIL (routes not defined).
 
 - [ ] **Step 3: Implement endpoints in `apps/api/src/modules/feedback/posts.route.ts`**
+
 1. Update `PostRecord` to include `mergedIntoPostId?: string`.
 2. Update `VoteRecord` to include `votedByTeamUserId?: string` and `internalNote?: string`.
 3. Add `GET /posts/:postId`:
@@ -444,10 +508,11 @@ Expected: FAIL (routes not defined).
    - Return `{ success: true, post, vote }`.
 
 - [ ] **Step 4: Run test to verify it passes**
-Run: `pnpm --filter @katauser/api test apps/api/tests/merge-and-vote-behalf.test.ts`
-Expected: PASS.
+      Run: `pnpm --filter @katauser/api test apps/api/tests/merge-and-vote-behalf.test.ts`
+      Expected: PASS.
 
 - [ ] **Step 5: Commit**
+
 ```bash
 git add apps/api/src/modules/feedback/posts.route.ts apps/api/tests/merge-and-vote-behalf.test.ts
 git commit -m "feat(api): implement post merge and vote-on-behalf endpoints"
@@ -458,6 +523,7 @@ git commit -m "feat(api): implement post merge and vote-on-behalf endpoints"
 ### Task 4: Frontend UI Components & Helpers
 
 **Files:**
+
 - Create: `apps/web/src/lib/merge-helpers.ts`
 - Create: `apps/web/src/lib/components/dashboard/MergePostModal.svelte`
 - Create: `apps/web/src/lib/components/dashboard/VoteOnBehalfModal.svelte`
@@ -465,11 +531,13 @@ git commit -m "feat(api): implement post merge and vote-on-behalf endpoints"
 - Test: `apps/web/tests/merge-and-vote-behalf-ui.test.ts`
 
 **Interfaces:**
+
 - Consumes: `mergePostsSchema`, `voteOnBehalfSchema` from `@katauser/shared`.
 - Produces: UI modal components and helper functions for validation and display.
 
 - [ ] **Step 1: Write the failing test**
-Create `apps/web/tests/merge-and-vote-behalf-ui.test.ts`:
+      Create `apps/web/tests/merge-and-vote-behalf-ui.test.ts`:
+
 ```ts
 import { describe, it, expect } from "vitest"
 import {
@@ -524,10 +592,11 @@ describe("Merge & Vote on Behalf UI Helpers", () => {
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
-Run: `pnpm --filter @katauser/web test apps/web/tests/merge-and-vote-behalf-ui.test.ts`
-Expected: FAIL (helper file does not exist).
+      Run: `pnpm --filter @katauser/web test apps/web/tests/merge-and-vote-behalf-ui.test.ts`
+      Expected: FAIL (helper file does not exist).
 
 - [ ] **Step 3: Implement helper and Svelte 5 components**
+
 1. Create `apps/web/src/lib/merge-helpers.ts` with `validateMergeTarget`, `calculateMergedSummary`, and `formatVoteOnBehalfPayload`.
 2. Create `apps/web/src/lib/components/dashboard/MergePostModal.svelte`:
    - Svelte 5 runes (`let { isOpen, sourcePost, boardPosts, onMerge, onClose } = $props()`).
@@ -543,10 +612,11 @@ Expected: FAIL (helper file does not exist).
    - Provide triggers in the board view.
 
 - [ ] **Step 4: Run test to verify it passes**
-Run: `pnpm --filter @katauser/web test apps/web/tests/merge-and-vote-behalf-ui.test.ts`
-Expected: PASS.
+      Run: `pnpm --filter @katauser/web test apps/web/tests/merge-and-vote-behalf-ui.test.ts`
+      Expected: PASS.
 
 - [ ] **Step 5: Commit**
+
 ```bash
 git add apps/web/src/lib/merge-helpers.ts apps/web/src/lib/components/dashboard/MergePostModal.svelte apps/web/src/lib/components/dashboard/VoteOnBehalfModal.svelte apps/web/src/routes/(admin)/dashboard/[workspaceSlug]/boards/+page.svelte apps/web/tests/merge-and-vote-behalf-ui.test.ts
 git commit -m "feat(web): add merge post and vote on behalf modals and helpers"
@@ -557,35 +627,41 @@ git commit -m "feat(web): add merge post and vote on behalf modals and helpers"
 ### Task 5: Public Portal Merged Banner & Documentation
 
 **Files:**
+
 - Modify: `apps/web/src/routes/(public)/b/[workspaceSlug]/[boardSlug]/+page.svelte`
 - Create: `docs/features/post-merging-and-vote-on-behalf.md`
 - Modify: `README.md`
 
 **Interfaces:**
+
 - Consumes: Post status `'merged'` and `mergedIntoPostId` on post items.
 - Produces: Public banner on merged posts and technical documentation for users and developers.
 
 - [ ] **Step 1: Update public board page to display merged post banner**
-In `apps/web/src/routes/(public)/b/[workspaceSlug]/[boardSlug]/+page.svelte`:
-If a post has `status === 'merged'`, display an informational banner:
+      In `apps/web/src/routes/(public)/b/[workspaceSlug]/[boardSlug]/+page.svelte`:
+      If a post has `status === 'merged'`, display an informational banner:
+
 ```html
 {#if post.status === 'merged'}
-  <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-900 mb-3 flex items-center justify-between">
-    <span>Postingan ini telah digabungkan ke masukan utama.</span>
-    <span class="badge badge-warning badge-sm font-semibold">Tergabung</span>
-  </div>
+<div
+  class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-900 mb-3 flex items-center justify-between"
+>
+  <span>Postingan ini telah digabungkan ke masukan utama.</span>
+  <span class="badge badge-warning badge-sm font-semibold">Tergabung</span>
+</div>
 {/if}
 ```
 
 - [ ] **Step 2: Create feature documentation**
-Create `docs/features/post-merging-and-vote-on-behalf.md`:
-Document how Post Merging works, deduplication logic, MRR consolidation, how Sales/CS use Vote on Behalf, and API endpoint reference. Update `README.md` to highlight Post Merging & Vote on Behalf in the feature list.
+      Create `docs/features/post-merging-and-vote-on-behalf.md`:
+      Document how Post Merging works, deduplication logic, MRR consolidation, how Sales/CS use Vote on Behalf, and API endpoint reference. Update `README.md` to highlight Post Merging & Vote on Behalf in the feature list.
 
 - [ ] **Step 3: Run monorepo typecheck and test verification**
-Run: `pnpm check && pnpm test`
-Expected: 0 errors, 0 warnings across all packages. All unit and integration tests passing.
+      Run: `pnpm check && pnpm test`
+      Expected: 0 errors, 0 warnings across all packages. All unit and integration tests passing.
 
 - [ ] **Step 4: Commit**
+
 ```bash
 git add apps/web/src/routes/(public)/b/[workspaceSlug]/[boardSlug]/+page.svelte docs/features/post-merging-and-vote-on-behalf.md README.md
 git commit -m "docs: add post merging and vote on behalf guide and public portal banner"

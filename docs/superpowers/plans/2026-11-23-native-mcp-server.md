@@ -35,12 +35,14 @@
 ## Task 1: Database Schema & API Key Repository (`packages/db`)
 
 **Files:**
+
 - Create: `packages/db/src/schema/api-keys.ts`
 - Modify: `packages/db/src/schema/index.ts`
 - Create: `packages/db/src/repositories/api-key.ts`
 - Test: `packages/db/tests/api-keys.test.ts`
 
 **Interfaces:**
+
 - Consumes: `workspaces` dari `packages/db/src/schema/workspaces.ts`.
 - Produces:
   - Skema Drizzle: `workspaceApiKeys`.
@@ -109,11 +111,13 @@ git commit -m "feat(db): add workspace_api_keys schema and repository"
 ## Task 2: Shared Zod Schemas & Contracts for MCP (`packages/shared`)
 
 **Files:**
+
 - Create: `packages/shared/src/schemas/mcp.ts`
 - Modify: `packages/shared/src/index.ts`
 - Test: `packages/shared/tests/mcp-schemas.test.ts`
 
 **Interfaces:**
+
 - Consumes: Zod schema types dari `@katauser/shared`.
 - Produces:
   - `listFeedbackMcpSchema`
@@ -184,6 +188,7 @@ git commit -m "feat(shared): add Zod validation schemas for MCP tools"
 ## Task 3: API Key Auth Middleware & Remote MCP Route in Hono (`apps/api`)
 
 **Files:**
+
 - Create: `apps/api/src/middleware/api-key-auth.ts`
 - Create: `apps/api/src/modules/mcp/mcp.service.ts`
 - Create: `apps/api/src/modules/mcp/mcp.route.ts`
@@ -192,6 +197,7 @@ git commit -m "feat(shared): add Zod validation schemas for MCP tools"
 - Test: `apps/api/tests/mcp-tools.test.ts`
 
 **Interfaces:**
+
 - Consumes: `ApiKeyRepository` dari `@katauser/db`, Zod schemas dari `@katauser/shared`.
 - Produces:
   - Middleware `requireApiKey`: memvalidasi token Bearer `ku_live_...` dan mengikat `c.set("workspaceId", ...)`.
@@ -252,6 +258,7 @@ git commit -m "feat(api): add API key auth middleware and MCP tools endpoints"
 ## Task 4: Standalone CLI STDIO MCP Bridge Package (`packages/mcp`)
 
 **Files:**
+
 - Create: `packages/mcp/package.json`
 - Create: `packages/mcp/tsconfig.json`
 - Create: `packages/mcp/src/index.ts`
@@ -259,6 +266,7 @@ git commit -m "feat(api): add API key auth middleware and MCP tools endpoints"
 - Test: `packages/mcp/tests/stdio-bridge.test.ts`
 
 **Interfaces:**
+
 - Consumes: `@modelcontextprotocol/sdk` (Server, StdioServerTransport), REST endpoint dari `apps/api`.
 - Produces:
   - Executable CLI `katauser-mcp` (mendukung `npx @katauser/mcp`).
@@ -307,6 +315,7 @@ git commit -m "feat(mcp): create @katauser/mcp CLI package with STDIO bridge"
 ## Task 5: Documentation & Full Monorepo Verification
 
 **Files:**
+
 - Create: `docs/features/native-mcp-server.md`
 - Modify: `README.md`
 - Verification: Seluruh monorepo test & typecheck
@@ -334,6 +343,7 @@ git commit -m "docs: add guide for native MCP server and update README"
 ---
 
 ## Plan Self-Review Check
+
 - **Spec coverage:** 100% (Semua aspek: tabel API Key, format token SHA-256, 6 tools MCP, Hybrid CLI STDIO, dan Remote endpoint telah dicakup dalam Tasks 1–5).
 - **Step scan:** Setiap step spesifik dengan kode test, command eksekusi, dan ekspektasi hasil.
 - **Type consistency:** Konsistensi tipe nama field (`keyHash`, `keyPrefix`, `ku_live_...`, tool names) seragam dari schema DB hingga CLI.

@@ -8,13 +8,15 @@ Target Branch: `feat/chat-to-feedback-bridge`
 
 ## 1. Latar Belakang & Tujuan
 
-Pada platform feedback modern seperti **UserJot (userjot.com)**, fitur pembeda utama (*killer differentiator*) dibanding Canny konvensional adalah integrasi mulus antara live chat asisten AI dan sistem feedback/roadmap (*Chat-to-Feedback Bridge*).
+Pada platform feedback modern seperti **UserJot (userjot.com)**, fitur pembeda utama (_killer differentiator_) dibanding Canny konvensional adalah integrasi mulus antara live chat asisten AI dan sistem feedback/roadmap (_Chat-to-Feedback Bridge_).
 
 Saat ini di Katauser:
+
 - Asisten AI **Juno** mampu menjawab pertanyaan seputar basis pengetahuan RAG dan mengeskalasi obrolan ke staf manusia jika diminta.
 - Namun, jika customer menyampaikan ide fitur atau keluhan produk di tab Live Chat, masukan tersebut hanya berhenti di riwayat obrolan dan tidak terhubung ke papan feedback maupun roadmap produk.
 
 ### Tujuan Fitur
+
 1. **Deduplikasi & Rekomendasi Roadmap Otomatis**: Ketika customer mengobrol tentang suatu kebutuhan fitur, Juno mendeteksi apakah ide serupa sudah ada di roadmap (`similarityScore >= 0.70`), lalu menawarkan kartu **1-Click Upvote** langsung di dalam bubble chat.
 2. **Auto-Create Feedback Post**: Jika ide tersebut belum ada di roadmap (`similarityScore < 0.70`), Juno menawarkan untuk mendaftarkannya sebagai masukan baru ke board publik utama tanpa memaksa customer berganti tab.
 3. **Konversi Pengunjung Anonim**: Menyediakan inline email capture bagi pengunjung guest agar mereka dapat menerima email notifikasi perkembangan fitur saat statusnya bergeser (Closed Loop Feedback).
@@ -82,7 +84,13 @@ export interface JunoSimilarPostAction {
     title: string
     content: string
     votesCount: number
-    status: "open" | "under_review" | "planned" | "in_progress" | "completed" | "closed"
+    status:
+      | "open"
+      | "under_review"
+      | "planned"
+      | "in_progress"
+      | "completed"
+      | "closed"
     boardSlug: string
   }
   similarityScore: number
@@ -130,7 +138,10 @@ export interface ChatMessage {
    - Pengecekan eskalasi staf manusia (`/manusia|orang asli|human|staf|agent|admin|bantuan langsung/i`). Jika cocok, lakukan handoff.
    - Pengecekan intent masukan/fitur (`isFeedbackIntent`):
      ```typescript
-     const isFeedbackIntent = /fitur|tolong buatkan|bisa tambahkan|usul|ide|saran|request|masukan|bug|kendala|error|tambah|update|bisa gak|bisa nggak|fitur baru|feature/i.test(prompt)
+     const isFeedbackIntent =
+       /fitur|tolong buatkan|bisa tambahkan|usul|ide|saran|request|masukan|bug|kendala|error|tambah|update|bisa gak|bisa nggak|fitur baru|feature/i.test(
+         prompt,
+       )
      ```
 2. **Pencarian Kemiripan Semantik**:
    - Jika `isFeedbackIntent === true`:
@@ -209,6 +220,7 @@ Jika `message.action` tersedia pada bubble obrolan:
        - Tombol aksi: `[ Kirim ke Feedback Board ]`.
 
 ### 5.2 Alur Interaksi & Notifikasi Chat
+
 - Saat tombol ditekan:
   - Tombol masuk ke state `isSubmitting = true` (spinner).
   - Validasi email jika guest (harus format email valid).
@@ -218,8 +230,8 @@ Jika `message.action` tersedia pada bubble obrolan:
   - Setelah response sukses:
     - Set `message.actionResolved = true`.
     - Tambahkan pesan konfirmasi instan dari Juno ke dalam obrolan:
-      - Untuk upvote: *"Terima kasih! Suara Anda telah berhasil ditambahkan ke '[Judul Post]'. Kami akan mengabari Anda jika ada pembaruan status pada fitur ini."*
-      - Untuk create: *"Saran Anda telah berhasil dikirim ke board. Tim produk kami akan segera meninjaunya!"*
+      - Untuk upvote: _"Terima kasih! Suara Anda telah berhasil ditambahkan ke '[Judul Post]'. Kami akan mengabari Anda jika ada pembaruan status pada fitur ini."_
+      - Untuk create: _"Saran Anda telah berhasil dikirim ke board. Tim produk kami akan segera meninjaunya!"_
     - Scroll otomatis obrolan ke bawah (`scrollToBottom()`).
 
 ---

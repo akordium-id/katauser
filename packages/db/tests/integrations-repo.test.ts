@@ -21,7 +21,9 @@ describe("IntegrationRepository Unit Tests", () => {
 
     const mockReturning = vi.fn().mockResolvedValue([mockIntegration])
     const mockOnConflict = vi.fn().mockReturnValue({ returning: mockReturning })
-    const mockValues = vi.fn().mockReturnValue({ onConflictDoUpdate: mockOnConflict })
+    const mockValues = vi
+      .fn()
+      .mockReturnValue({ onConflictDoUpdate: mockOnConflict })
     const mockDb: any = {
       insert: vi.fn().mockReturnValue({ values: mockValues }),
       query: {
@@ -45,7 +47,10 @@ describe("IntegrationRepository Unit Tests", () => {
     expect(result.apiKey).toBe("lin_api_test_123")
 
     const fetched = await repo.getWorkspaceIntegration("ws_demo", "linear")
-    expect(fetched?.config).toEqual({ organizationName: "Acme Corp", defaultTeamId: "team_eng" })
+    expect(fetched?.config).toEqual({
+      organizationName: "Acme Corp",
+      defaultTeamId: "team_eng",
+    })
   })
 
   it("creates, lists, updates, and deletes post issue links", async () => {
@@ -64,7 +69,9 @@ describe("IntegrationRepository Unit Tests", () => {
     const mockReturning = vi.fn().mockResolvedValue([mockLink])
     const mockValues = vi.fn().mockReturnValue({ returning: mockReturning })
     const mockWhereUpdate = vi.fn().mockReturnValue({
-      returning: vi.fn().mockResolvedValue([{ ...mockLink, issueStatus: "Done" }]),
+      returning: vi
+        .fn()
+        .mockResolvedValue([{ ...mockLink, issueStatus: "Done" }]),
     })
     const mockSet = vi.fn().mockReturnValue({ where: mockWhereUpdate })
     const mockWhereDelete = vi.fn().mockResolvedValue([])

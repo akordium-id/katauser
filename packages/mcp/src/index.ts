@@ -21,7 +21,14 @@ export const KATAUSER_TOOLS: Tool[] = [
       properties: {
         status: {
           type: "string",
-          enum: ["all", "open", "planned", "in_progress", "completed", "closed"],
+          enum: [
+            "all",
+            "open",
+            "planned",
+            "in_progress",
+            "completed",
+            "closed",
+          ],
           default: "all",
           description: "Status filter masukan",
         },
@@ -33,7 +40,8 @@ export const KATAUSER_TOOLS: Tool[] = [
           type: "string",
           enum: ["popular", "recent", "mrr"],
           default: "popular",
-          description: "Metode sorting: popular (votes), recent (tanggal), mrr (nilai pendapatan)",
+          description:
+            "Metode sorting: popular (votes), recent (tanggal), mrr (nilai pendapatan)",
         },
         limit: {
           type: "number",
@@ -76,7 +84,10 @@ export const KATAUSER_TOOLS: Tool[] = [
           description: "Email pelanggan jika diinput atas nama customer",
         },
         customerName: { type: "string", description: "Nama pelanggan" },
-        customerCompany: { type: "string", description: "Perusahaan pelanggan" },
+        customerCompany: {
+          type: "string",
+          description: "Perusahaan pelanggan",
+        },
         customerMrr: {
           type: "number",
           description: "Estimasi MRR pelanggan (USD/IDR)",

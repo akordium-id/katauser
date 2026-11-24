@@ -25,7 +25,10 @@ export class IntegrationRepository {
         isActive: params.isActive ?? true,
       })
       .onConflictDoUpdate({
-        target: [workspaceIntegrations.workspaceId, workspaceIntegrations.provider],
+        target: [
+          workspaceIntegrations.workspaceId,
+          workspaceIntegrations.provider,
+        ],
         set: {
           apiKey: params.apiKey,
           webhookSecret: params.webhookSecret,

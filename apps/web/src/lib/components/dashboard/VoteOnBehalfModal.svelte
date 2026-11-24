@@ -1,6 +1,24 @@
 <script lang="ts">
-  import { X, UserCheck, AlertTriangle, Building2, DollarSign } from "lucide-svelte"
+  import {
+    X,
+    UserCheck,
+    AlertTriangle,
+    Building2,
+    DollarSign,
+  } from "lucide-svelte"
   import { formatVoteOnBehalfPayload } from "$lib/merge-helpers"
+
+  export interface VoteOnBehalfResult {
+    success: boolean
+    message?: string
+    post?: {
+      id: string
+      title?: string
+      votesCount?: number
+      totalMrr?: number
+    }
+    vote?: unknown
+  }
 
   interface Props {
     workspaceSlug?: string
@@ -12,16 +30,10 @@
     }
     isOpen: boolean
     onClose: () => void
-    onSuccess?: (result: any) => void
+    onSuccess?: (result: VoteOnBehalfResult) => void
   }
 
-  let {
-    workspaceSlug = "default",
-    post,
-    isOpen,
-    onClose,
-    onSuccess,
-  }: Props = $props()
+  let { post, isOpen, onClose, onSuccess }: Props = $props()
 
   let customerEmail = $state("")
   let customerName = $state("")
@@ -87,9 +99,7 @@
   }
 </script>
 
-<svelte:window
-  onkeydown={(e) => e.key === "Escape" && isOpen && onClose()}
-/>
+<svelte:window onkeydown={(e) => e.key === "Escape" && isOpen && onClose()} />
 
 {#if isOpen}
   <div
@@ -134,7 +144,8 @@
 
         <!-- Post Title summary -->
         <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
-          <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider"
+          <span
+            class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider"
             >Post Sasaran</span
           >
           <p class="text-xs font-medium text-slate-800 line-clamp-1 mt-0.5">
@@ -192,7 +203,9 @@
                 placeholder="PT Maju"
                 class="input input-sm input-bordered w-full rounded-lg text-xs pr-7"
               />
-              <Building2 class="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
+              <Building2
+                class="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none"
+              />
             </div>
           </div>
         </div>
@@ -215,7 +228,9 @@
               placeholder="0 (misal: 1500)"
               class="input input-sm input-bordered w-full rounded-lg text-xs pr-7"
             />
-            <DollarSign class="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
+            <DollarSign
+              class="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none"
+            />
           </div>
         </div>
 
